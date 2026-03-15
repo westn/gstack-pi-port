@@ -84,3 +84,9 @@ When upstream changes:
 ```
 
 That re-pulls upstream main, regenerates the port, and reinstalls.
+
+## Licensing
+
+- Root wrapper/port tooling in this repository is licensed under MIT (`LICENSE`).
+- Upstream-derived `garrytan/gstack` content remains under upstream MIT terms (`port/gstack/LICENSE`).
+- See `NOTICE` for third-party attribution details.

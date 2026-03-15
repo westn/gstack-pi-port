@@ -1,0 +1,22 @@
+Third-Party Notice
+=================
+
+This repository includes adapted and redistributed content from:
+
+- Project: garrytan/gstack
+- URL: https://github.com/garrytan/gstack
+- License: MIT
+- Copyright: (c) 2026 Garry Tan
+
+Upstream-derived files are currently stored under:
+
+- port/gstack/
+- .upstream/gstack/
+
+The original upstream license text is preserved at:
+
+- port/gstack/LICENSE
+
+This repository's wrapper/orchestration files (for example scripts/, root README,
+root metadata, and install/sync tooling) are provided under the root MIT license
+in LICENSE.
