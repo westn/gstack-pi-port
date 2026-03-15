@@ -1,0 +1,99 @@
+{
+  "upstream": {
+    "repo": "https://github.com/garrytan/gstack.git",
+    "branch": "main",
+    "commit": "bb46ca6b217e5732f8c0b9458ebecb4c90c382ad",
+    "version": "0.3.9"
+  },
+  "generatedAt": "2026-03-15T19:23:52.472044+00:00",
+  "portDir": "port/gstack",
+  "changedFiles": 43,
+  "transformRules": {
+    "pathReplacements": [
+      [
+        "~/.claude/skills/gstack",
+        "~/.pi/agent/skills/gstack"
+      ],
+      [
+        "$HOME/.claude/skills/gstack",
+        "$HOME/.pi/agent/skills/gstack"
+      ],
+      [
+        "${HOME}/.claude/skills/gstack",
+        "${HOME}/.pi/agent/skills/gstack"
+      ],
+      [
+        ".claude/skills/gstack",
+        ".pi/skills/gstack"
+      ],
+      [
+        "~/.claude/skills/",
+        "~/.pi/agent/skills/"
+      ],
+      [
+        "$HOME/.claude/skills/",
+        "$HOME/.pi/agent/skills/"
+      ],
+      [
+        "${HOME}/.claude/skills/",
+        "${HOME}/.pi/agent/skills/"
+      ],
+      [
+        ".claude/skills/",
+        ".pi/skills/"
+      ],
+      [
+        "~/.claude/skills",
+        "~/.pi/agent/skills"
+      ],
+      [
+        "$HOME/.claude/skills",
+        "$HOME/.pi/agent/skills"
+      ],
+      [
+        "${HOME}/.claude/skills",
+        "${HOME}/.pi/agent/skills"
+      ],
+      [
+        ".claude/skills",
+        ".pi/skills"
+      ]
+    ],
+    "reviewPathReplacements": [
+      [
+        ".pi/skills/review/checklist.md",
+        "~/.pi/agent/skills/review/checklist.md"
+      ],
+      [
+        ".pi/skills/review/greptile-triage.md",
+        "~/.pi/agent/skills/review/greptile-triage.md"
+      ],
+      [
+        ".pi/skills/review/TODOS-format.md",
+        "~/.pi/agent/skills/review/TODOS-format.md"
+      ]
+    ],
+    "phraseReplacements": [
+      [
+        "AskUserQuestion",
+        "ask the user in chat"
+      ],
+      [
+        "Claude Code",
+        "pi"
+      ]
+    ],
+    "skillCommands": [
+      "plan-ceo-review",
+      "plan-eng-review",
+      "review",
+      "ship",
+      "browse",
+      "qa",
+      "setup-browser-cookies",
+      "retro",
+      "gstack-upgrade"
+    ],
+    "removeAllowedTools": true
+  }
+}
