@@ -226,7 +226,7 @@ If you're using [Conductor](https://conductor.build) to run multiple pi sessions
 | Hook | Script | What it does |
 |------|--------|-------------|
 | `setup` | `bin/dev-setup` | Copies `.env` from main worktree, installs deps, symlinks skills |
-| `archive` | `bin/dev-teardown` | Removes skill symlinks, cleans up `.claude/` directory |
+| `archive` | `bin/dev-teardown` | Removes skill symlinks, cleans up `.pi/` directory |
 
 When Conductor creates a new workspace, `bin/dev-setup` runs automatically. It detects the main worktree (via `git worktree list`), copies your `.env` so API keys carry over, and sets up dev mode — no manual steps needed.
 

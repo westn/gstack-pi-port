@@ -1,8 +1,20 @@
-# gstack → pi port (scripted)
+# gstack for pi (Pi-native port)
 
-This repo is a **scripted port layer** for [`garrytan/gstack`](https://github.com/garrytan/gstack) so it can be used from pi skill commands.
+This repository is the Pi-native port of [`garrytan/gstack`](https://github.com/garrytan/gstack), maintained in [`westn/gstack-pi-port`](https://github.com/westn/gstack-pi-port).
 
-## What this does
+> If you're installing for **pi**, clone this repo (not `garrytan/gstack`).
+
+## Quick install (pi users)
+
+```bash
+git clone https://github.com/westn/gstack-pi-port.git
+cd gstack-pi-port
+./scripts/install.sh --global --build
+```
+
+Then run `/reload` inside pi and use skills via `/skill:<name>`.
+
+## What this repo does
 
 - Pulls latest upstream `garrytan/gstack`
 - Copies it into `port/gstack`
@@ -13,6 +25,13 @@ This repo is a **scripted port layer** for [`garrytan/gstack`](https://github.co
   - `AskUserQuestion` wording → "ask the user in chat"
   - Removes `allowed-tools` frontmatter blocks (pi ignores these anyway)
 - Writes `port/METADATA.json` with upstream commit/version and transform rules
+
+## What changed from upstream
+
+- Skill paths are Pi-native (`~/.pi/agent/skills` and `.pi/skills`)
+- Skill invocations are normalized to `/skill:<name>`
+- User-facing docs are adjusted for Pi workflows and `AGENTS.md`
+- Install flow uses this repository as the source of truth
 
 ## Existing port check (as of 2026-03-15)
 

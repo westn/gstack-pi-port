@@ -49,11 +49,60 @@ PATH_REPLACEMENTS = [
     ("$HOME/.claude/skills", "$HOME/.pi/agent/skills"),
     ("${HOME}/.claude/skills", "${HOME}/.pi/agent/skills"),
     (".claude/skills", ".pi/skills"),
+    (".claude/", ".pi/"),
+    (".claude", ".pi"),
 ]
 
 PHRASE_REPLACEMENTS = [
     ("AskUserQuestion", "ask the user in chat"),
     ("Claude Code", "pi"),
+    ("Claude:", "Agent:"),
+    ("docs.anthropic.com/en/docs/claude-code", "www.npmjs.com/package/@mariozechner/pi-coding-agent"),
+    (
+        "git clone --depth 1 https://github.com/garrytan/gstack.git \"$TMP_DIR/gstack\"",
+        "git clone --depth 1 https://github.com/westn/gstack-pi-port.git \"$TMP_DIR/gstack-pi-port\"",
+    ),
+    (
+        "mv \"$TMP_DIR/gstack\" \"$INSTALL_DIR\"",
+        "mv \"$TMP_DIR/gstack-pi-port/port/gstack\" \"$INSTALL_DIR\"",
+    ),
+    (
+        "https://raw.githubusercontent.com/garrytan/gstack/main/VERSION",
+        "https://raw.githubusercontent.com/westn/gstack-pi-port/main/port/gstack/VERSION",
+    ),
+    (
+        "Open pi and paste this. Claude will do the rest.",
+        "Open pi and paste this. The agent will do the rest.",
+    ),
+    (
+        "git clone https://github.com/garrytan/gstack.git ~/.pi/agent/skills/gstack && cd ~/.pi/agent/skills/gstack && ./setup",
+        "git clone https://github.com/westn/gstack-pi-port.git /tmp/gstack-pi-port && cd /tmp/gstack-pi-port && ./scripts/install.sh --global --build",
+    ),
+    (
+        "Install gstack: run `git clone https://github.com/westn/gstack-pi-port.git",
+        "Install gstack (Pi port): run `git clone https://github.com/westn/gstack-pi-port.git",
+    ),
+    (
+        "/skill:qa, /skill:setup-browser-cookies",
+        "/skill:qa, /skill:qa-only, /skill:setup-browser-cookies",
+    ),
+    (
+        "and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:setup-browser-cookies, /skill:retro,",
+        "and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:setup-browser-cookies, /skill:retro,",
+    ),
+    (
+        "and tells Claude that if gstack skills aren't working,",
+        "and tells pi that if gstack skills aren't working,",
+    ),
+    (
+        "Everything lives inside `.pi/`. Nothing touches your PATH or runs in the background.",
+        "Everything lives inside `.pi/` (plus runtime state in `.gstack/`). Nothing touches your PATH or runs in the background.",
+    ),
+    (
+        "This rebuilds symlinks so Claude can discover the skills.",
+        "This rebuilds symlinks so pi can discover the skills.",
+    ),
+    ("CLAUDE.md", "AGENTS.md (or CLAUDE.md)"),
 ]
 
 REVIEW_PATH_REPLACEMENTS = [
@@ -162,6 +211,50 @@ def replace_skill_commands(text: str) -> str:
     return text
 
 
+def patch_port_readme(text: str, path: Path) -> str:
+    """Add a Pi-native identity header to port/gstack/README.md."""
+    try:
+        rel = path.relative_to(PORT_DIR).as_posix()
+    except ValueError:
+        return text
+
+    if rel != "README.md":
+        return text
+
+    updated = text
+
+    if updated.startswith("# gstack\n"):
+        updated = updated.replace(
+            "# gstack\n",
+            "# gstack (Pi-native port)\n\n"
+            "> This is the Pi-native port of [garrytan/gstack](https://github.com/garrytan/gstack), "
+            "maintained in [westn/gstack-pi-port](https://github.com/westn/gstack-pi-port).\n"
+            ">\n"
+            "> If you are using **pi**, install from this repo (not from `garrytan/gstack`).\n",
+            1,
+        )
+
+    intro_line = (
+        "Nine opinionated workflow skills for "
+        "[pi](https://www.npmjs.com/package/@mariozechner/pi-coding-agent). "
+        "Plan review, code review, one-command shipping, browser automation, QA testing, "
+        "and engineering retrospectives — all as slash commands."
+    )
+    if intro_line in updated and "## What changed from upstream" not in updated:
+        updated = updated.replace(
+            intro_line,
+            intro_line
+            + "\n\n## What changed from upstream\n\n"
+            + "- Install flow points to `westn/gstack-pi-port`\n"
+            + "- Paths use Pi locations (`~/.pi/agent/skills` and `.pi/skills`)\n"
+            + "- Commands use `/skill:<name>`\n"
+            + "- Context guidance references `AGENTS.md` (Pi-native; `CLAUDE.md` also works in pi)",
+            1,
+        )
+
+    return updated
+
+
 def transform_text(text: str, path: Path) -> str:
     updated = text
 
@@ -175,6 +268,8 @@ def transform_text(text: str, path: Path) -> str:
 
     for old, new in PHRASE_REPLACEMENTS:
         updated = updated.replace(old, new)
+
+    updated = patch_port_readme(updated, path)
 
     if path.suffix == ".md" or path.name == "SKILL.md":
         updated = remove_allowed_tools_frontmatter(updated)
@@ -229,6 +324,24 @@ def transform_port_tree() -> int:
     return changed
 
 
+def ensure_agents_context_file() -> bool:
+    """Mirror CLAUDE.md to AGENTS.md for Pi-native context file discoverability."""
+    claude_path = PORT_DIR / "CLAUDE.md"
+    agents_path = PORT_DIR / "AGENTS.md"
+
+    if not claude_path.exists():
+        return False
+
+    content = claude_path.read_text(encoding="utf-8")
+    if agents_path.exists():
+        existing = agents_path.read_text(encoding="utf-8")
+        if existing == content:
+            return False
+
+    agents_path.write_text(content, encoding="utf-8")
+    return True
+
+
 def write_metadata(changed_files: int) -> None:
     commit = run(["git", "rev-parse", "HEAD"], cwd=UPSTREAM_DIR)
     version_file = UPSTREAM_DIR / "VERSION"
@@ -261,6 +374,8 @@ def main() -> None:
     ensure_upstream()
     copy_upstream()
     changed_files = transform_port_tree()
+    if ensure_agents_context_file():
+        changed_files += 1
     write_metadata(changed_files)
 
     commit = run(["git", "rev-parse", "--short", "HEAD"], cwd=UPSTREAM_DIR)

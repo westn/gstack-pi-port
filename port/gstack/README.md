@@ -1,8 +1,19 @@
-# gstack
+# gstack (Pi-native port)
+
+> This is the Pi-native port of [garrytan/gstack](https://github.com/garrytan/gstack), maintained in [westn/gstack-pi-port](https://github.com/westn/gstack-pi-port).
+>
+> If you are using **pi**, install from this repo (not from `garrytan/gstack`).
 
 **gstack turns pi from one generic assistant into a team of specialists you can summon on demand.**
 
-Nine opinionated workflow skills for [pi](https://docs.anthropic.com/en/docs/claude-code). Plan review, code review, one-command shipping, browser automation, QA testing, and engineering retrospectives — all as slash commands.
+Nine opinionated workflow skills for [pi](https://www.npmjs.com/package/@mariozechner/pi-coding-agent). Plan review, code review, one-command shipping, browser automation, QA testing, and engineering retrospectives — all as slash commands.
+
+## What changed from upstream
+
+- Install flow points to `westn/gstack-pi-port`
+- Paths use Pi locations (`~/.pi/agent/skills` and `.pi/skills`)
+- Commands use `/skill:<name>`
+- Context guidance references `AGENTS.md` (Pi-native; `CLAUDE.md` also works in pi)
 
 ### Without gstack
 
@@ -39,7 +50,7 @@ You:   [enter plan mode, describe the feature]
 
 You:   /skill:plan-ceo-review
 
-Claude: "Photo upload" is not the feature. The real job is helping sellers
+Agent: "Photo upload" is not the feature. The real job is helping sellers
         create listings that actually sell. Here's what the 10-star version
         looks like: auto-identify the product from the photo, pull specs and
         pricing comps from the web, draft the title and description, suggest
@@ -47,14 +58,14 @@ Claude: "Photo upload" is not the feature. The real job is helping sellers
 
 You:   /skill:plan-eng-review
 
-Claude: [Architecture diagram, state machine for upload → classify → enrich
+Agent: [Architecture diagram, state machine for upload → classify → enrich
         → draft pipeline, async job boundaries, failure modes, test matrix]
 
 You:   [exit plan mode, implement the plan]
 
 You:   /skill:review
 
-Claude: Race condition: two tabs can overwrite cover-photo selection.
+Agent: Race condition: two tabs can overwrite cover-photo selection.
         Trust boundary: pulling web data into draft generation creates
         a prompt injection vector. Missing: orphan cleanup for failed uploads.
 
@@ -62,21 +73,21 @@ You:   (fix the issues)
 
 You:   /skill:ship
 
-Claude: [Syncs main, runs tests, pushes branch, opens PR — 6 tool calls, done]
+Agent: [Syncs main, runs tests, pushes branch, opens PR — 6 tool calls, done]
 
 You:   /skill:qa
 
-Claude: Analyzing branch diff... 8 files changed, 3 routes affected.
+Agent: Analyzing branch diff... 8 files changed, 3 routes affected.
         [Tests /listings/new, /listings/:id, /api/listings against localhost:3000]
         All 3 routes working. Upload + enrichment flow passes end to end.
 
 You:   /skill:setup-browser-cookies staging.myapp.com
 
-Claude: Imported 8 cookies for staging.myapp.com from Chrome.
+Agent: Imported 8 cookies for staging.myapp.com from Chrome.
 
 You:   /skill:qa https://staging.myapp.com --quick
 
-Claude: [Smoke test: homepage + 5 pages, 30 seconds]
+Agent: [Smoke test: homepage + 5 pages, 30 seconds]
         Health Score: 91/100. No critical issues. 1 medium: mobile nav overlap.
 ```
 
@@ -98,17 +109,17 @@ This is the setup I use. One person, ten parallel agents, each with the right co
 
 ## Install
 
-**Requirements:** [pi](https://docs.anthropic.com/en/docs/claude-code), [Git](https://git-scm.com/), [Bun](https://bun.sh/) v1.0+. `/skill:browse` compiles a native binary — works on macOS and Linux (x64 and arm64).
+**Requirements:** [pi](https://www.npmjs.com/package/@mariozechner/pi-coding-agent), [Git](https://git-scm.com/), [Bun](https://bun.sh/) v1.0+. `/skill:browse` compiles a native binary — works on macOS and Linux (x64 and arm64).
 
 ### Step 1: Install on your machine
 
-Open pi and paste this. Claude will do the rest.
+Open pi and paste this. The agent will do the rest.
 
-> Install gstack: run `git clone https://github.com/garrytan/gstack.git ~/.pi/agent/skills/gstack && cd ~/.pi/agent/skills/gstack && ./setup` then add a "gstack" section to CLAUDE.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:setup-browser-cookies, /skill:retro. Then ask the user if they also want to add gstack to the current project so teammates get it.
+> Install gstack (Pi port): run `git clone https://github.com/westn/gstack-pi-port.git /tmp/gstack-pi-port && cd /tmp/gstack-pi-port && ./scripts/install.sh --global --build` then add a "gstack" section to AGENTS.md (or CLAUDE.md) that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:setup-browser-cookies, /skill:retro. Then ask the user if they also want to add gstack to the current project so teammates get it.
 
 ### Step 2: Add to your repo so teammates get it (optional)
 
-> Add gstack to this project: run `cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack && rm -rf .pi/skills/gstack/.git && cd .pi/skills/gstack && ./setup` then add a "gstack" section to this project's CLAUDE.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:setup-browser-cookies, /skill:retro, and tells Claude that if gstack skills aren't working, run `cd .pi/skills/gstack && ./setup` to build the binary and register skills.
+> Add gstack to this project: run `cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack && rm -rf .pi/skills/gstack/.git && cd .pi/skills/gstack && ./setup` then add a "gstack" section to this project's AGENTS.md (or CLAUDE.md) that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:setup-browser-cookies, /skill:retro, and tells pi that if gstack skills aren't working, run `cd .pi/skills/gstack && ./setup` to build the binary and register skills.
 
 Real files get committed to your repo (not a submodule), so `git clone` just works. The binary and node\_modules are gitignored — teammates just need to run `cd .pi/skills/gstack && ./setup` once to build (or `/skill:browse` handles it automatically on first use).
 
@@ -120,7 +131,7 @@ Real files get committed to your repo (not a submodule), so `git clone` just wor
 - `node_modules/` (gitignored)
 - `/skill:retro` saves JSON snapshots to `.context/retros/` in your project for trend tracking
 
-Everything lives inside `.claude/`. Nothing touches your PATH or runs in the background.
+Everything lives inside `.pi/` (plus runtime state in `.gstack/`). Nothing touches your PATH or runs in the background.
 
 ---
 
@@ -362,7 +373,7 @@ It also learns. Every false positive you confirm gets saved to `~/.gstack/grepti
 ```
 You:   /skill:ship
 
-Claude: [syncs main, runs tests, pre-landing review...]
+Agent: [syncs main, runs tests, pre-landing review...]
 
         Greptile found 3 comments on this PR:
 
@@ -394,7 +405,7 @@ Claude: [syncs main, runs tests, pre-landing review...]
 
 You:    A
 
-Claude: Replied to Greptile. Re-running tests after the fix...
+Agent: Replied to Greptile. Re-running tests after the fix...
         All tests pass. Continuing to version bump.
 
         [creates PR with Greptile Review section in body]
@@ -421,7 +432,7 @@ After I push a branch, I tell Claude to go check staging. It does the entire QA 
 You:   /skill:browse staging.myapp.com — log in, test the signup flow, and check
        every page I changed in this branch
 
-Claude: [18 tool calls, ~60 seconds]
+Agent: [18 tool calls, ~60 seconds]
 
         > browse goto https://staging.myapp.com/signup
         > browse snapshot -i
@@ -477,7 +488,7 @@ The most common use case: you're on a feature branch, you just finished coding, 
 ```
 You:   /skill:qa
 
-Claude: Analyzing branch diff against main...
+Agent: Analyzing branch diff against main...
         12 files changed: 3 controllers, 2 views, 4 services, 3 tests
 
         Affected routes: /listings/new, /listings/:id, /api/listings
@@ -503,7 +514,7 @@ Four modes:
 ```
 You:   /skill:qa https://staging.myapp.com
 
-Claude: [Explores 12 pages, fills 3 forms, tests 2 flows]
+Agent: [Explores 12 pages, fills 3 forms, tests 2 flows]
 
         QA Report: staging.myapp.com — Health Score: 72/100
 
@@ -532,14 +543,14 @@ It auto-detects installed Chromium browsers (Comet, Chrome, Arc, Brave, Edge), d
 ```
 You:   /skill:setup-browser-cookies
 
-Claude: Cookie picker opened — select the domains you want to import
+Agent: Cookie picker opened — select the domains you want to import
         in your browser, then tell me when you're done.
 
         [You pick github.com, myapp.com in the browser UI]
 
 You:    done
 
-Claude: Imported 2 domains (47 cookies). Session is ready.
+Agent: Imported 2 domains (47 cookies). Session is ready.
 ```
 
 Or skip the UI entirely:
@@ -547,7 +558,7 @@ Or skip the UI entirely:
 ```
 You:   /skill:setup-browser-cookies github.com
 
-Claude: Imported 12 cookies for github.com from Comet.
+Agent: Imported 12 cookies for github.com from Comet.
 ```
 
 First import per browser triggers a macOS Keychain prompt — click "Allow" or "Always Allow."
@@ -565,7 +576,7 @@ It is team-aware. It identifies who is running the command, gives you the deepes
 ```
 You:   /skill:retro
 
-Claude: Week of Mar 1: 47 commits (3 contributors), 3.2k LOC, 38% tests, 12 PRs, peak: 10pm | Streak: 47d
+Agent: Week of Mar 1: 47 commits (3 contributors), 3.2k LOC, 38% tests, 12 PRs, peak: 10pm | Streak: 47d
 
         ## Your Week
         32 commits, +2.4k LOC, 41% tests. Peak hours: 9-11pm.
@@ -593,7 +604,7 @@ It saves a JSON snapshot to `.context/retros/` so the next run can show trends. 
 ## Troubleshooting
 
 **Skill not showing up in pi?**
-Run `cd ~/.pi/agent/skills/gstack && ./setup` (or `cd .pi/skills/gstack && ./setup` for project installs). This rebuilds symlinks so Claude can discover the skills.
+Run `cd ~/.pi/agent/skills/gstack && ./setup` (or `cd .pi/skills/gstack && ./setup` for project installs). This rebuilds symlinks so pi can discover the skills.
 
 **`/skill:browse` fails or binary not found?**
 Run `cd ~/.pi/agent/skills/gstack && bun install && bun run build`. This compiles the browser binary. Requires Bun v1.0+.
@@ -614,7 +625,7 @@ Or set `auto_upgrade: true` in `~/.gstack/config.yaml` to upgrade automatically 
 
 Paste this into pi:
 
-> Uninstall gstack: remove the skill symlinks by running `for s in browse plan-ceo-review plan-eng-review review ship retro qa qa-only setup-browser-cookies; do rm -f ~/.pi/agent/skills/$s; done` then run `rm -rf ~/.pi/agent/skills/gstack` and remove the gstack section from CLAUDE.md. If this project also has gstack at .pi/skills/gstack, remove it by running `for s in browse plan-ceo-review plan-eng-review review ship retro qa qa-only setup-browser-cookies; do rm -f .pi/skills/$s; done && rm -rf .pi/skills/gstack` and remove the gstack section from the project CLAUDE.md too.
+> Uninstall gstack: remove the skill symlinks by running `for s in browse plan-ceo-review plan-eng-review review ship retro qa qa-only setup-browser-cookies; do rm -f ~/.pi/agent/skills/$s; done` then run `rm -rf ~/.pi/agent/skills/gstack` and remove the gstack section from AGENTS.md (or CLAUDE.md). If this project also has gstack at .pi/skills/gstack, remove it by running `for s in browse plan-ceo-review plan-eng-review review ship retro qa qa-only setup-browser-cookies; do rm -f .pi/skills/$s; done && rm -rf .pi/skills/gstack` and remove the gstack section from the project AGENTS.md (or CLAUDE.md) too.
 
 ## Development
 

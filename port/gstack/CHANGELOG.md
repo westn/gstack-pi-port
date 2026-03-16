@@ -11,7 +11,7 @@
 
 - Renamed `{{UPDATE_CHECK}}` to `{{PREAMBLE}}` across all 11 skill templates — one startup block now handles update check, session tracking, contributor mode, and question formatting.
 - DRY'd plan-ceo-review and plan-eng-review question formatting to reference the preamble baseline instead of duplicating rules.
-- Added CHANGELOG style guide and vendored symlink awareness docs to CLAUDE.md.
+- Added CHANGELOG style guide and vendored symlink awareness docs to AGENTS.md (or CLAUDE.md).
 
 ## 0.4.0 — 2026-03-16
 
@@ -165,7 +165,7 @@
 - `.version` file written at build time for binary version tracking
 - Route-level tests for cookie picker (13 tests) and find-browse version check (10 tests)
 - Config resolution tests (14 tests) covering git root detection, BROWSE_STATE_FILE override, ensureStateDir, readVersionHash, resolveServerScript, and version mismatch detection
-- Browser interaction guidance in CLAUDE.md — prevents Claude from using mcp\_\_claude-in-chrome\_\_\* tools
+- Browser interaction guidance in AGENTS.md (or CLAUDE.md) — prevents Claude from using mcp\_\_claude-in-chrome\_\_\* tools
 - CONTRIBUTING.md with quick start, dev mode explanation, and instructions for testing branches in other repos
 
 ### Changed
