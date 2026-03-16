@@ -12,7 +12,7 @@ import * as os from 'os';
 
 const ROOT = path.resolve(import.meta.dir, '..');
 
-// Skip unless EVALS=1. Session runner strips CLAUDE* env vars to avoid nested session issues.
+// Skip unless EVALS=1. E2E runs use a subprocess pi CLI session.
 const evalsEnabled = !!process.env.EVALS;
 const describeE2E = evalsEnabled ? describe : describe.skip;
 
@@ -117,14 +117,22 @@ function dumpOutcomeDiagnostic(dir: string, label: string, report: string, judge
   } catch { /* non-fatal */ }
 }
 
-// Fail fast if Anthropic API is unreachable — don't burn through 13 tests getting ConnectionRefused
+// Fail fast if pi/provider is unreachable — avoid burning through the full E2E suite.
 if (evalsEnabled) {
-  const check = spawnSync('sh', ['-c', 'echo "ping" | claude -p --max-turns 1 --output-format stream-json --verbose --dangerously-skip-permissions'], {
-    stdio: 'pipe', timeout: 30_000,
-  });
-  const output = check.stdout?.toString() || '';
-  if (output.includes('ConnectionRefused') || output.includes('Unable to connect')) {
-    throw new Error('Anthropic API unreachable — aborting E2E suite. Fix connectivity and retry.');
+  const check = spawnSync(
+    process.env.PI_BIN || 'pi',
+    ['--mode', 'json', '--print', '--no-session', '--no-tools', 'reply with exactly: pong'],
+    {
+      stdio: 'pipe',
+      timeout: 45_000,
+      cwd: ROOT,
+    },
+  );
+
+  const stdout = check.stdout?.toString() || '';
+  const stderr = check.stderr?.toString() || '';
+  if (check.status !== 0) {
+    throw new Error(`pi connectivity check failed (exit ${check.status}): ${(stderr || stdout).slice(0, 300)}`);
   }
 }
 
@@ -584,9 +592,8 @@ The diff adds a new "returned" status to the Order model. Your job is to check i
 
 // --- B6/B7/B8: Planted-bug outcome evals ---
 
-// Outcome evals also need ANTHROPIC_API_KEY for the LLM judge
-const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
-const describeOutcome = (evalsEnabled && hasApiKey) ? describe : describe.skip;
+// Outcome evals use the same pi-based judge runner.
+const describeOutcome = evalsEnabled ? describe : describe.skip;
 
 describeOutcome('Planted-bug outcome evals', () => {
   let outcomeDir: string;

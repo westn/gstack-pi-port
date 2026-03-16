@@ -36,11 +36,8 @@
     "playwright",
     "headless",
     "cli",
-    "claude",
+    "pi",
     "ai-agent",
     "devtools"
-  ],
-  "devDependencies": {
-    "@anthropic-ai/sdk": "^0.78.0"
-  }
+  ]
 }

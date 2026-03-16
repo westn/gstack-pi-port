@@ -17,9 +17,10 @@ bun run eval:compare # compare two eval runs (auto-picks most recent)
 bun run eval:summary # aggregate stats across all eval runs
 ```
 
-`test:evals` requires `ANTHROPIC_API_KEY`. E2E tests stream progress in real-time
-(tool-by-tool via `--output-format stream-json --verbose`). Results are persisted
-to `~/.gstack-dev/evals/` with auto-comparison against the previous run.
+`test:evals` requires a working `pi` CLI model/provider configuration (subscription
+or API key, depending on your provider). E2E tests stream progress in real-time
+from `pi --mode json`. Results are persisted to `~/.gstack-dev/evals/` with
+auto-comparison against the previous run.
 
 ## Project structure
 
@@ -41,7 +42,7 @@ gstack/
 │   ├── skill-validation.test.ts  # Tier 1: static validation (free, <1s)
 │   ├── gen-skill-docs.test.ts    # Tier 1: generator quality (free, <1s)
 │   ├── skill-llm-eval.test.ts   # Tier 3: LLM-as-judge (~$0.15/run)
-│   └── skill-e2e.test.ts         # Tier 2: E2E via claude -p (~$3.85/run)
+│   └── skill-e2e.test.ts         # Tier 2: E2E via pi --mode json (cost depends on model)
 ├── qa-only/         # /skill:qa-only skill (report-only QA, no fixes)
 ├── ship/            # Ship workflow skill
 ├── review/          # PR review skill
