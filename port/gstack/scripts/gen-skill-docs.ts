@@ -179,7 +179,7 @@ function generateQAMethodology(): string {
 
 ### Diff-aware (automatic when on a feature branch with no URL)
 
-This is the **primary mode** for developers verifying their work. When the user says \`/qa\` without a URL and the repo is on a feature branch, automatically:
+This is the **primary mode** for developers verifying their work. When the user says \`/skill:qa\` without a URL and the repo is on a feature branch, automatically:
 
 1. **Analyze the branch diff** to understand what changed:
    \`\`\`bash
@@ -450,6 +450,38 @@ Minimum 0 per category.
 10. **Use \`snapshot -C\` for tricky UIs.** Finds clickable divs that the accessibility tree misses.`;
 }
 
+function removeAllowedToolsFrontmatter(text: string): string {
+  if (!text.startsWith('---\n')) return text;
+
+  const match = text.match(/^---\n([\s\S]*?)\n---\n?/);
+  if (!match) return text;
+
+  const frontmatter = match[1];
+  const body = text.slice(match[0].length);
+  const lines = frontmatter.split('\n');
+
+  const kept: string[] = [];
+  let skippingAllowedTools = false;
+
+  for (const line of lines) {
+    if (!skippingAllowedTools && line.trim() === 'allowed-tools:') {
+      skippingAllowedTools = true;
+      continue;
+    }
+
+    if (skippingAllowedTools) {
+      if (/^\s*-\s+/.test(line)) continue;
+      if (line.trim() === '') continue;
+      skippingAllowedTools = false;
+    }
+
+    kept.push(line);
+  }
+
+  const updated = kept.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  return `---\n${updated}\n---\n\n${body.trimStart()}`;
+}
+
 const RESOLVERS: Record<string, () => string> = {
   COMMAND_REFERENCE: generateCommandReference,
   SNAPSHOT_FLAGS: generateSnapshotFlags,
@@ -489,6 +521,9 @@ function processTemplate(tmplPath: string): { outputPath: string; content: strin
   } else {
     content = header + content;
   }
+
+  // Pi port policy: allowed-tools frontmatter is ignored by pi and removed.
+  content = removeAllowedToolsFrontmatter(content);
 
   return { outputPath, content };
 }

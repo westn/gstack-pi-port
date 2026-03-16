@@ -14,7 +14,7 @@ import * as path from 'path';
 import { resolveConfig, ensureStateDir, readVersionHash } from './config';
 
 const config = resolveConfig();
-const MAX_START_WAIT = 8000; // 8 seconds to start
+const MAX_START_WAIT = 12000; // cold start can exceed 8s on fresh machines
 
 export function resolveServerScript(
   env: Record<string, string | undefined> = process.env,
@@ -158,18 +158,28 @@ async function startServer(): Promise<ServerState> {
     await Bun.sleep(100);
   }
 
-  // If we get here, server didn't start in time
-  // Try to read stderr for error message
-  const stderr = proc.stderr;
-  if (stderr) {
-    const reader = stderr.getReader();
-    const { value } = await reader.read();
-    if (value) {
-      const errText = new TextDecoder().decode(value);
-      throw new Error(`Server failed to start:\n${errText}`);
+  // If we get here, server didn't start in time.
+  // Grab a best-effort stderr snippet without blocking indefinitely.
+  let stderrSnippet = '';
+  try {
+    const stderr = proc.stderr;
+    if (stderr) {
+      const reader = stderr.getReader();
+      const chunk = await Promise.race([
+        reader.read(),
+        Bun.sleep(200).then(() => null),
+      ]);
+      if (chunk && chunk.value) {
+        stderrSnippet = new TextDecoder().decode(chunk.value).trim();
+      }
+      try { reader.releaseLock(); } catch {}
     }
+  } catch {
+    // Best effort only
   }
-  throw new Error(`Server failed to start within ${MAX_START_WAIT / 1000}s`);
+
+  const extra = stderrSnippet ? `\n${stderrSnippet}` : '';
+  throw new Error(`Server failed to start within ${MAX_START_WAIT / 1000}s${extra}`);
 }
 
 async function ensureServer(): Promise<ServerState> {
