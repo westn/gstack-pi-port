@@ -1,13 +1,16 @@
 /**
  * Shared LLM-as-judge helpers for eval and E2E tests.
  *
- * Provides callJudge (generic JSON-from-LLM), judge (doc quality scorer),
- * and outcomeJudge (planted-bug detection scorer).
+ * Routes judge prompts through the local `pi` CLI so evals can use whichever
+ * provider/model the developer has configured (subscription or API key).
  *
- * Requires: ANTHROPIC_API_KEY env var
+ * Optional env overrides:
+ * - PI_EVAL_PROVIDER
+ * - PI_EVAL_MODEL
+ * - PI_EVAL_THINKING
+ * - PI_EVAL_TIMEOUT_MS (default: 60000)
+ * - PI_BIN (default: pi)
  */
-
-import Anthropic from '@anthropic-ai/sdk';
 
 export interface JudgeScore {
   clarity: number;       // 1-5
@@ -25,35 +28,156 @@ export interface OutcomeJudgeResult {
   reasoning: string;
 }
 
-/**
- * Call claude-sonnet-4-6 with a prompt, extract JSON response.
- * Retries once on 429 rate limit errors.
- */
-export async function callJudge<T>(prompt: string): Promise<T> {
-  const client = new Anthropic();
+const RETRYABLE_PATTERNS = [
+  /\b429\b/,
+  /rate\s*limit/i,
+  /temporarily\s+unavailable/i,
+  /timeout/i,
+  /econnreset/i,
+  /connection\s*refused/i,
+];
 
-  const makeRequest = () => client.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 1024,
-    messages: [{ role: 'user', content: prompt }],
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function extractTextFromMessage(message: any): string {
+  if (!message) return '';
+  if (typeof message === 'string') return message;
+
+  const content = message.content;
+  if (typeof content === 'string') return content;
+  if (!Array.isArray(content)) return '';
+
+  return content
+    .filter((item: any) => item?.type === 'text' && typeof item.text === 'string')
+    .map((item: any) => item.text.trim())
+    .filter(Boolean)
+    .join('\n')
+    .trim();
+}
+
+function extractAssistantTextFromJsonLines(lines: string[]): string {
+  let lastAssistantText = '';
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+
+    try {
+      const event = JSON.parse(line);
+
+      if (event.type === 'turn_end' && event.message?.role === 'assistant') {
+        const text = extractTextFromMessage(event.message);
+        if (text) lastAssistantText = text;
+        continue;
+      }
+
+      if (event.type === 'message_end' && event.message?.role === 'assistant') {
+        const text = extractTextFromMessage(event.message);
+        if (text) lastAssistantText = text;
+        continue;
+      }
+
+      if (event.type === 'agent_end' && Array.isArray(event.messages)) {
+        const lastAssistant = [...event.messages].reverse().find((m: any) => m?.role === 'assistant');
+        const text = extractTextFromMessage(lastAssistant);
+        if (text) lastAssistantText = text;
+      }
+    } catch {
+      // ignore malformed lines
+    }
+  }
+
+  return lastAssistantText;
+}
+
+function extractJsonObject(text: string): string {
+  const trimmed = text.trim();
+
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+    return trimmed;
+  }
+
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  if (fenced) {
+    const candidate = fenced[1].trim();
+    if (candidate.startsWith('{') && candidate.endsWith('}')) return candidate;
+  }
+
+  const first = trimmed.indexOf('{');
+  const last = trimmed.lastIndexOf('}');
+  if (first !== -1 && last !== -1 && last > first) {
+    return trimmed.slice(first, last + 1);
+  }
+
+  throw new Error(`Judge returned non-JSON: ${trimmed.slice(0, 200)}`);
+}
+
+async function runPiJudgePrompt(prompt: string): Promise<{ text: string; stderr: string }> {
+  const piBin = process.env.PI_BIN || 'pi';
+  const timeoutMs = Number(process.env.PI_EVAL_TIMEOUT_MS || 60_000);
+
+  const args = ['--mode', 'json', '--print', '--no-session', '--no-tools'];
+  if (process.env.PI_EVAL_PROVIDER) args.push('--provider', process.env.PI_EVAL_PROVIDER);
+  if (process.env.PI_EVAL_MODEL) args.push('--model', process.env.PI_EVAL_MODEL);
+  if (process.env.PI_EVAL_THINKING) args.push('--thinking', process.env.PI_EVAL_THINKING);
+  args.push(prompt);
+
+  const proc = Bun.spawn([piBin, ...args], {
+    stdout: 'pipe',
+    stderr: 'pipe',
   });
 
-  let response;
-  try {
-    response = await makeRequest();
-  } catch (err: any) {
-    if (err.status === 429) {
-      await new Promise(r => setTimeout(r, 1000));
-      response = await makeRequest();
-    } else {
+  const timer = setTimeout(() => {
+    try { proc.kill(); } catch {}
+  }, timeoutMs);
+
+  const [stdout, stderr, exitCode] = await Promise.all([
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+    proc.exited,
+  ]);
+
+  clearTimeout(timer);
+
+  if (exitCode !== 0) {
+    throw new Error(`pi judge failed (exit ${exitCode}): ${(stderr || stdout).slice(0, 500)}`);
+  }
+
+  const text = extractAssistantTextFromJsonLines(stdout.split('\n'));
+  if (!text) {
+    throw new Error(`pi judge produced no assistant text: ${(stdout || stderr).slice(0, 500)}`);
+  }
+
+  return { text, stderr };
+}
+
+/**
+ * Call the configured pi model with a prompt and extract JSON response.
+ * Retries once on transient errors (e.g. rate limits / temporary provider issues).
+ */
+export async function callJudge<T>(prompt: string): Promise<T> {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const { text } = await runPiJudgePrompt(prompt);
+      const jsonText = extractJsonObject(text);
+      return JSON.parse(jsonText) as T;
+    } catch (err: any) {
+      lastError = err;
+      const message = `${err?.message || ''}`;
+      const retryable = RETRYABLE_PATTERNS.some((rx) => rx.test(message));
+      if (attempt < 2 && retryable) {
+        await sleep(1000);
+        continue;
+      }
       throw err;
     }
   }
 
-  const text = response.content[0].type === 'text' ? response.content[0].text : '';
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error(`Judge returned non-JSON: ${text.slice(0, 200)}`);
-  return JSON.parse(jsonMatch[0]) as T;
+  throw lastError;
 }
 
 /**

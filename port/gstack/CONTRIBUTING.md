@@ -100,29 +100,29 @@ bin/dev-teardown
 ### Setup
 
 ```bash
-# 1. Copy .env.example and add your API key
+# 1. (Optional) copy .env.example and set pi eval overrides/provider keys
 cp .env.example .env
-# Edit .env → set ANTHROPIC_API_KEY=sk-ant-...
 
 # 2. Install deps (if you haven't already)
 bun install
 ```
 
 Bun auto-loads `.env` — no extra config. Conductor workspaces inherit `.env` from the main worktree automatically (see "Conductor workspaces" below).
+Evals use `pi`, so they follow your configured provider/model (subscription or API key).
 
 ### Test tiers
 
 | Tier | Command | Cost | What it tests |
 |------|---------|------|---------------|
 | 1 — Static | `bun test` | Free | Command validation, snapshot flags, SKILL.md correctness, TODOS-format.md refs, observability unit tests |
-| 2 — E2E | `bun run test:e2e` | ~$3.85 | Full skill execution via `claude -p` subprocess |
-| 3 — LLM eval | `bun run test:evals` | ~$0.15 standalone | LLM-as-judge scoring of generated SKILL.md docs |
-| 2+3 | `bun run test:evals` | ~$4 combined | E2E + LLM-as-judge (runs both) |
+| 2 — E2E | `bun run test:e2e` | Model-dependent | Full skill execution via `pi --mode json` subprocess |
+| 3 — LLM eval | `bun run test:evals` | Model-dependent | LLM-as-judge scoring of generated SKILL.md docs |
+| 2+3 | `bun run test:evals` | Model-dependent | E2E + LLM-as-judge (runs both) |
 
 ```bash
 bun test                     # Tier 1 only (runs on every commit, <5s)
-bun run test:e2e             # Tier 2: E2E only (needs EVALS=1, can't run inside pi)
-bun run test:evals           # Tier 2 + 3 combined (~$4/run)
+bun run test:e2e             # Tier 2: E2E only (needs EVALS=1)
+bun run test:evals           # Tier 2 + 3 combined
 ```
 
 ### Tier 1: Static validation (free)
@@ -133,18 +133,17 @@ Runs automatically with `bun test`. No API keys needed.
 - **Skill validation tests** (`test/skill-validation.test.ts`) — Validates that SKILL.md files reference only real commands and flags, and that command descriptions meet quality thresholds.
 - **Generator tests** (`test/gen-skill-docs.test.ts`) — Tests the template system: verifies placeholders resolve correctly, output includes value hints for flags (e.g. `-d <N>` not just `-d`), enriched descriptions for key commands (e.g. `is` lists valid states, `press` lists key examples).
 
-### Tier 2: E2E via `claude -p` (~$3.85/run)
+### Tier 2: E2E via `pi --mode json`
 
-Spawns `claude -p` as a subprocess with `--output-format stream-json --verbose`, streams NDJSON for real-time progress, and scans for browse errors. This is the closest thing to "does this skill actually work end-to-end?"
+Spawns `pi --mode json --print` as a subprocess, streams JSONL for real-time progress,
+and scans for browse errors. This is the closest thing to "does this skill actually work end-to-end?"
 
 ```bash
-# Must run from a plain terminal — can't nest inside pi or Conductor
 EVALS=1 bun test test/skill-e2e.test.ts
 ```
 
 - Gated by `EVALS=1` env var (prevents accidental expensive runs)
-- Auto-skips if running inside pi (`claude -p` can't nest)
-- API connectivity pre-check — fails fast on ConnectionRefused before burning budget
+- Provider connectivity pre-check — fails fast before burning budget
 - Real-time progress to stderr: `[Ns] turn T tool #C: Name(...)`
 - Saves full NDJSON transcripts and failure JSON for debugging
 - Tests live in `test/skill-e2e.test.ts`, runner logic in `test/helpers/session-runner.ts`
@@ -158,7 +157,7 @@ When E2E tests run, they produce machine-readable artifacts in `~/.gstack-dev/`:
 | Heartbeat | `e2e-live.json` | Current test status (updated per tool call) |
 | Partial results | `evals/_partial-e2e.json` | Completed tests (survives kills) |
 | Progress log | `e2e-runs/{runId}/progress.log` | Append-only text log |
-| NDJSON transcripts | `e2e-runs/{runId}/{test}.ndjson` | Raw `claude -p` output per test |
+| NDJSON transcripts | `e2e-runs/{runId}/{test}.ndjson` | Raw `pi --mode json` output per test |
 | Failure JSON | `e2e-runs/{runId}/{test}-failure.json` | Diagnostic data on failure |
 
 **Live dashboard:** Run `bun run eval:watch` in a second terminal to see a live dashboard showing completed tests, the currently running test, and cost. Use `--tail` to also show the last 10 lines of progress.log.
@@ -175,9 +174,9 @@ bun run eval:summary         # aggregate stats + per-test efficiency averages ac
 
 Artifacts are never cleaned up — they accumulate in `~/.gstack-dev/` for post-mortem debugging and trend analysis.
 
-### Tier 3: LLM-as-judge (~$0.15/run)
+### Tier 3: LLM-as-judge (model-dependent cost)
 
-Uses Claude Sonnet to score generated SKILL.md docs on three dimensions:
+Uses your configured `pi` model/provider to score generated SKILL.md docs on three dimensions:
 
 - **Clarity** — Can an AI agent understand the instructions without ambiguity?
 - **Completeness** — Are all commands, flags, and usage patterns documented?
@@ -186,12 +185,12 @@ Uses Claude Sonnet to score generated SKILL.md docs on three dimensions:
 Each dimension is scored 1-5. Threshold: every dimension must score **≥ 4**. There's also a regression test that compares generated docs against the hand-maintained baseline from `origin/main` — generated must score equal or higher.
 
 ```bash
-# Needs ANTHROPIC_API_KEY in .env — included in bun run test:evals
+# Optional: set PI_EVAL_PROVIDER / PI_EVAL_MODEL in .env to pin judge model
 ```
 
-- Uses `claude-sonnet-4-6` for scoring stability
+- Uses `pi` for judge calls (provider/model selected via pi config or env overrides)
 - Tests live in `test/skill-llm-eval.test.ts`
-- Calls the Anthropic API directly (not `claude -p`), so it works from anywhere including inside pi
+- Works with subscriptions or API-key providers supported by pi
 
 ### CI
 
@@ -226,11 +225,11 @@ If you're using [Conductor](https://conductor.build) to run multiple pi sessions
 | Hook | Script | What it does |
 |------|--------|-------------|
 | `setup` | `bin/dev-setup` | Copies `.env` from main worktree, installs deps, symlinks skills |
-| `archive` | `bin/dev-teardown` | Removes skill symlinks, cleans up `.claude/` directory |
+| `archive` | `bin/dev-teardown` | Removes skill symlinks, cleans up `.pi/` directory |
 
 When Conductor creates a new workspace, `bin/dev-setup` runs automatically. It detects the main worktree (via `git worktree list`), copies your `.env` so API keys carry over, and sets up dev mode — no manual steps needed.
 
-**First-time setup:** Put your `ANTHROPIC_API_KEY` in `.env` in the main repo (see `.env.example`). Every Conductor workspace inherits it automatically.
+**First-time setup:** Put any provider keys / pi eval overrides you need in `.env` in the main repo (see `.env.example`). Every Conductor workspace inherits it automatically.
 
 ## Things to know
 

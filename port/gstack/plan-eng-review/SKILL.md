@@ -131,7 +131,7 @@ Evaluate:
 ### 3. Test review
 Make a diagram of all new UX, new data flow, new codepaths, and new branching if statements or outcomes. For each, note what is new about the features discussed in this branch and plan. Then, for each new item in the diagram, make sure there is a JS or Rails test.
 
-For LLM/prompt changes: check the "Prompt/LLM changes" file patterns listed in CLAUDE.md. If this plan touches ANY of those patterns, state which eval suites must be run, which cases should be added, and what baselines to compare against. Then use ask the user in chat to confirm the eval scope with the user.
+For LLM/prompt changes: check the "Prompt/LLM changes" file patterns listed in AGENTS.md (or CLAUDE.md). If this plan touches ANY of those patterns, state which eval suites must be run, which cases should be added, and what baselines to compare against. Then use ask the user in chat to confirm the eval scope with the user.
 
 **STOP.** For each issue found in this section, call ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one ask the user in chat. Only proceed to the next section after ALL issues in this section are resolved.
 

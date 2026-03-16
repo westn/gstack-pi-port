@@ -523,5 +523,5 @@ When the user runs `/skill:retro compare` (or `/skill:retro compare 14d`):
 - If the window has zero commits, say so and suggest a different window
 - Round LOC/hour to nearest 50
 - Treat merge commits as PR boundaries
-- Do not read CLAUDE.md or other docs — this skill is self-contained
+- Do not read AGENTS.md (or CLAUDE.md) or other docs — this skill is self-contained
 - On first run (no prior retros), skip comparison sections gracefully

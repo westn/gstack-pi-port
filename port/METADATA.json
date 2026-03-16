@@ -5,9 +5,9 @@
     "commit": "3e3843c4a9c1cc01bcecab486818705ab7553e2b",
     "version": "0.4.1"
   },
-  "generatedAt": "2026-03-16T08:41:47.058127+00:00",
+  "generatedAt": "2026-03-16T14:35:46.428502+00:00",
   "portDir": "port/gstack",
-  "changedFiles": 46,
+  "changedFiles": 49,
   "transformRules": {
     "pathReplacements": [
       [
@@ -57,6 +57,14 @@
       [
         ".claude/skills",
         ".pi/skills"
+      ],
+      [
+        ".claude/",
+        ".pi/"
+      ],
+      [
+        ".claude",
+        ".pi"
       ]
     ],
     "reviewPathReplacements": [
@@ -81,6 +89,62 @@
       [
         "Claude Code",
         "pi"
+      ],
+      [
+        "Claude:",
+        "Agent:"
+      ],
+      [
+        "docs.anthropic.com/en/docs/claude-code",
+        "www.npmjs.com/package/@mariozechner/pi-coding-agent"
+      ],
+      [
+        "git clone --depth 1 https://github.com/garrytan/gstack.git \"$TMP_DIR/gstack\"",
+        "git clone --depth 1 https://github.com/westn/gstack-pi-port.git \"$TMP_DIR/gstack-pi-port\""
+      ],
+      [
+        "mv \"$TMP_DIR/gstack\" \"$INSTALL_DIR\"",
+        "mv \"$TMP_DIR/gstack-pi-port/port/gstack\" \"$INSTALL_DIR\""
+      ],
+      [
+        "https://raw.githubusercontent.com/garrytan/gstack/main/VERSION",
+        "https://raw.githubusercontent.com/westn/gstack-pi-port/main/port/gstack/VERSION"
+      ],
+      [
+        "Open pi and paste this. Claude will do the rest.",
+        "Open pi and paste this. The agent will do the rest."
+      ],
+      [
+        "git clone https://github.com/garrytan/gstack.git ~/.pi/agent/skills/gstack && cd ~/.pi/agent/skills/gstack && ./setup",
+        "git clone https://github.com/westn/gstack-pi-port.git /tmp/gstack-pi-port && cd /tmp/gstack-pi-port && ./scripts/install.sh --global --build"
+      ],
+      [
+        "Install gstack: run `git clone https://github.com/westn/gstack-pi-port.git",
+        "Install gstack (Pi port): run `git clone https://github.com/westn/gstack-pi-port.git"
+      ],
+      [
+        "/skill:qa, /skill:setup-browser-cookies",
+        "/skill:qa, /skill:qa-only, /skill:setup-browser-cookies"
+      ],
+      [
+        "and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:setup-browser-cookies, /skill:retro,",
+        "and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:setup-browser-cookies, /skill:retro,"
+      ],
+      [
+        "and tells Claude that if gstack skills aren't working,",
+        "and tells pi that if gstack skills aren't working,"
+      ],
+      [
+        "Everything lives inside `.pi/`. Nothing touches your PATH or runs in the background.",
+        "Everything lives inside `.pi/` (plus runtime state in `.gstack/`). Nothing touches your PATH or runs in the background."
+      ],
+      [
+        "This rebuilds symlinks so Claude can discover the skills.",
+        "This rebuilds symlinks so pi can discover the skills."
+      ],
+      [
+        "CLAUDE.md",
+        "AGENTS.md (or CLAUDE.md)"
       ]
     ],
     "skillCommands": [

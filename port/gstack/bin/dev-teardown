@@ -29,7 +29,7 @@ fi
 
 # Clean up empty dirs
 rmdir "$SKILLS_DIR" 2>/dev/null || true
-rmdir "$REPO_ROOT/.claude" 2>/dev/null || true
+rmdir "$REPO_ROOT/.pi" 2>/dev/null || true
 
 if [ ${#removed[@]} -gt 0 ]; then
   echo "Removed: ${removed[*]}"
