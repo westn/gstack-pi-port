@@ -70,6 +70,7 @@ Then invoke skills via:
 /skill:ship
 /skill:browse
 /skill:qa
+/skill:qa-only
 /skill:setup-browser-cookies
 /skill:retro
 ```

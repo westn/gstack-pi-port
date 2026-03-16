@@ -20,9 +20,44 @@ Now edit any `SKILL.md`, invoke it in pi (e.g. `/skill:review`), and see your ch
 bin/dev-teardown               # deactivate — back to your global install
 ```
 
-## How dev mode works
+## Contributor mode
 
-`bin/dev-setup` creates a `.pi/skills/` directory inside the repo (gitignored) and fills it with symlinks pointing back to your working tree. pi sees the local `skills/` first, so your edits win over the global install.
+Contributor mode is for people who want to fix gstack when it annoys them. Enable it
+and pi will automatically log issues to `~/.gstack/contributor-logs/` as you
+work — what you were doing, what went wrong, repro steps, raw output.
+
+```bash
+~/.pi/agent/skills/gstack/bin/gstack-config set gstack_contributor true
+```
+
+The logs are for **you**. When something bugs you enough to fix, the report is
+already written. Fork gstack, symlink your fork into the project where you hit
+the issue, fix it, and open a PR.
+
+### The contributor workflow
+
+1. **Hit friction while using gstack** — contributor mode logs it automatically
+2. **Check your logs:** `ls ~/.gstack/contributor-logs/`
+3. **Fork and clone gstack** (if you haven't already)
+4. **Symlink your fork into the project where you hit the bug:**
+   ```bash
+   # In your core project (the one where gstack annoyed you)
+   ln -sfn /path/to/your/gstack-fork .pi/skills/gstack
+   cd .pi/skills/gstack && bun install && bun run build
+   ```
+5. **Fix the issue** — your changes are live immediately in this project
+6. **Test by actually using gstack** — do the thing that annoyed you, verify it's fixed
+7. **Open a PR from your fork**
+
+This is the best way to contribute: fix gstack while doing your real work, in the
+project where you actually felt the pain.
+
+## Working on gstack inside the gstack repo
+
+When you're editing gstack skills and want to test them by actually using gstack
+in the same repo, `bin/dev-setup` wires this up. It creates `.pi/skills/`
+symlinks (gitignored) pointing back to your working tree, so pi uses
+your local edits instead of the global install.
 
 ```
 gstack/                          <- your working tree
@@ -131,10 +166,12 @@ When E2E tests run, they produce machine-readable artifacts in `~/.gstack-dev/`:
 **Eval history tools:**
 
 ```bash
-bun run eval:list            # list all eval runs
-bun run eval:compare         # compare two runs (auto-picks most recent)
-bun run eval:summary         # aggregate stats across all runs
+bun run eval:list            # list all eval runs (turns, duration, cost per run)
+bun run eval:compare         # compare two runs — shows per-test deltas + Takeaway commentary
+bun run eval:summary         # aggregate stats + per-test efficiency averages across runs
 ```
+
+**Eval comparison commentary:** `eval:compare` generates natural-language Takeaway sections interpreting what changed between runs — flagging regressions, noting improvements, calling out efficiency gains (fewer turns, faster, cheaper), and producing an overall summary. This is driven by `generateCommentary()` in `eval-store.ts`.
 
 Artifacts are never cleaned up — they accumulate in `~/.gstack-dev/` for post-mortem debugging and trend analysis.
 
@@ -205,69 +242,42 @@ When Conductor creates a new workspace, `bin/dev-setup` runs automatically. It d
 - **`.env` propagates across worktrees.** Set it once in the main repo, all Conductor workspaces get it.
 - **`.pi/skills/` is gitignored.** The symlinks never get committed.
 
-## Testing a branch in another repo
+## Testing your changes in a real project
 
-When you're developing gstack in one workspace and want to test your branch in a
-different project (e.g. testing browse changes against your real app), there are
-two cases depending on how gstack is installed in that project.
+**This is the recommended way to develop gstack.** Symlink your gstack checkout
+into the project where you actually use it, so your changes are live while you
+do real work:
 
-### Global install only (no `.pi/skills/gstack/` in the project)
+```bash
+# In your core project
+ln -sfn /path/to/your/gstack-checkout .pi/skills/gstack
+cd .pi/skills/gstack && bun install && bun run build
+```
 
-Point your global install at the branch:
+Now every gstack skill invocation in this project uses your working tree. Edit a
+template, run `bun run gen:skill-docs`, and the next `/skill:review` or `/skill:qa` call picks
+it up immediately.
+
+**To go back to the stable global install**, just remove the symlink:
+
+```bash
+rm .pi/skills/gstack
+```
+
+pi falls back to `~/.pi/agent/skills/gstack/` automatically.
+
+### Alternative: point your global install at a branch
+
+If you don't want per-project symlinks, you can switch the global install:
 
 ```bash
 cd ~/.pi/agent/skills/gstack
 git fetch origin
-git checkout origin/<branch>        # e.g. origin/v0.3.2
-bun install                         # in case deps changed
-bun run build                       # rebuild the binary
+git checkout origin/<branch>
+bun install && bun run build
 ```
 
-Now open pi in the other project — it picks up skills from
-`~/.pi/agent/skills/` automatically. To go back to main when you're done:
-
-```bash
-cd ~/.pi/agent/skills/gstack
-git checkout main && git pull
-bun run build
-```
-
-### Vendored project copy (`.pi/skills/gstack/` checked into the project)
-
-Some projects vendor gstack by copying it into the repo (no `.git` inside the
-copy). Project-local skills take priority over global, so you need to update
-the vendored copy too. This is a three-step process:
-
-1. **Update your global install to the branch** (so you have the source):
-   ```bash
-   cd ~/.pi/agent/skills/gstack
-   git fetch origin
-   git checkout origin/<branch>      # e.g. origin/v0.3.2
-   bun install && bun run build
-   ```
-
-2. **Replace the vendored copy** in the other project:
-   ```bash
-   cd /path/to/other-project
-
-   # Remove old skill symlinks and vendored copy
-   for s in browse plan-ceo-review plan-eng-review review ship retro qa setup-browser-cookies; do
-     rm -f .pi/skills/$s
-   done
-   rm -rf .pi/skills/gstack
-
-   # Copy from global install (strips .git so it stays vendored)
-   cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack
-   rm -rf .pi/skills/gstack/.git
-
-   # Rebuild binary and re-create skill symlinks
-   cd .pi/skills/gstack && ./setup
-   ```
-
-3. **Test your changes** — open pi in that project and use the skills.
-
-To revert to main later, repeat steps 1-2 with `git checkout main && git pull`
-instead of `git checkout origin/<branch>`.
+This affects all projects. To revert: `git checkout main && git pull && bun run build`.
 
 ## Shipping your changes
 

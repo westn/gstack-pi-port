@@ -2,12 +2,12 @@
   "upstream": {
     "repo": "https://github.com/garrytan/gstack.git",
     "branch": "main",
-    "commit": "bb46ca6b217e5732f8c0b9458ebecb4c90c382ad",
-    "version": "0.3.9"
+    "commit": "3e3843c4a9c1cc01bcecab486818705ab7553e2b",
+    "version": "0.4.1"
   },
-  "generatedAt": "2026-03-15T19:23:52.472044+00:00",
+  "generatedAt": "2026-03-16T08:41:47.058127+00:00",
   "portDir": "port/gstack",
-  "changedFiles": 43,
+  "changedFiles": 46,
   "transformRules": {
     "pathReplacements": [
       [
@@ -90,6 +90,7 @@
       "ship",
       "browse",
       "qa",
+      "qa-only",
       "setup-browser-cookies",
       "retro",
       "gstack-upgrade"

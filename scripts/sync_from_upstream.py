@@ -29,6 +29,7 @@ SKILL_COMMANDS = [
     "ship",
     "browse",
     "qa",
+    "qa-only",
     "setup-browser-cookies",
     "retro",
     "gstack-upgrade",

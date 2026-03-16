@@ -116,6 +116,7 @@ Use skills in pi as:
   /skill:ship
   /skill:browse
   /skill:qa
+  /skill:qa-only
   /skill:setup-browser-cookies
   /skill:retro
 

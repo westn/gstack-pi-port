@@ -2,7 +2,7 @@
 
 **gstack turns pi from one generic assistant into a team of specialists you can summon on demand.**
 
-Eight opinionated workflow skills for [pi](https://docs.anthropic.com/en/docs/claude-code). Plan review, code review, one-command shipping, browser automation, QA testing, and engineering retrospectives — all as slash commands.
+Nine opinionated workflow skills for [pi](https://docs.anthropic.com/en/docs/claude-code). Plan review, code review, one-command shipping, browser automation, QA testing, and engineering retrospectives — all as slash commands.
 
 ### Without gstack
 
@@ -22,7 +22,8 @@ Eight opinionated workflow skills for [pi](https://docs.anthropic.com/en/docs/cl
 | `/skill:review` | Paranoid staff engineer | Find the bugs that pass CI but blow up in production. Triages Greptile review comments. |
 | `/skill:ship` | Release engineer | Sync main, run tests, resolve Greptile reviews, push, open PR. For a ready branch, not for deciding what to build. |
 | `/skill:browse` | QA engineer | Give the agent eyes. It logs in, clicks through your app, takes screenshots, catches breakage. Full QA pass in 60 seconds. |
-| `/skill:qa` | QA lead | Systematic QA testing. On a feature branch, auto-analyzes your diff, identifies affected pages, and tests them. Also: full exploration, quick smoke test, regression mode. |
+| `/skill:qa` | QA + fix engineer | Test app, find bugs, fix them with atomic commits, re-verify. Before/after health scores and ship-readiness summary. Three tiers: Quick, Standard, Exhaustive. |
+| `/skill:qa-only` | QA reporter | Report-only QA testing. Same methodology as /skill:qa but never fixes anything. Use when you want a pure bug report without code changes. |
 | `/skill:setup-browser-cookies` | Session manager | Import cookies from your real browser (Comet, Chrome, Arc, Brave, Edge) into the headless session. Test authenticated pages without logging in manually. |
 | `/skill:retro` | Engineering manager | Team-aware retro: your deep-dive + per-person praise and growth opportunities for every contributor. |
 
@@ -103,7 +104,7 @@ This is the setup I use. One person, ten parallel agents, each with the right co
 
 Open pi and paste this. Claude will do the rest.
 
-> Install gstack: run `git clone https://github.com/garrytan/gstack.git ~/.pi/agent/skills/gstack && cd ~/.pi/agent/skills/gstack && ./setup` then add a "gstack" section to CLAUDE.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:setup-browser-cookies, /skill:retro. Then ask the user if they also want to add gstack to the current project so teammates get it.
+> Install gstack: run `git clone https://github.com/garrytan/gstack.git ~/.pi/agent/skills/gstack && cd ~/.pi/agent/skills/gstack && ./setup` then add a "gstack" section to CLAUDE.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:setup-browser-cookies, /skill:retro. Then ask the user if they also want to add gstack to the current project so teammates get it.
 
 ### Step 2: Add to your repo so teammates get it (optional)
 
@@ -613,7 +614,7 @@ Or set `auto_upgrade: true` in `~/.gstack/config.yaml` to upgrade automatically 
 
 Paste this into pi:
 
-> Uninstall gstack: remove the skill symlinks by running `for s in browse plan-ceo-review plan-eng-review review ship retro qa setup-browser-cookies; do rm -f ~/.pi/agent/skills/$s; done` then run `rm -rf ~/.pi/agent/skills/gstack` and remove the gstack section from CLAUDE.md. If this project also has gstack at .pi/skills/gstack, remove it by running `for s in browse plan-ceo-review plan-eng-review review ship retro qa setup-browser-cookies; do rm -f .pi/skills/$s; done && rm -rf .pi/skills/gstack` and remove the gstack section from the project CLAUDE.md too.
+> Uninstall gstack: remove the skill symlinks by running `for s in browse plan-ceo-review plan-eng-review review ship retro qa qa-only setup-browser-cookies; do rm -f ~/.pi/agent/skills/$s; done` then run `rm -rf ~/.pi/agent/skills/gstack` and remove the gstack section from CLAUDE.md. If this project also has gstack at .pi/skills/gstack, remove it by running `for s in browse plan-ceo-review plan-eng-review review ship retro qa qa-only setup-browser-cookies; do rm -f .pi/skills/$s; done && rm -rf .pi/skills/gstack` and remove the gstack section from the project CLAUDE.md too.
 
 ## Development
 
