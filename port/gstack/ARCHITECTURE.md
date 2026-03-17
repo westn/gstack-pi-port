@@ -180,7 +180,7 @@ The `console`, `network`, and `dialog` commands read from the in-memory buffers,
 
 ### The problem
 
-SKILL.md files tell Claude how to use the browse commands. If the docs list a flag that doesn't exist, or miss a command that was added, the agent hits errors. Hand-maintained docs always drift from code.
+SKILL.md files tell the agent how to use the browse commands. If the docs list a flag that doesn't exist, or miss a command that was added, the agent hits errors. Hand-maintained docs always drift from code.
 
 ### The solution
 
@@ -202,7 +202,7 @@ Templates contain the workflows, tips, and examples that require human judgment.
 | `{{BROWSE_SETUP}}` | `gen-skill-docs.ts` | Binary discovery + setup instructions |
 | `{{BASE_BRANCH_DETECT}}` | `gen-skill-docs.ts` | Dynamic base branch detection for PR-targeting skills (ship, review, qa, plan-ceo-review) |
 | `{{QA_METHODOLOGY}}` | `gen-skill-docs.ts` | Shared QA methodology block for /skill:qa and /skill:qa-only |
-| `{{DESIGN_METHODOLOGY}}` | `gen-skill-docs.ts` | Shared design audit methodology for /plan-design-review and /qa-design-review |
+| `{{DESIGN_METHODOLOGY}}` | `gen-skill-docs.ts` | Shared design audit methodology for /skill:plan-design-review and /skill:qa-design-review |
 
 This is structurally sound — if a command exists in code, it appears in docs. If it doesn't exist, it can't appear.
 
@@ -219,7 +219,7 @@ Every skill starts with a `{{PREAMBLE}}` block that runs before the skill's own 
 
 Three reasons:
 
-1. **Claude reads SKILL.md at skill load time.** There's no build step when a user invokes `/skill:browse`. The file must already exist and be correct.
+1. **The agent reads SKILL.md at skill load time.** There's no build step when a user invokes `/skill:browse`. The file must already exist and be correct.
 2. **CI can validate freshness.** `gen:skill-docs --dry-run` + `git diff --exit-code` catches stale docs before merge.
 3. **Git blame works.** You can see when a command was added and in which commit.
 

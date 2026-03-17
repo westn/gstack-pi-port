@@ -112,13 +112,18 @@ Done.
 Use skills in pi as:
   /skill:plan-ceo-review
   /skill:plan-eng-review
+  /skill:plan-design-review
   /skill:review
   /skill:ship
   /skill:browse
   /skill:qa
   /skill:qa-only
+  /skill:qa-design-review
   /skill:setup-browser-cookies
   /skill:retro
+  /skill:design-consultation
+  /skill:document-release
+  /skill:gstack-upgrade
 
 If skills do not appear immediately, run /reload inside pi.
 Use --build when you want to compile browse binary/deps:

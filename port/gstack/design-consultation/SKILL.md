@@ -5,7 +5,7 @@ description: |
   Design consultation: understands your product, researches competitors, proposes a
   complete design system (aesthetic, typography, color, layout, spacing, motion), and
   generates font+color preview pages. Creates DESIGN.md as your project's design source
-  of truth. For existing sites, use /plan-design-review to infer the system instead.
+  of truth. For existing sites, use /skill:plan-design-review to infer the system instead.
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -27,9 +27,9 @@ echo "BRANCH: $_BRANCH"
 
 If output shows `UPGRADE_AVAILABLE <old> <new>`: read `~/.pi/agent/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise ask the user in chat with 4 options, write snooze state if declined). If `JUST_UPGRADED <from> <to>`: tell user "Running gstack v{to} (just updated!)" and continue.
 
-## ask the user in chat Format
+## User Question Format
 
-**ALWAYS follow this structure for every ask the user in chat call:**
+**ALWAYS follow this structure for every user question you ask in chat:**
 1. **Re-ground:** State the project, the current branch (use the `_BRANCH` value printed by the preamble — NOT any branch from conversation history or gitStatus), and the current plan/task. (1-2 sentences)
 2. **Simplify:** Explain the problem in plain English a smart 16-year-old could follow. No raw function names, no internal jargon, no implementation details. Use concrete examples and analogies. Say what it DOES, not what it's called.
 3. **Recommend:** `RECOMMENDATION: Choose [X] because [one-line reason]`
@@ -54,7 +54,7 @@ If `_CONTRIB` is `true`: you are in **contributor mode**. You're a gstack user w
 ```
 # {Title}
 
-Hey gstack team — ran into this while using /{skill-name}:
+Hey gstack team — ran into this while using /skill:{skill-name}:
 
 **What I was trying to do:** {what the user/agent was attempting}
 **What happened instead:** {what actually happened}
@@ -71,12 +71,12 @@ Hey gstack team — ran into this while using /{skill-name}:
 ## What would make this a 10
 {one sentence: what gstack should have done differently}
 
-**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /{skill}
+**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /skill:{skill}
 ```
 
 Slug: lowercase, hyphens, max 60 chars (e.g. `browse-js-no-await`). Skip if file already exists. Max 3 reports per session. File inline and continue — don't stop the workflow. Tell user: "Filed gstack field report: {title}"
 
-# /design-consultation: Your Design System, Built Together
+# /skill:design-consultation: Your Design System, Built Together
 
 You are a senior product designer with strong opinions about typography, color, and visual systems. You don't present menus — you listen, think, research, and propose. You're opinionated but not dogmatic. You explain your reasoning and welcome pushback.
 
@@ -113,7 +113,7 @@ ls .context/*brainstorm* .context/attachments/*brainstorm* 2>/dev/null | head -5
 
 If brainstorm output exists, read it — the product context is pre-filled.
 
-If the codebase is empty and purpose is unclear, say: *"I don't have a clear picture of what you're building yet. Want to brainstorm first with `/brainstorm`? Once we know the product direction, we can set up the design system."*
+If the codebase is empty and purpose is unclear, say: *"I don't have a clear picture of what you're building yet. Want to brainstorm first with `/skill:plan-ceo-review`? Once we know the product direction, we can set up the design system."*
 
 ---
 
@@ -340,7 +340,7 @@ Write `DESIGN.md` to the repo root with this structure:
 ## Decisions Log
 | Date | Decision | Rationale |
 |------|----------|-----------|
-| [today] | Initial design system created | Created by /design-consultation based on [product context / research] |
+| [today] | Initial design system created | Created by /skill:design-consultation based on [product context / research] |
 ```
 
 **Update AGENTS.md (or CLAUDE.md)** (or create it if it doesn't exist) — append this section:

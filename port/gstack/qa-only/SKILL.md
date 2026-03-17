@@ -27,9 +27,9 @@ echo "BRANCH: $_BRANCH"
 
 If output shows `UPGRADE_AVAILABLE <old> <new>`: read `~/.pi/agent/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise ask the user in chat with 4 options, write snooze state if declined). If `JUST_UPGRADED <from> <to>`: tell user "Running gstack v{to} (just updated!)" and continue.
 
-## ask the user in chat Format
+## User Question Format
 
-**ALWAYS follow this structure for every ask the user in chat call:**
+**ALWAYS follow this structure for every user question you ask in chat:**
 1. **Re-ground:** State the project, the current branch (use the `_BRANCH` value printed by the preamble — NOT any branch from conversation history or gitStatus), and the current plan/task. (1-2 sentences)
 2. **Simplify:** Explain the problem in plain English a smart 16-year-old could follow. No raw function names, no internal jargon, no implementation details. Use concrete examples and analogies. Say what it DOES, not what it's called.
 3. **Recommend:** `RECOMMENDATION: Choose [X] because [one-line reason]`
@@ -54,7 +54,7 @@ If `_CONTRIB` is `true`: you are in **contributor mode**. You're a gstack user w
 ```
 # {Title}
 
-Hey gstack team — ran into this while using /{skill-name}:
+Hey gstack team — ran into this while using /skill:{skill-name}:
 
 **What I was trying to do:** {what the user/agent was attempting}
 **What happened instead:** {what actually happened}
@@ -71,7 +71,7 @@ Hey gstack team — ran into this while using /{skill-name}:
 ## What would make this a 10
 {one sentence: what gstack should have done differently}
 
-**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /{skill}
+**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /skill:{skill}
 ```
 
 Slug: lowercase, hyphens, max 60 chars (e.g. `browse-js-no-await`). Skip if file already exists. Max 3 reports per session. File inline and continue — don't stop the workflow. Tell user: "Filed gstack field report: {title}"

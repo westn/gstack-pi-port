@@ -5,7 +5,7 @@
     "commit": "4a77cc2c34506d9ce57193b3378e48e22b7b9842",
     "version": "0.5.0"
   },
-  "generatedAt": "2026-03-17T04:25:50.817999+00:00",
+  "generatedAt": "2026-03-17T05:22:27.073894+00:00",
   "portDir": "port/gstack",
   "changedFiles": 57,
   "transformRules": {
@@ -132,7 +132,7 @@
       ],
       [
         "and tells Claude that if gstack skills aren't working,",
-        "and tells pi that if gstack skills aren't working,"
+        "and tells the user that if gstack skills aren't working,"
       ],
       [
         "Everything lives inside `.pi/`. Nothing touches your PATH or runs in the background.",
@@ -141,6 +141,42 @@
       [
         "This rebuilds symlinks so Claude can discover the skills.",
         "This rebuilds symlinks so pi can discover the skills."
+      ],
+      [
+        "https://claude.com/claude-code",
+        "https://www.npmjs.com/package/@mariozechner/pi-coding-agent"
+      ],
+      [
+        "See what Claude sees",
+        "See what the agent sees"
+      ],
+      [
+        "prompt templates read by Claude",
+        "prompt templates read by the agent"
+      ],
+      [
+        "tell Claude what to remember",
+        "tell the agent what to remember"
+      ],
+      [
+        "SKILL.md files tell Claude how to use the browse commands.",
+        "SKILL.md files tell the agent how to use the browse commands."
+      ],
+      [
+        "**Claude reads SKILL.md at skill load time.**",
+        "**The agent reads SKILL.md at skill load time.**"
+      ],
+      [
+        "I tell Claude to go check staging.",
+        "I tell the agent to go check staging."
+      ],
+      [
+        "where Claude needs eyes on a live URL.",
+        "where the agent needs eyes on a live URL."
+      ],
+      [
+        "Want to brainstorm first with `/brainstorm`?",
+        "Want to brainstorm first with `/skill:plan-ceo-review`?"
       ],
       [
         "CLAUDE.md",
@@ -157,7 +193,11 @@
       "qa-only",
       "setup-browser-cookies",
       "retro",
-      "gstack-upgrade"
+      "gstack-upgrade",
+      "plan-design-review",
+      "qa-design-review",
+      "design-consultation",
+      "document-release"
     ],
     "removeAllowedTools": true
   }

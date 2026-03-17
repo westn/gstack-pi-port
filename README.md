@@ -85,13 +85,18 @@ Then invoke skills via:
 ```text
 /skill:plan-ceo-review
 /skill:plan-eng-review
+/skill:plan-design-review
 /skill:review
 /skill:ship
 /skill:browse
 /skill:qa
 /skill:qa-only
+/skill:qa-design-review
 /skill:setup-browser-cookies
 /skill:retro
+/skill:design-consultation
+/skill:document-release
+/skill:gstack-upgrade
 ```
 
 ## Update flow
@@ -103,7 +108,13 @@ When upstream changes:
 ./scripts/install.sh --global
 ```
 
-That re-pulls upstream main, regenerates the port, and reinstalls.
+Optional (recommended) LLM audit via pi:
+
+```bash
+./scripts/llm_port_audit.py
+```
+
+That re-pulls upstream main, regenerates the port, reinstalls, and gives you an additional report-only quality pass for wording/porting artifacts.
 
 ## Licensing
 

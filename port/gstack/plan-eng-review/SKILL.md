@@ -26,9 +26,9 @@ echo "BRANCH: $_BRANCH"
 
 If output shows `UPGRADE_AVAILABLE <old> <new>`: read `~/.pi/agent/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise ask the user in chat with 4 options, write snooze state if declined). If `JUST_UPGRADED <from> <to>`: tell user "Running gstack v{to} (just updated!)" and continue.
 
-## ask the user in chat Format
+## User Question Format
 
-**ALWAYS follow this structure for every ask the user in chat call:**
+**ALWAYS follow this structure for every user question you ask in chat:**
 1. **Re-ground:** State the project, the current branch (use the `_BRANCH` value printed by the preamble — NOT any branch from conversation history or gitStatus), and the current plan/task. (1-2 sentences)
 2. **Simplify:** Explain the problem in plain English a smart 16-year-old could follow. No raw function names, no internal jargon, no implementation details. Use concrete examples and analogies. Say what it DOES, not what it's called.
 3. **Recommend:** `RECOMMENDATION: Choose [X] because [one-line reason]`
@@ -53,7 +53,7 @@ If `_CONTRIB` is `true`: you are in **contributor mode**. You're a gstack user w
 ```
 # {Title}
 
-Hey gstack team — ran into this while using /{skill-name}:
+Hey gstack team — ran into this while using /skill:{skill-name}:
 
 **What I was trying to do:** {what the user/agent was attempting}
 **What happened instead:** {what actually happened}
@@ -70,7 +70,7 @@ Hey gstack team — ran into this while using /{skill-name}:
 ## What would make this a 10
 {one sentence: what gstack should have done differently}
 
-**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /{skill}
+**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /skill:{skill}
 ```
 
 Slug: lowercase, hyphens, max 60 chars (e.g. `browse-js-no-await`). Skip if file already exists. Max 3 reports per session. File inline and continue — don't stop the workflow. Tell user: "Filed gstack field report: {title}"
@@ -123,7 +123,7 @@ Evaluate:
 * Whether key flows deserve ASCII diagrams in the plan or in code comments.
 * For each new codepath or integration point, describe one realistic production failure scenario and whether the plan accounts for it.
 
-**STOP.** For each issue found in this section, call ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one ask the user in chat. Only proceed to the next section after ALL issues in this section are resolved.
+**STOP.** For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Only proceed to the next section after ALL issues in this section are resolved.
 
 ### 2. Code quality review
 Evaluate:
@@ -134,14 +134,14 @@ Evaluate:
 * Areas that are over-engineered or under-engineered relative to my preferences.
 * Existing ASCII diagrams in touched files — are they still accurate after this change?
 
-**STOP.** For each issue found in this section, call ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one ask the user in chat. Only proceed to the next section after ALL issues in this section are resolved.
+**STOP.** For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Only proceed to the next section after ALL issues in this section are resolved.
 
 ### 3. Test review
 Make a diagram of all new UX, new data flow, new codepaths, and new branching if statements or outcomes. For each, note what is new about the features discussed in this branch and plan. Then, for each new item in the diagram, make sure there is a JS or Rails test.
 
-For LLM/prompt changes: check the "Prompt/LLM changes" file patterns listed in AGENTS.md (or CLAUDE.md). If this plan touches ANY of those patterns, state which eval suites must be run, which cases should be added, and what baselines to compare against. Then use ask the user in chat to confirm the eval scope with the user.
+For LLM/prompt changes: check the "Prompt/LLM changes" file patterns listed in AGENTS.md (or CLAUDE.md). If this plan touches ANY of those patterns, state which eval suites must be run, which cases should be added, and what baselines to compare against. Then ask the user to confirm the eval scope.
 
-**STOP.** For each issue found in this section, call ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one ask the user in chat. Only proceed to the next section after ALL issues in this section are resolved.
+**STOP.** For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Only proceed to the next section after ALL issues in this section are resolved.
 
 ### Test Plan Artifact
 
@@ -185,17 +185,17 @@ Evaluate:
 * Caching opportunities.
 * Slow or high-complexity code paths.
 
-**STOP.** For each issue found in this section, call ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one ask the user in chat. Only proceed to the next section after ALL issues in this section are resolved.
+**STOP.** For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Only proceed to the next section after ALL issues in this section are resolved.
 
 ## CRITICAL RULE — How to ask questions
 Follow the ask the user in chat format from the Preamble above. Additional rules for plan reviews:
-* **One issue = one ask the user in chat call.** Never combine multiple issues into one question.
+* **One issue = one user question in chat.** Never combine multiple issues into one question.
 * Describe the problem concretely, with file and line references.
 * Present 2-3 options, including "do nothing" where that's reasonable.
 * For each option, specify in one line: effort, risk, and maintenance burden.
 * **Map the reasoning to my engineering preferences above.** One sentence connecting your recommendation to a specific preference (DRY, explicit > clever, minimal diff, etc.).
 * Label with issue NUMBER + option LETTER (e.g., "3A", "3B").
-* **Escape hatch:** If a section has no issues, say so and move on. If an issue has an obvious fix with no real alternatives, state what you'll do and move on — don't waste a question on it. Only use ask the user in chat when there is a genuine decision with meaningful tradeoffs.
+* **Escape hatch:** If a section has no issues, say so and move on. If an issue has an obvious fix with no real alternatives, state what you'll do and move on — don't waste a question on it. Only ask the user in chat when there is a genuine decision with meaningful tradeoffs.
 * **Exception:** SMALL CHANGE mode intentionally batches one issue per section into a single ask the user in chat at the end — but each issue in that batch still requires its own recommendation + WHY + lettered options.
 
 ## Required outputs
@@ -207,7 +207,7 @@ Every plan review MUST produce a "NOT in scope" section listing work that was co
 List existing code/flows that already partially solve sub-problems in this plan, and whether the plan reuses them or unnecessarily rebuilds them.
 
 ### TODOS.md updates
-After all review sections are complete, present each potential TODO as its own individual ask the user in chat. Never batch TODOs — one per question. Never silently skip this step. Follow the format in `~/.pi/agent/skills/review/TODOS-format.md`.
+After all review sections are complete, present each potential TODO as its own individual user question in chat. Never batch TODOs — one per question. Never silently skip this step. Follow the format in `~/.pi/agent/skills/review/TODOS-format.md`.
 
 For each TODO, describe:
 * **What:** One-line description of the work.

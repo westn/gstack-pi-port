@@ -376,15 +376,15 @@
 
 ## Design Review
 
-### /design-consultation interactive skill — SHIPPED
+### /skill:design-consultation interactive skill — SHIPPED
 
 ~~**What:** Interactive skill that walks user through creating a DESIGN.md from scratch.~~
 
-Shipped as `/design-consultation` on garrytan/design branch. Renamed from `/setup-design-md` to reflect the consultant approach (agent proposes a complete coherent system, user adjusts). Includes competitive research via WebSearch, combined font+color preview page, coherence validation, and LLM-judged E2E tests.
+Shipped as `/skill:design-consultation` on garrytan/design branch. Renamed from `/setup-design-md` to reflect the consultant approach (agent proposes a complete coherent system, user adjusts). Includes competitive research via WebSearch, combined font+color preview page, coherence validation, and LLM-judged E2E tests.
 
 ## Document-Release
 
-### Auto-invoke /document-release from /skill:ship
+### Auto-invoke /skill:document-release from /skill:ship
 
 **What:** Add Step 8.5 to /skill:ship that reads document-release/SKILL.md and executes the doc update workflow after creating the PR.
 
@@ -394,13 +394,13 @@ Shipped as `/design-consultation` on garrytan/design branch. Renamed from `/setu
 
 **Effort:** S
 **Priority:** P1
-**Depends on:** /document-release shipped
+**Depends on:** /skill:document-release shipped
 
 ### `{{DOC_VOICE}}` shared resolver
 
-**What:** Create a placeholder resolver in gen-skill-docs.ts encoding the gstack voice guide (friendly, user-forward, lead with benefits). Inject into /skill:ship Step 5, /document-release Step 5, and reference from AGENTS.md (or CLAUDE.md).
+**What:** Create a placeholder resolver in gen-skill-docs.ts encoding the gstack voice guide (friendly, user-forward, lead with benefits). Inject into /skill:ship Step 5, /skill:document-release Step 5, and reference from AGENTS.md (or CLAUDE.md).
 
-**Why:** DRY — voice rules currently live inline in 3 places (AGENTS.md (or CLAUDE.md) CHANGELOG style section, /skill:ship Step 5, /document-release Step 5). When the voice evolves, all three drift.
+**Why:** DRY — voice rules currently live inline in 3 places (AGENTS.md (or CLAUDE.md) CHANGELOG style section, /skill:ship Step 5, /skill:document-release Step 5). When the voice evolves, all three drift.
 
 **Context:** Same pattern as `{{QA_METHODOLOGY}}` — shared block injected into multiple templates to prevent drift. ~20 lines in gen-skill-docs.ts.
 

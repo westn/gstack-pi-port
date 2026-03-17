@@ -27,9 +27,9 @@ echo "BRANCH: $_BRANCH"
 
 If output shows `UPGRADE_AVAILABLE <old> <new>`: read `~/.pi/agent/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise ask the user in chat with 4 options, write snooze state if declined). If `JUST_UPGRADED <from> <to>`: tell user "Running gstack v{to} (just updated!)" and continue.
 
-## ask the user in chat Format
+## User Question Format
 
-**ALWAYS follow this structure for every ask the user in chat call:**
+**ALWAYS follow this structure for every user question you ask in chat:**
 1. **Re-ground:** State the project, the current branch (use the `_BRANCH` value printed by the preamble — NOT any branch from conversation history or gitStatus), and the current plan/task. (1-2 sentences)
 2. **Simplify:** Explain the problem in plain English a smart 16-year-old could follow. No raw function names, no internal jargon, no implementation details. Use concrete examples and analogies. Say what it DOES, not what it's called.
 3. **Recommend:** `RECOMMENDATION: Choose [X] because [one-line reason]`
@@ -54,7 +54,7 @@ If `_CONTRIB` is `true`: you are in **contributor mode**. You're a gstack user w
 ```
 # {Title}
 
-Hey gstack team — ran into this while using /{skill-name}:
+Hey gstack team — ran into this while using /skill:{skill-name}:
 
 **What I was trying to do:** {what the user/agent was attempting}
 **What happened instead:** {what actually happened}
@@ -71,7 +71,7 @@ Hey gstack team — ran into this while using /{skill-name}:
 ## What would make this a 10
 {one sentence: what gstack should have done differently}
 
-**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /{skill}
+**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /skill:{skill}
 ```
 
 Slug: lowercase, hyphens, max 60 chars (e.g. `browse-js-no-await`). Skip if file already exists. Max 3 reports per session. File inline and continue — don't stop the workflow. Tell user: "Filed gstack field report: {title}"
@@ -436,13 +436,13 @@ Evaluate:
 
 ## CRITICAL RULE — How to ask questions
 Follow the ask the user in chat format from the Preamble above. Additional rules for plan reviews:
-* **One issue = one ask the user in chat call.** Never combine multiple issues into one question.
+* **One issue = one user question in chat.** Never combine multiple issues into one question.
 * Describe the problem concretely, with file and line references.
 * Present 2-3 options, including "do nothing" where reasonable.
 * For each option: effort, risk, and maintenance burden in one line.
 * **Map the reasoning to my engineering preferences above.** One sentence connecting your recommendation to a specific preference.
 * Label with issue NUMBER + option LETTER (e.g., "3A", "3B").
-* **Escape hatch:** If a section has no issues, say so and move on. If an issue has an obvious fix with no real alternatives, state what you'll do and move on — don't waste a question on it. Only use ask the user in chat when there is a genuine decision with meaningful tradeoffs.
+* **Escape hatch:** If a section has no issues, say so and move on. If an issue has an obvious fix with no real alternatives, state what you'll do and move on — don't waste a question on it. Only ask the user in chat when there is a genuine decision with meaningful tradeoffs.
 
 ## Required Outputs
 
@@ -466,7 +466,7 @@ Complete table of every method that can fail, every exception class, rescued sta
 Any row with RESCUED=N, TEST=N, USER SEES=Silent → **CRITICAL GAP**.
 
 ### TODOS.md updates
-Present each potential TODO as its own individual ask the user in chat. Never batch TODOs — one per question. Never silently skip this step. Follow the format in `~/.pi/agent/skills/review/TODOS-format.md`.
+Present each potential TODO as its own individual user question in chat. Never batch TODOs — one per question. Never silently skip this step. Follow the format in `~/.pi/agent/skills/review/TODOS-format.md`.
 
 For each TODO, describe:
 * **What:** One-line description of the work.
@@ -481,7 +481,7 @@ For each TODO, describe:
 Then present options: **A)** Add to TODOS.md **B)** Skip — not valuable enough **C)** Build it now in this PR instead of deferring.
 
 ### Delight Opportunities (EXPANSION mode only)
-Identify at least 5 "bonus chunk" opportunities (<30 min each) that would make users think "oh nice, they thought of that." Present each delight opportunity as its own individual ask the user in chat. Never batch them. For each one, describe what it is, why it would delight users, and effort estimate. Then present options: **A)** Add to TODOS.md as a vision item **B)** Skip **C)** Build it now in this PR.
+Identify at least 5 "bonus chunk" opportunities (<30 min each) that would make users think "oh nice, they thought of that." Present each delight opportunity as its own individual user question in chat. Never batch them. For each one, describe what it is, why it would delight users, and effort estimate. Then present options: **A)** Add to TODOS.md as a vision item **B)** Skip **C)** Build it now in this PR.
 
 ### Diagrams (mandatory, produce all that apply)
 1. System architecture

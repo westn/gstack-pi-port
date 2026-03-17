@@ -115,7 +115,7 @@ I auto-fixed 5 issues. 2 need your input:
 RECOMMENDATION: Fix both — #1 is a real race condition, #2 prevents silent data corruption.
 ```
 
-If 3 or fewer ASK items, you may use individual ask the user in chat calls instead of batching.
+If 3 or fewer ASK items, you may use individual user question in chat calls instead of batching.
 
 ### Step 5d: Apply user-approved fixes
 
@@ -169,9 +169,9 @@ Cross-reference the diff against documentation files. For each `.md` file in the
 
 1. Check if code changes in the diff affect features, components, or workflows described in that doc file.
 2. If the doc file was NOT updated in this branch but the code it describes WAS changed, flag it as an INFORMATIONAL finding:
-   "Documentation may be stale: [file] describes [feature/component] but code changed in this branch. Consider running `/document-release`."
+   "Documentation may be stale: [file] describes [feature/component] but code changed in this branch. Consider running `/skill:document-release`."
 
-This is informational only — never critical. The fix action is `/document-release`.
+This is informational only — never critical. The fix action is `/skill:document-release`.
 
 If no documentation files exist, skip this step silently.
 

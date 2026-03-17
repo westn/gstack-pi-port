@@ -43,14 +43,14 @@ gstack/
 │   ├── skill-llm-eval.test.ts   # Tier 3: LLM-as-judge (~$0.15/run)
 │   └── skill-e2e.test.ts         # Tier 2: E2E via claude -p (~$3.85/run)
 ├── qa-only/         # /skill:qa-only skill (report-only QA, no fixes)
-├── plan-design-review/  # /plan-design-review skill (report-only design audit)
-├── qa-design-review/    # /qa-design-review skill (design audit + fix loop)
+├── plan-design-review/  # /skill:plan-design-review skill (report-only design audit)
+├── qa-design-review/    # /skill:qa-design-review skill (design audit + fix loop)
 ├── ship/            # Ship workflow skill
 ├── review/          # PR review skill
 ├── plan-ceo-review/ # /skill:plan-ceo-review skill
 ├── plan-eng-review/ # /skill:plan-eng-review skill
 ├── retro/           # Retrospective skill
-├── document-release/ # /document-release skill (post-ship doc updates)
+├── document-release/ # /skill:document-release skill (post-ship doc updates)
 ├── setup            # One-time setup: build binary + symlink skills
 ├── SKILL.md         # Generated from SKILL.md.tmpl (don't edit directly)
 ├── SKILL.md.tmpl    # Template: edit this, run gen:skill-docs
@@ -70,12 +70,12 @@ To add a snapshot flag: add it to `SNAPSHOT_FLAGS` in `browse/src/snapshot.ts` a
 
 ## Writing SKILL templates
 
-SKILL.md.tmpl files are **prompt templates read by Claude**, not bash scripts.
+SKILL.md.tmpl files are **prompt templates read by the agent**, not bash scripts.
 Each bash code block runs in a separate shell — variables do not persist between blocks.
 
 Rules:
 - **Use natural language for logic and state.** Don't use shell variables to pass
-  state between code blocks. Instead, tell Claude what to remember and reference
+  state between code blocks. Instead, tell the agent what to remember and reference
   it in prose (e.g., "the base branch detected in Step 0").
 - **Don't hardcode branch names.** Detect `main`/`master`/etc dynamically via
   `gh pr view` or `gh repo view`. Use `{{BASE_BRANCH_DETECT}}` for PR-targeting

@@ -7,7 +7,7 @@ description: |
   states, and slow-feeling interactions. Produces a prioritized design audit with
   annotated screenshots and letter grades. Infers your design system and offers to
   export as DESIGN.md. Report-only — never modifies code. For the fix loop, use
-  /qa-design-review instead.
+  /skill:qa-design-review instead.
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -29,9 +29,9 @@ echo "BRANCH: $_BRANCH"
 
 If output shows `UPGRADE_AVAILABLE <old> <new>`: read `~/.pi/agent/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise ask the user in chat with 4 options, write snooze state if declined). If `JUST_UPGRADED <from> <to>`: tell user "Running gstack v{to} (just updated!)" and continue.
 
-## ask the user in chat Format
+## User Question Format
 
-**ALWAYS follow this structure for every ask the user in chat call:**
+**ALWAYS follow this structure for every user question you ask in chat:**
 1. **Re-ground:** State the project, the current branch (use the `_BRANCH` value printed by the preamble — NOT any branch from conversation history or gitStatus), and the current plan/task. (1-2 sentences)
 2. **Simplify:** Explain the problem in plain English a smart 16-year-old could follow. No raw function names, no internal jargon, no implementation details. Use concrete examples and analogies. Say what it DOES, not what it's called.
 3. **Recommend:** `RECOMMENDATION: Choose [X] because [one-line reason]`
@@ -56,7 +56,7 @@ If `_CONTRIB` is `true`: you are in **contributor mode**. You're a gstack user w
 ```
 # {Title}
 
-Hey gstack team — ran into this while using /{skill-name}:
+Hey gstack team — ran into this while using /skill:{skill-name}:
 
 **What I was trying to do:** {what the user/agent was attempting}
 **What happened instead:** {what actually happened}
@@ -73,12 +73,12 @@ Hey gstack team — ran into this while using /{skill-name}:
 ## What would make this a 10
 {one sentence: what gstack should have done differently}
 
-**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /{skill}
+**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /skill:{skill}
 ```
 
 Slug: lowercase, hyphens, max 60 chars (e.g. `browse-js-no-await`). Skip if file already exists. Max 3 reports per session. File inline and continue — don't stop the workflow. Tell user: "Filed gstack field report: {title}"
 
-# /plan-design-review: Designer's Eye Audit
+# /skill:plan-design-review: Designer's Eye Audit
 
 You are a senior product designer reviewing a live site. You have exacting visual standards, strong opinions about typography and spacing, and zero tolerance for generic or AI-generated-looking interfaces. You do NOT care whether things "work." You care whether they feel right, look intentional, and respect the user.
 
@@ -543,12 +543,12 @@ Project type: {web app / dashboard / marketing site / etc.}
 ## Decisions Log
 | Date | Decision | Rationale |
 |------|----------|-----------|
-| {today} | Baseline captured from live site | Inferred by /plan-design-review |
+| {today} | Baseline captured from live site | Inferred by /skill:plan-design-review |
 ```
 
 ---
 
 ## Additional Rules (plan-design-review specific)
 
-11. **Never fix anything.** Find and document only. Do not read source code, edit files, or suggest code fixes. Your job is to report what could be better and suggest design improvements. Use `/qa-design-review` for the fix loop.
+11. **Never fix anything.** Find and document only. Do not read source code, edit files, or suggest code fixes. Your job is to report what could be better and suggest design improvements. Use `/skill:qa-design-review` for the fix loop.
 12. **The exception:** You MAY write a DESIGN.md file if the user accepts the offer. This is the only file you create.

@@ -22,7 +22,7 @@ METADATA_PATH = REPO_ROOT / "port" / "METADATA.json"
 UPSTREAM_REPO = "https://github.com/garrytan/gstack.git"
 UPSTREAM_BRANCH = "main"
 
-SKILL_COMMANDS = [
+DEFAULT_SKILL_COMMANDS = [
     "plan-ceo-review",
     "plan-eng-review",
     "review",
@@ -33,7 +33,14 @@ SKILL_COMMANDS = [
     "setup-browser-cookies",
     "retro",
     "gstack-upgrade",
+    "plan-design-review",
+    "qa-design-review",
+    "design-consultation",
+    "document-release",
 ]
+
+# Filled dynamically from upstream skill folders in main().
+SKILL_COMMANDS: list[str] = list(DEFAULT_SKILL_COMMANDS)
 
 # Apply longer paths first.
 PATH_REPLACEMENTS = [
@@ -92,7 +99,7 @@ PHRASE_REPLACEMENTS = [
     ),
     (
         "and tells Claude that if gstack skills aren't working,",
-        "and tells pi that if gstack skills aren't working,",
+        "and tells the user that if gstack skills aren't working,",
     ),
     (
         "Everything lives inside `.pi/`. Nothing touches your PATH or runs in the background.",
@@ -101,6 +108,24 @@ PHRASE_REPLACEMENTS = [
     (
         "This rebuilds symlinks so Claude can discover the skills.",
         "This rebuilds symlinks so pi can discover the skills.",
+    ),
+    (
+        "https://claude.com/claude-code",
+        "https://www.npmjs.com/package/@mariozechner/pi-coding-agent",
+    ),
+    ("See what Claude sees", "See what the agent sees"),
+    ("prompt templates read by Claude", "prompt templates read by the agent"),
+    ("tell Claude what to remember", "tell the agent what to remember"),
+    (
+        "SKILL.md files tell Claude how to use the browse commands.",
+        "SKILL.md files tell the agent how to use the browse commands.",
+    ),
+    ("**Claude reads SKILL.md at skill load time.**", "**The agent reads SKILL.md at skill load time.**"),
+    ("I tell Claude to go check staging.", "I tell the agent to go check staging."),
+    ("where Claude needs eyes on a live URL.", "where the agent needs eyes on a live URL."),
+    (
+        "Want to brainstorm first with `/brainstorm`?",
+        "Want to brainstorm first with `/skill:plan-ceo-review`?",
     ),
     ("CLAUDE.md", "AGENTS.md (or CLAUDE.md)"),
 ]
@@ -165,6 +190,56 @@ def ensure_upstream() -> None:
     run(["git", "clean", "-fdx"], cwd=UPSTREAM_DIR)
 
 
+def discover_skill_commands() -> list[str]:
+    """Discover slash-command skills from upstream folders.
+
+    This keeps command normalization resilient when upstream adds new skills.
+    """
+    commands = set(DEFAULT_SKILL_COMMANDS)
+
+    for marker in ("SKILL.md", "SKILL.md.tmpl"):
+        for path in UPSTREAM_DIR.glob(f"*/{marker}"):
+            name = path.parent.name
+            if name and name != "node_modules":
+                commands.add(name)
+
+    preferred = [cmd for cmd in DEFAULT_SKILL_COMMANDS if cmd in commands]
+    extras = sorted(cmd for cmd in commands if cmd not in DEFAULT_SKILL_COMMANDS)
+    return preferred + extras
+
+
+def normalize_pi_wording(text: str) -> str:
+    """Polish mechanical phrase replacements into natural, stable phrasing."""
+    updated = text
+
+    wording_replacements = [
+        ("## ask the user in chat Format", "## User Question Format"),
+        (
+            "**ALWAYS follow this structure for every ask the user in chat call:**",
+            "**ALWAYS follow this structure for every user question you ask in chat:**",
+        ),
+        ("One issue = one ask the user in chat call.", "One issue = one user question in chat."),
+        ("Do NOT use ask the user in chat", "Do NOT ask the user in chat"),
+        ("Skip ask the user in chat", "Skip asking the user in chat"),
+        ("call ask the user in chat", "ask the user in chat"),
+        ("use ask the user in chat", "ask the user in chat"),
+        ("one ask the user in chat", "one user question in chat"),
+        ("individual ask the user in chat", "individual user question in chat"),
+        ("ask the user in chat calls", "user-question prompts"),
+        (
+            "ask the user in chat to confirm the eval scope with the user.",
+            "ask the user to confirm the eval scope.",
+        ),
+        ("/{skill-name}", "/skill:{skill-name}"),
+        ("/{skill}", "/skill:{skill}"),
+    ]
+
+    for old, new in wording_replacements:
+        updated = updated.replace(old, new)
+
+    return updated
+
+
 def remove_allowed_tools_frontmatter(text: str) -> str:
     if not text.startswith("---\n"):
         return text
@@ -204,7 +279,7 @@ def remove_allowed_tools_frontmatter(text: str) -> str:
 def replace_skill_commands(text: str) -> str:
     for cmd in SKILL_COMMANDS:
         pattern = re.compile(
-            rf"(^|[\s`\"'<(])/{re.escape(cmd)}(?=$|[\s`\"')>.,:;!?])",
+            rf"(^|[\s`\"'<(\[])/{re.escape(cmd)}(?=$|[\s`\"')>\].,:;!?])",
             flags=re.MULTILINE,
         )
         text = pattern.sub(rf"\1/skill:{cmd}", text)
@@ -269,6 +344,7 @@ def transform_text(text: str, path: Path) -> str:
     for old, new in PHRASE_REPLACEMENTS:
         updated = updated.replace(old, new)
 
+    updated = normalize_pi_wording(updated)
     updated = patch_port_readme(updated, path)
 
     if path.suffix == ".md" or path.name == "SKILL.md":
@@ -368,6 +444,56 @@ def verify_version_parity() -> str:
     return upstream_version
 
 
+def verify_port_quality() -> None:
+    """Fail fast on common mechanical-port regressions."""
+    stale_phrases = [
+        "## ask the user in chat Format",
+        "every ask the user in chat call",
+        "and tells pi that if gstack skills aren't working,",
+        "/brainstorm",
+        "https://claude.com/claude-code",
+        "Skip ask the user in chat",
+        "call ask the user in chat",
+        "/{skill-name}",
+        "/{skill}",
+    ]
+
+    findings: list[str] = []
+    bare_command_findings: list[str] = []
+
+    for path in PORT_DIR.rglob("*"):
+        if not path.is_file() or not is_probably_text(path):
+            continue
+
+        rel = path.relative_to(PORT_DIR).as_posix()
+        content = path.read_text(encoding="utf-8")
+
+        for phrase in stale_phrases:
+            if phrase in content:
+                findings.append(f"{rel}: contains stale phrase '{phrase}'")
+
+        for cmd in SKILL_COMMANDS:
+            pattern = re.compile(
+                rf"(^|[\s`\"'<(\[])/{re.escape(cmd)}(?=$|[\s`\"')>\].,:;!?])",
+                flags=re.MULTILINE,
+            )
+            if pattern.search(content):
+                bare_command_findings.append(f"{rel}: found '/{cmd}' (expected '/skill:{cmd}')")
+
+    findings.extend(bare_command_findings)
+
+    if findings:
+        preview = "\n".join(f"- {item}" for item in findings[:20])
+        more = ""
+        if len(findings) > 20:
+            more = f"\n... and {len(findings) - 20} more"
+        raise RuntimeError(
+            "Port quality checks failed:\n"
+            f"{preview}{more}\n"
+            "Update transform rules to normalize these patterns."
+        )
+
+
 def write_metadata(changed_files: int) -> None:
     commit = run(["git", "rev-parse", "HEAD"], cwd=UPSTREAM_DIR)
     version_file = UPSTREAM_DIR / "VERSION"
@@ -397,19 +523,25 @@ def write_metadata(changed_files: int) -> None:
 
 
 def main() -> None:
+    global SKILL_COMMANDS
+
     ensure_upstream()
+    SKILL_COMMANDS = discover_skill_commands()
+
     copy_upstream()
     changed_files = transform_port_tree()
     if ensure_agents_context_file():
         changed_files += 1
 
     synced_version = verify_version_parity()
+    verify_port_quality()
     write_metadata(changed_files)
 
     commit = run(["git", "rev-parse", "--short", "HEAD"], cwd=UPSTREAM_DIR)
     print(f"Synced upstream {UPSTREAM_REPO}@{commit}")
     print(f"Wrote port to {PORT_DIR}")
     print(f"Version parity check passed: {synced_version}")
+    print(f"Port quality check passed ({len(SKILL_COMMANDS)} skill commands normalized)")
     print(f"Transformed {changed_files} files")
     print(f"Metadata: {METADATA_PATH}")
 

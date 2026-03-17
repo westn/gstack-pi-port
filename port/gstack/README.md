@@ -23,16 +23,16 @@ Twelve opinionated workflow skills for [pi](https://www.npmjs.com/package/@mario
 |-------|------|--------------|
 | `/skill:plan-ceo-review` | Founder / CEO | Rethink the problem. Find the 10-star product hiding inside the request. |
 | `/skill:plan-eng-review` | Eng manager / tech lead | Lock in architecture, data flow, diagrams, edge cases, and tests. |
-| `/plan-design-review` | Senior product designer | Designer's eye audit. 80-item checklist, letter grades, AI Slop detection, DESIGN.md inference. Report only — never touches code. |
+| `/skill:plan-design-review` | Senior product designer | Designer's eye audit. 80-item checklist, letter grades, AI Slop detection, DESIGN.md inference. Report only — never touches code. |
 | `/skill:review` | Paranoid staff engineer | Find the bugs that pass CI but blow up in production. Triages Greptile review comments. |
 | `/skill:ship` | Release engineer | Sync main, run tests, resolve Greptile reviews, push, open PR. For a ready branch, not for deciding what to build. |
 | `/skill:browse` | QA engineer | Give the agent eyes. It logs in, clicks through your app, takes screenshots, catches breakage. Full QA pass in 60 seconds. |
 | `/skill:qa` | QA + fix engineer | Test app, find bugs, fix them with atomic commits, re-verify. Before/after health scores and ship-readiness summary. Three tiers: Quick, Standard, Exhaustive. |
 | `/skill:qa-only` | QA reporter | Report-only QA testing. Same methodology as /skill:qa but never fixes anything. Use when you want a pure bug report without code changes. |
-| `/qa-design-review` | Designer + frontend engineer | Same design audit as /plan-design-review, then fixes what it finds. Atomic `style(design):` commits, before/after screenshots, CSS-safe self-regulation. |
+| `/skill:qa-design-review` | Designer + frontend engineer | Same design audit as /skill:plan-design-review, then fixes what it finds. Atomic `style(design):` commits, before/after screenshots, CSS-safe self-regulation. |
 | `/skill:setup-browser-cookies` | Session manager | Import cookies from your real browser (Comet, Chrome, Arc, Brave, Edge) into the headless session. Test authenticated pages without logging in manually. |
 | `/skill:retro` | Engineering manager | Team-aware retro: your deep-dive + per-person praise and growth opportunities for every contributor. |
-| `/document-release` | Technical writer | Update README, ARCHITECTURE, CONTRIBUTING, and project docs to match what you just shipped. |
+| `/skill:document-release` | Technical writer | Update README, ARCHITECTURE, CONTRIBUTING, and project docs to match what you just shipped. |
 
 ## Demo: one feature, five modes
 
@@ -86,7 +86,7 @@ You:   /skill:qa https://staging.myapp.com --quick
 Agent: [Smoke test: homepage + 5 pages, 30 seconds]
         Health Score: 91/100. No critical issues. 1 medium: mobile nav overlap.
 
-You:   /plan-design-review https://staging.myapp.com
+You:   /skill:plan-design-review https://staging.myapp.com
 
 Agent: Design Score: B  |  AI Slop Score: C
 
@@ -102,7 +102,7 @@ Agent: Design Score: B  |  AI Slop Score: C
         [Full report with letter grades, 12 findings, inferred design system]
         Want me to save this as your DESIGN.md?
 
-You:   /qa-design-review
+You:   /skill:qa-design-review
 
 Agent: [Runs the same audit, then fixes 8 design issues]
         style(design): FINDING-001 — replace Inter with system font stack
@@ -135,11 +135,11 @@ This is the setup I use. One person, ten parallel agents, each with the right co
 
 Open pi and paste this. The agent will do the rest.
 
-> Install gstack (Pi port): run `git clone https://github.com/westn/gstack-pi-port.git /tmp/gstack-pi-port && cd /tmp/gstack-pi-port && ./scripts/install.sh --global --build` then add a "gstack" section to AGENTS.md (or CLAUDE.md) that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /plan-design-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /qa-design-review, /skill:setup-browser-cookies, /skill:retro, /document-release. Then ask the user if they also want to add gstack to the current project so teammates get it.
+> Install gstack (Pi port): run `git clone https://github.com/westn/gstack-pi-port.git /tmp/gstack-pi-port && cd /tmp/gstack-pi-port && ./scripts/install.sh --global --build` then add a "gstack" section to AGENTS.md (or CLAUDE.md) that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:qa-design-review, /skill:setup-browser-cookies, /skill:retro, /skill:document-release. Then ask the user if they also want to add gstack to the current project so teammates get it.
 
 ### Step 2: Add to your repo so teammates get it (optional)
 
-> Add gstack to this project: run `cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack && rm -rf .pi/skills/gstack/.git && cd .pi/skills/gstack && ./setup` then add a "gstack" section to this project's AGENTS.md (or CLAUDE.md) that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /plan-design-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /qa-design-review, /skill:setup-browser-cookies, /skill:retro, /document-release, and tells pi that if gstack skills aren't working, run `cd .pi/skills/gstack && ./setup` to build the binary and register skills.
+> Add gstack to this project: run `cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack && rm -rf .pi/skills/gstack/.git && cd .pi/skills/gstack && ./setup` then add a "gstack" section to this project's AGENTS.md (or CLAUDE.md) that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:qa-design-review, /skill:setup-browser-cookies, /skill:retro, /skill:document-release, and tells the user that if gstack skills aren't working, run `cd .pi/skills/gstack && ./setup` to build the binary and register skills.
 
 Real files get committed to your repo (not a submodule), so `git clone` just works. The binary and node\_modules are gitignored — teammates just need to run `cd .pi/skills/gstack && ./setup` once to build (or `/skill:browse` handles it automatically on first use).
 
@@ -288,13 +288,13 @@ Not "make the idea smaller."
 
 ---
 
-## `/plan-design-review`
+## `/skill:plan-design-review`
 
 This is my **senior designer mode**.
 
 Most developers cannot tell whether their site looks AI-generated. I could not, until I started paying attention. There is a growing class of sites that are functional but soulless — they work fine but scream "an AI built this and nobody with taste looked at it." Purple gradients, 3-column icon grids, uniform bubbly border-radius on everything, centered text on every section, decorative blobs floating in the background. The ChatGPT aesthetic.
 
-`/plan-design-review` gives the agent a designer's eye.
+`/skill:plan-design-review` gives the agent a designer's eye.
 
 It opens your site and reacts to it the way a Stripe or Linear designer would — immediately, viscerally, with opinions. The first output is a structured gut reaction: what the site communicates at a glance, what the eye is drawn to, and a one-word verdict. That is the most valuable part. Everything after is supporting evidence.
 
@@ -307,7 +307,7 @@ Every finding gets a letter grade (A through F) per category. The report opens w
 ### Example
 
 ```
-You:   /plan-design-review https://myapp.com
+You:   /skill:plan-design-review https://myapp.com
 
 Agent: Design Score: C  |  AI Slop Score: D
 
@@ -337,24 +337,24 @@ Agent: Design Score: C  |  AI Slop Score: D
         Want me to save this inferred design system as your DESIGN.md?
 ```
 
-This is report only — it never touches your code. Use `/qa-design-review` when you want it to fix what it finds.
+This is report only — it never touches your code. Use `/skill:qa-design-review` when you want it to fix what it finds.
 
 ---
 
-## `/qa-design-review`
+## `/skill:qa-design-review`
 
 This is my **designer who codes mode**.
 
-`/plan-design-review` tells you what is wrong. `/qa-design-review` fixes it.
+`/skill:plan-design-review` tells you what is wrong. `/skill:qa-design-review` fixes it.
 
 It runs the same 80-item audit, then enters a fix loop: for each design finding, it locates the source file, makes the minimal CSS/styling change, commits with `style(design): FINDING-NNN`, re-navigates to verify, and takes before/after screenshots. One commit per fix, fully bisectable.
 
 The self-regulation heuristic is tuned for design work — CSS-only changes get a free pass (they are inherently safe and reversible), but changes to component JSX/TSX files count against the risk budget. Hard cap at 30 fixes. If the risk score exceeds 20%, it stops and asks.
 
 ```
-You:   /qa-design-review https://myapp.com
+You:   /skill:qa-design-review https://myapp.com
 
-Agent: [Runs full design audit — same output as /plan-design-review]
+Agent: [Runs full design audit — same output as /skill:plan-design-review]
         Design Score: C  |  AI Slop Score: D
         12 findings (4 high, 5 medium, 3 polish)
 
@@ -539,7 +539,7 @@ That is a real step-change. The full cycle becomes: plan, code, run the app, ins
 
 It is a compiled binary that talks to a persistent Chromium daemon — built on [Playwright](https://playwright.dev/) by Microsoft. First call starts the browser (~3s). Every call after that: ~100-200ms. The browser stays running between commands, so cookies, tabs, and localStorage carry over.
 
-After I push a branch, I tell Claude to go check staging. It does the entire QA pass for me:
+After I push a branch, I tell the agent to go check staging. It does the entire QA pass for me:
 
 ```
 You:   /skill:browse staging.myapp.com — log in, test the signup flow, and check
@@ -582,7 +582,7 @@ Agent: [18 tool calls, ~60 seconds]
 
 18 tool calls, about a minute. It signed up a test user, navigated every page I changed, took screenshots, read them, checked the console for errors, and verified the API. That is a full QA pass. I did not open a browser.
 
-It works for reading documentation, verifying deployments, filling out forms, taking screenshots, comparing pages across environments, and anything else where Claude needs eyes on a live URL.
+It works for reading documentation, verifying deployments, filling out forms, taking screenshots, comparing pages across environments, and anything else where the agent needs eyes on a live URL.
 
 **Security note:** `/skill:browse` runs a persistent Chromium session. Cookies, localStorage, and session state carry over between commands. Do not use it against sensitive production environments unless you intend to — it is a real browser with real state. The session auto-shuts down after 30 minutes of idle time.
 
@@ -714,14 +714,14 @@ It saves a JSON snapshot to `.context/retros/` so the next run can show trends. 
 
 ---
 
-## `/document-release`
+## `/skill:document-release`
 
 This is my **technical writer mode**.
 
-After `/skill:ship` creates the PR but before it merges, `/document-release` reads every documentation file in the project and cross-references it against the diff. It updates file paths, command lists, project structure trees, and anything else that drifted. Risky or subjective changes get surfaced as questions — everything else is handled automatically.
+After `/skill:ship` creates the PR but before it merges, `/skill:document-release` reads every documentation file in the project and cross-references it against the diff. It updates file paths, command lists, project structure trees, and anything else that drifted. Risky or subjective changes get surfaced as questions — everything else is handled automatically.
 
 ```
-You:   /document-release
+You:   /skill:document-release
 
 Agent: Analyzing 21 files changed across 3 commits. Found 8 documentation files.
 

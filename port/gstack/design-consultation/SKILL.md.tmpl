@@ -5,7 +5,7 @@ description: |
   Design consultation: understands your product, researches competitors, proposes a
   complete design system (aesthetic, typography, color, layout, spacing, motion), and
   generates font+color preview pages. Creates DESIGN.md as your project's design source
-  of truth. For existing sites, use /plan-design-review to infer the system instead.
+  of truth. For existing sites, use /skill:plan-design-review to infer the system instead.
 allowed-tools:
   - Bash
   - Read
@@ -19,7 +19,7 @@ allowed-tools:
 
 {{PREAMBLE}}
 
-# /design-consultation: Your Design System, Built Together
+# /skill:design-consultation: Your Design System, Built Together
 
 You are a senior product designer with strong opinions about typography, color, and visual systems. You don't present menus — you listen, think, research, and propose. You're opinionated but not dogmatic. You explain your reasoning and welcome pushback.
 
@@ -56,7 +56,7 @@ ls .context/*brainstorm* .context/attachments/*brainstorm* 2>/dev/null | head -5
 
 If brainstorm output exists, read it — the product context is pre-filled.
 
-If the codebase is empty and purpose is unclear, say: *"I don't have a clear picture of what you're building yet. Want to brainstorm first with `/brainstorm`? Once we know the product direction, we can set up the design system."*
+If the codebase is empty and purpose is unclear, say: *"I don't have a clear picture of what you're building yet. Want to brainstorm first with `/skill:plan-ceo-review`? Once we know the product direction, we can set up the design system."*
 
 ---
 
@@ -283,7 +283,7 @@ Write `DESIGN.md` to the repo root with this structure:
 ## Decisions Log
 | Date | Decision | Rationale |
 |------|----------|-----------|
-| [today] | Initial design system created | Created by /design-consultation based on [product context / research] |
+| [today] | Initial design system created | Created by /skill:design-consultation based on [product context / research] |
 ```
 
 **Update AGENTS.md (or CLAUDE.md)** (or create it if it doesn't exist) — append this section:

@@ -360,7 +360,7 @@ File a contributor report about this issue. Then tell me what you filed.`,
 
     // Extract ask the user in chat format instructions from generated SKILL.md
     const skillMd = fs.readFileSync(path.join(ROOT, 'SKILL.md'), 'utf-8');
-    const aqStart = skillMd.indexOf('## ask the user in chat Format');
+    const aqStart = skillMd.indexOf('## User Question Format');
     const aqEnd = skillMd.indexOf('\n## ', aqStart + 1);
     const aqBlock = skillMd.slice(aqStart, aqEnd > 0 ? aqEnd : undefined);
 
@@ -375,7 +375,7 @@ You are on branch feature/add-payments in the billing-app project. You were revi
 
 You've hit a decision point: the plan doesn't specify whether to use Stripe Checkout (hosted) or Stripe Elements (embedded). You need to ask the user which approach to use.
 
-Since this is non-interactive, DO NOT actually call ask the user in chat. Instead, write the EXACT text you would display to the user (the full ask the user in chat content) to the file: ${outputPath}
+Since this is non-interactive, DO NOT actually ask the user in chat. Instead, write the EXACT text you would display to the user (the full ask the user in chat content) to the file: ${outputPath}
 
 Remember: _SESSIONS=4, so ELI16 mode is active. The user is juggling multiple windows and may not remember what this conversation is about. Re-ground them.`,
       workingDirectory: sessionDir,
@@ -443,7 +443,7 @@ Target page: ${testServer.url}/basic.html
 Read the file qa/SKILL.md for the QA workflow instructions.
 
 Run a Quick-depth QA test on ${testServer.url}/basic.html
-Do NOT use ask the user in chat — run Quick tier directly.
+Do NOT ask the user in chat — run Quick tier directly.
 Do NOT try to start a server or discover ports — the URL above is ready.
 Write your report to ${qaDir}/qa-reports/qa-report.md`,
       workingDirectory: qaDir,
@@ -825,7 +825,7 @@ We're building a new user dashboard that shows recent activity, notifications, a
 
 Read plan.md — that's the plan to review. This is a standalone plan document, not a codebase — skip any codebase exploration or system audit steps.
 
-Choose HOLD SCOPE mode. Skip any ask the user in chat calls — this is non-interactive.
+Choose HOLD SCOPE mode. Skip any user-question prompts — this is non-interactive.
 Write your complete review directly to ${planDir}/review-output.md
 
 Focus on reviewing the plan content: architecture, error handling, security, and performance.`,
@@ -920,7 +920,7 @@ Replace session-cookie auth with JWT tokens. Currently using express-session + R
 
 Read plan.md — that's the plan to review. This is a standalone plan document, not a codebase — skip any codebase exploration steps.
 
-Choose SMALL CHANGE mode. Skip any ask the user in chat calls — this is non-interactive.
+Choose SMALL CHANGE mode. Skip any user-question prompts — this is non-interactive.
 Write your complete review directly to ${planDir}/review-output.md
 
 Focus on architecture, code quality, tests, and performance sections.`,
@@ -1005,7 +1005,7 @@ describeE2E('Retro E2E', () => {
     const result = await runSkillTest({
       prompt: `Read retro/SKILL.md for instructions on how to run a retrospective.
 
-Run /skill:retro for the last 7 days of this git repo. Skip any ask the user in chat calls — this is non-interactive.
+Run /skill:retro for the last 7 days of this git repo. Skip any user-question prompts — this is non-interactive.
 Write your retrospective report to ${retroDir}/retro-output.md
 
 Analyze the git history and produce the narrative report as described in the SKILL.md.`,
@@ -1078,7 +1078,7 @@ B="${browseBin}"
 Read the file qa-only/SKILL.md for the QA-only workflow instructions.
 
 Run a Quick QA test on ${testServer.url}/qa-eval.html
-Do NOT use ask the user in chat — run Quick tier directly.
+Do NOT ask the user in chat — run Quick tier directly.
 Write your report to ${qaOnlyDir}/qa-reports/qa-only-report.md`,
       workingDirectory: qaOnlyDir,
       maxTurns: 35,
@@ -1198,7 +1198,7 @@ Read the file qa/SKILL.md for the QA workflow instructions.
 
 Run a Quick-tier QA test on ${qaFixUrl}
 The source code for this page is at ${qaFixDir}/index.html — you can fix bugs there.
-Do NOT use ask the user in chat — run Quick tier directly.
+Do NOT ask the user in chat — run Quick tier directly.
 Write your report to ${qaFixDir}/qa-reports/qa-report.md
 
 This is a test+fix loop: find bugs, fix them in the source code, commit each fix, and re-verify.`,
@@ -1321,7 +1321,7 @@ export function main() { return Dashboard(); }
 
 Read plan.md — that's the plan to review. This is a standalone plan with source code in app.ts and dashboard.ts.
 
-Choose SMALL CHANGE mode. Skip any ask the user in chat calls — this is non-interactive.
+Choose SMALL CHANGE mode. Skip any user-question prompts — this is non-interactive.
 
 IMPORTANT: After your review, you MUST write the test-plan artifact as described in the "Test Plan Artifact" section of SKILL.md. The remote-slug shim is at ${planDir}/browse/bin/remote-slug.
 
@@ -1520,7 +1520,7 @@ Write a summary of what you detected to ${dir}/ship-preflight.md including:
 IMPORTANT: Follow the "Detect default branch" step first. Since there is no remote, gh will fail — fall back to main.
 Then use the detected branch name for all git queries.
 
-Run /skill:retro for the last 7 days of this git repo. Skip any ask the user in chat calls — this is non-interactive.
+Run /skill:retro for the last 7 days of this git repo. Skip any user-question prompts — this is non-interactive.
 This is a local-only repo so use the local branch (main) instead of origin/main for all git log commands.
 
 Write your retrospective to ${dir}/retro-output.md`,
@@ -1593,14 +1593,14 @@ describeE2E('Document-Release skill E2E', () => {
     try { fs.rmSync(docReleaseDir, { recursive: true, force: true }); } catch {}
   });
 
-  test('/document-release updates docs without clobbering CHANGELOG', async () => {
+  test('/skill:document-release updates docs without clobbering CHANGELOG', async () => {
     const result = await runSkillTest({
       prompt: `Read the file document-release/SKILL.md for the document-release workflow instructions.
 
-Run the /document-release workflow on this repo. The base branch is "main".
+Run the /skill:document-release workflow on this repo. The base branch is "main".
 
 IMPORTANT:
-- Do NOT use ask the user in chat — auto-approve everything or skip if unsure.
+- Do NOT ask the user in chat — auto-approve everything or skip if unsure.
 - Do NOT push or create PRs (there is no remote).
 - Do NOT run gh commands (no remote).
 - Focus on updating README.md to reflect the new Feature C.
@@ -1615,7 +1615,7 @@ IMPORTANT:
       runId,
     });
 
-    logCost('/document-release', result);
+    logCost('/skill:document-release', result);
 
     // Read CHANGELOG to verify it was NOT clobbered
     const changelog = fs.readFileSync(path.join(docReleaseDir, 'CHANGELOG.md'), 'utf-8');
@@ -1631,7 +1631,7 @@ IMPORTANT:
     const readmeUpdated = readme.includes('Feature C') || readme.includes('feature-c') || readme.includes('feature C');
 
     const exitOk = ['success', 'error_max_turns'].includes(result.exitReason);
-    recordE2E('/document-release', 'Document-Release skill E2E', result, {
+    recordE2E('/skill:document-release', 'Document-Release skill E2E', result, {
       passed: exitOk && hasOriginalEntries,
     });
 
@@ -1739,7 +1739,7 @@ A civic tech data platform for government employees to access, visualize, and sh
 
 This is a civic tech data platform called CivicPulse for government employees who need to access public data. Read the README.md for details.
 
-Skip research — work from your design knowledge. Skip the font preview page. Skip any ask the user in chat calls — this is non-interactive. Accept your first design system proposal.
+Skip research — work from your design knowledge. Skip the font preview page. Skip any user-question prompts — this is non-interactive. Accept your first design system proposal.
 
 Write DESIGN.md and AGENTS.md (or CLAUDE.md) (or update it) in the working directory.`,
       workingDirectory: designDir,
@@ -1749,7 +1749,7 @@ Write DESIGN.md and AGENTS.md (or CLAUDE.md) (or update it) in the working direc
       runId,
     });
 
-    logCost('/design-consultation core', result);
+    logCost('/skill:design-consultation core', result);
 
     const designPath = path.join(designDir, 'DESIGN.md');
     const claudePath = path.join(designDir, 'AGENTS.md (or CLAUDE.md)');
@@ -1778,7 +1778,7 @@ Write DESIGN.md and AGENTS.md (or CLAUDE.md) (or update it) in the working direc
     }
 
     const structuralPass = designExists && claudeExists && missingSections.length === 0;
-    recordE2E('/design-consultation core', 'Design Consultation E2E', result, {
+    recordE2E('/skill:design-consultation core', 'Design Consultation E2E', result, {
       passed: structuralPass && judgeResult.passed && ['success', 'error_max_turns'].includes(result.exitReason),
     });
 
@@ -1803,7 +1803,7 @@ Write DESIGN.md and AGENTS.md (or CLAUDE.md) (or update it) in the working direc
 
 This is a civic tech data platform called CivicPulse. Read the README.md.
 
-DO research competitors before proposing — search for civic tech and government data platform designs. Skip the font preview page. Skip any ask the user in chat calls — this is non-interactive.
+DO research competitors before proposing — search for civic tech and government data platform designs. Skip the font preview page. Skip any user-question prompts — this is non-interactive.
 
 Write DESIGN.md to the working directory.`,
       workingDirectory: designDir,
@@ -1813,7 +1813,7 @@ Write DESIGN.md to the working directory.`,
       runId,
     });
 
-    logCost('/design-consultation research', result);
+    logCost('/skill:design-consultation research', result);
 
     const designPath = path.join(designDir, 'DESIGN.md');
     const designExists = fs.existsSync(designPath);
@@ -1842,7 +1842,7 @@ Write DESIGN.md to the working directory.`,
       }
     }
 
-    recordE2E('/design-consultation research', 'Design Consultation E2E', result, {
+    recordE2E('/skill:design-consultation research', 'Design Consultation E2E', result, {
       passed: designExists && ['success', 'error_max_turns'].includes(result.exitReason),
     });
 
@@ -1863,7 +1863,7 @@ Body: system-ui
 
 There is already a DESIGN.md in this repo. Update it with a complete design system for CivicPulse, a civic tech data platform for government employees.
 
-Skip research. Skip font preview. Skip any ask the user in chat calls — this is non-interactive.`,
+Skip research. Skip font preview. Skip any user-question prompts — this is non-interactive.`,
       workingDirectory: designDir,
       maxTurns: 20,
       timeout: 360_000,
@@ -1871,7 +1871,7 @@ Skip research. Skip font preview. Skip any ask the user in chat calls — this i
       runId,
     });
 
-    logCost('/design-consultation existing', result);
+    logCost('/skill:design-consultation existing', result);
 
     const designPath = path.join(designDir, 'DESIGN.md');
     const designExists = fs.existsSync(designPath);
@@ -1884,7 +1884,7 @@ Skip research. Skip font preview. Skip any ask the user in chat calls — this i
     const hasColor = designContent.toLowerCase().includes('color');
     const hasSpacing = designContent.toLowerCase().includes('spacing');
 
-    recordE2E('/design-consultation existing', 'Design Consultation E2E', result, {
+    recordE2E('/skill:design-consultation existing', 'Design Consultation E2E', result, {
       passed: designExists && hasColor && hasSpacing && ['success', 'error_max_turns'].includes(result.exitReason),
     });
 
@@ -1905,7 +1905,7 @@ Skip research. Skip font preview. Skip any ask the user in chat calls — this i
 
 This is CivicPulse, a civic tech data platform. Read the README.md.
 
-Skip research. Skip any ask the user in chat calls — this is non-interactive. Generate the font and color preview page but write it to ./design-preview.html instead of /tmp/ (do NOT run the open command). Then write DESIGN.md.`,
+Skip research. Skip any user-question prompts — this is non-interactive. Generate the font and color preview page but write it to ./design-preview.html instead of /tmp/ (do NOT run the open command). Then write DESIGN.md.`,
       workingDirectory: designDir,
       maxTurns: 20,
       timeout: 360_000,
@@ -1913,7 +1913,7 @@ Skip research. Skip any ask the user in chat calls — this is non-interactive. 
       runId,
     });
 
-    logCost('/design-consultation preview', result);
+    logCost('/skill:design-consultation preview', result);
 
     const previewPath = path.join(designDir, 'design-preview.html');
     const designPath = path.join(designDir, 'DESIGN.md');
@@ -1944,7 +1944,7 @@ Skip research. Skip any ask the user in chat calls — this is non-interactive. 
       }
     }
 
-    recordE2E('/design-consultation preview', 'Design Consultation E2E', result, {
+    recordE2E('/skill:design-consultation preview', 'Design Consultation E2E', result, {
       passed: previewExists && designExists && hasHtml && ['success', 'error_max_turns'].includes(result.exitReason),
     });
 
@@ -1991,7 +1991,7 @@ describeE2E('Plan Design Review E2E', () => {
     try { fs.rmSync(reviewDir, { recursive: true, force: true }); } catch {}
   });
 
-  test('Test 5: /plan-design-review produces audit report', async () => {
+  test('Test 5: /skill:plan-design-review produces audit report', async () => {
     const result = await runSkillTest({
       prompt: `IMPORTANT: The browse binary is already assigned below as B. Do NOT search for it or run the SKILL.md setup block — just use $B directly.
 
@@ -1999,7 +1999,7 @@ B="${browseBin}"
 
 Read plan-design-review/SKILL.md for the design review workflow.
 
-Review the site at ${testServer.url}. Use --quick mode (homepage + 2 pages). Skip any ask the user in chat calls — this is non-interactive. Write your audit report to ./design-audit.md. Do not offer to create DESIGN.md.`,
+Review the site at ${testServer.url}. Use --quick mode (homepage + 2 pages). Skip any user-question prompts — this is non-interactive. Write your audit report to ./design-audit.md. Do not offer to create DESIGN.md.`,
       workingDirectory: reviewDir,
       maxTurns: 20,
       timeout: 360_000,
@@ -2007,7 +2007,7 @@ Review the site at ${testServer.url}. Use --quick mode (homepage + 2 pages). Ski
       runId,
     });
 
-    logCost('/plan-design-review audit', result);
+    logCost('/skill:plan-design-review audit', result);
 
     const reportPath = path.join(reviewDir, 'design-audit.md');
     const reportExists = fs.existsSync(reportPath);
@@ -2019,7 +2019,7 @@ Review the site at ${testServer.url}. Use --quick mode (homepage + 2 pages). Ski
     const hasFirstImpression = reportContent.toLowerCase().includes('first impression') ||
       reportContent.toLowerCase().includes('impression');
 
-    recordE2E('/plan-design-review audit', 'Plan Design Review E2E', result, {
+    recordE2E('/skill:plan-design-review audit', 'Plan Design Review E2E', result, {
       passed: reportExists && ['success', 'error_max_turns'].includes(result.exitReason),
     });
 
@@ -2030,7 +2030,7 @@ Review the site at ${testServer.url}. Use --quick mode (homepage + 2 pages). Ski
     }
   }, 420_000);
 
-  test('Test 6: /plan-design-review exports DESIGN.md', async () => {
+  test('Test 6: /skill:plan-design-review exports DESIGN.md', async () => {
     // Clean up previous test artifacts
     try { fs.unlinkSync(path.join(reviewDir, 'design-audit.md')); } catch {}
 
@@ -2041,7 +2041,7 @@ B="${browseBin}"
 
 Read plan-design-review/SKILL.md for the design review workflow.
 
-Review ${testServer.url} with --quick mode. Skip any ask the user in chat calls — this is non-interactive. After Phase 2 (Design System Extraction), write a DESIGN.md to the working directory. Also write the audit report to ./design-audit.md.`,
+Review ${testServer.url} with --quick mode. Skip any user-question prompts — this is non-interactive. After Phase 2 (Design System Extraction), write a DESIGN.md to the working directory. Also write the audit report to ./design-audit.md.`,
       workingDirectory: reviewDir,
       maxTurns: 25,
       timeout: 360_000,
@@ -2049,7 +2049,7 @@ Review ${testServer.url} with --quick mode. Skip any ask the user in chat calls 
       runId,
     });
 
-    logCost('/plan-design-review export', result);
+    logCost('/skill:plan-design-review export', result);
 
     const designPath = path.join(reviewDir, 'DESIGN.md');
     const reportPath = path.join(reviewDir, 'design-audit.md');
@@ -2064,7 +2064,7 @@ Review ${testServer.url} with --quick mode. Skip any ask the user in chat calls 
     const hasTypography = designContent.toLowerCase().includes('typography') || designContent.toLowerCase().includes('font');
     const hasColor = designContent.toLowerCase().includes('color');
 
-    recordE2E('/plan-design-review export', 'Plan Design Review E2E', result, {
+    recordE2E('/skill:plan-design-review export', 'Plan Design Review E2E', result, {
       passed: designExists && ['success', 'error_max_turns'].includes(result.exitReason),
     });
 
@@ -2167,7 +2167,7 @@ describeE2E('QA Design Review E2E', () => {
     try { fs.rmSync(qaDesignDir, { recursive: true, force: true }); } catch {}
   });
 
-  test('Test 7: /qa-design-review audits and fixes design issues', async () => {
+  test('Test 7: /skill:qa-design-review audits and fixes design issues', async () => {
     const serverUrl = `http://localhost:${(qaDesignServer as any)?.port}`;
 
     const result = await runSkillTest({
@@ -2177,7 +2177,7 @@ B="${browseBin}"
 
 Read qa-design-review/SKILL.md for the design review + fix workflow.
 
-Review the site at ${serverUrl}. Use --quick mode. Skip any ask the user in chat calls — this is non-interactive. Fix up to 3 issues max. Write your report to ./design-audit.md.`,
+Review the site at ${serverUrl}. Use --quick mode. Skip any user-question prompts — this is non-interactive. Fix up to 3 issues max. Write your report to ./design-audit.md.`,
       workingDirectory: qaDesignDir,
       maxTurns: 30,
       timeout: 360_000,
@@ -2185,7 +2185,7 @@ Review the site at ${serverUrl}. Use --quick mode. Skip any ask the user in chat
       runId,
     });
 
-    logCost('/qa-design-review fix', result);
+    logCost('/skill:qa-design-review fix', result);
 
     const reportPath = path.join(qaDesignDir, 'design-audit.md');
     const reportExists = fs.existsSync(reportPath);
@@ -2197,7 +2197,7 @@ Review the site at ${serverUrl}. Use --quick mode. Skip any ask the user in chat
     const commits = gitLog.stdout.toString().trim().split('\n');
     const designFixCommits = commits.filter((c: string) => c.includes('style(design)'));
 
-    recordE2E('/qa-design-review fix', 'QA Design Review E2E', result, {
+    recordE2E('/skill:qa-design-review fix', 'QA Design Review E2E', result, {
       passed: ['success', 'error_max_turns'].includes(result.exitReason),
     });
 

@@ -26,9 +26,9 @@ echo "BRANCH: $_BRANCH"
 
 If output shows `UPGRADE_AVAILABLE <old> <new>`: read `~/.pi/agent/skills/gstack/gstack-upgrade/SKILL.md` and follow the "Inline upgrade flow" (auto-upgrade if configured, otherwise ask the user in chat with 4 options, write snooze state if declined). If `JUST_UPGRADED <from> <to>`: tell user "Running gstack v{to} (just updated!)" and continue.
 
-## ask the user in chat Format
+## User Question Format
 
-**ALWAYS follow this structure for every ask the user in chat call:**
+**ALWAYS follow this structure for every user question you ask in chat:**
 1. **Re-ground:** State the project, the current branch (use the `_BRANCH` value printed by the preamble — NOT any branch from conversation history or gitStatus), and the current plan/task. (1-2 sentences)
 2. **Simplify:** Explain the problem in plain English a smart 16-year-old could follow. No raw function names, no internal jargon, no implementation details. Use concrete examples and analogies. Say what it DOES, not what it's called.
 3. **Recommend:** `RECOMMENDATION: Choose [X] because [one-line reason]`
@@ -53,7 +53,7 @@ If `_CONTRIB` is `true`: you are in **contributor mode**. You're a gstack user w
 ```
 # {Title}
 
-Hey gstack team — ran into this while using /{skill-name}:
+Hey gstack team — ran into this while using /skill:{skill-name}:
 
 **What I was trying to do:** {what the user/agent was attempting}
 **What happened instead:** {what actually happened}
@@ -70,7 +70,7 @@ Hey gstack team — ran into this while using /{skill-name}:
 ## What would make this a 10
 {one sentence: what gstack should have done differently}
 
-**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /{skill}
+**Date:** {YYYY-MM-DD} | **Version:** {gstack version} | **Skill:** /skill:{skill}
 ```
 
 Slug: lowercase, hyphens, max 60 chars (e.g. `browse-js-no-await`). Skip if file already exists. Max 3 reports per session. File inline and continue — don't stop the workflow. Tell user: "Filed gstack field report: {title}"
@@ -96,7 +96,7 @@ branch name wherever the instructions say "the base branch."
 
 # Document Release: Post-Ship Documentation Update
 
-You are running the `/document-release` workflow. This runs **after `/skill:ship`** (code committed, PR
+You are running the `/skill:document-release` workflow. This runs **after `/skill:ship`** (code committed, PR
 exists or about to exist) but **before the PR merges**. Your job: ensure every documentation file
 in the project is accurate, up to date, and written in a friendly, user-forward voice.
 
@@ -120,7 +120,7 @@ subjective decisions.
 
 **NEVER do:**
 - Overwrite, replace, or regenerate CHANGELOG entries — polish wording only, preserve all content
-- Bump VERSION without asking — always use ask the user in chat for version changes
+- Bump VERSION without asking — always ask the user in chat for version changes
 - Use `Write` tool on CHANGELOG.md — always use `Edit` with exact `old_string` matches
 
 ---
@@ -219,7 +219,7 @@ from 9 to 10."
 
 ## Step 4: Ask About Risky/Questionable Changes
 
-For each risky or questionable update identified in Step 2, use ask the user in chat with:
+For each risky or questionable update identified in Step 2, ask the user in chat with:
 - Context: project name, branch, which doc file, what we're reviewing
 - The specific documentation decision
 - `RECOMMENDATION: Choose [X] because [one-line reason]`
@@ -244,7 +244,7 @@ preserved them. This skill must NEVER do that.
 3. Never regenerate a CHANGELOG entry from scratch. The entry was written by `/skill:ship` from the
    actual diff and commit history. It is the source of truth. You are polishing prose, not
    rewriting history.
-4. If an entry looks wrong or incomplete, use ask the user in chat — do NOT silently fix it.
+4. If an entry looks wrong or incomplete, ask the user in chat — do NOT silently fix it.
 5. Use Edit tool with exact `old_string` matches — never use Write to overwrite CHANGELOG.md.
 
 **If CHANGELOG was not modified in this branch:** skip this step.
@@ -375,7 +375,7 @@ gh pr view --json body -q .body > /tmp/gstack-pr-body-$$.md
    updated content. If it does not contain one, append a `## Documentation` section at the end.
 
 3. The Documentation section should include a **doc diff preview** — for each file modified,
-   describe what specifically changed (e.g., "README.md: added /document-release to skills
+   describe what specifically changed (e.g., "README.md: added /skill:document-release to skills
    table, updated skill count from 9 to 10").
 
 4. Write the updated body back:
