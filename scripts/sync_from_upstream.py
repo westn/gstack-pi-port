@@ -342,6 +342,32 @@ def ensure_agents_context_file() -> bool:
     return True
 
 
+def read_required_version(path: Path) -> str:
+    if not path.exists():
+        raise RuntimeError(f"Missing required VERSION file: {path}")
+
+    version = path.read_text(encoding="utf-8").strip()
+    if not version:
+        raise RuntimeError(f"Empty VERSION file: {path}")
+
+    return version
+
+
+def verify_version_parity() -> str:
+    """Ensure the generated port keeps the exact upstream VERSION value."""
+    upstream_version = read_required_version(UPSTREAM_DIR / "VERSION")
+    port_version = read_required_version(PORT_DIR / "VERSION")
+
+    if upstream_version != port_version:
+        raise RuntimeError(
+            "VERSION mismatch after sync: "
+            f"upstream={upstream_version} port={port_version}. "
+            "The port must mirror upstream VERSION."
+        )
+
+    return upstream_version
+
+
 def write_metadata(changed_files: int) -> None:
     commit = run(["git", "rev-parse", "HEAD"], cwd=UPSTREAM_DIR)
     version_file = UPSTREAM_DIR / "VERSION"
@@ -376,11 +402,14 @@ def main() -> None:
     changed_files = transform_port_tree()
     if ensure_agents_context_file():
         changed_files += 1
+
+    synced_version = verify_version_parity()
     write_metadata(changed_files)
 
     commit = run(["git", "rev-parse", "--short", "HEAD"], cwd=UPSTREAM_DIR)
     print(f"Synced upstream {UPSTREAM_REPO}@{commit}")
     print(f"Wrote port to {PORT_DIR}")
+    print(f"Version parity check passed: {synced_version}")
     print(f"Transformed {changed_files} files")
     print(f"Metadata: {METADATA_PATH}")
 
