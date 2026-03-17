@@ -194,18 +194,6 @@ describe('extractToolSummary', () => {
     expect(summary).toEqual({ Bash: 2, Read: 1, Write: 1 });
   });
 
-  test('counts tool types from pi tool_execution_start events', () => {
-    const transcript = [
-      { type: 'session', version: 3 },
-      { type: 'tool_execution_start', toolName: 'bash', args: { command: 'ls' } },
-      { type: 'tool_execution_start', toolName: 'read', args: { path: 'README.md' } },
-      { type: 'tool_execution_start', toolName: 'find', args: { pattern: '*.ts' } },
-      { type: 'tool_execution_start', toolName: 'bash', args: { command: 'pwd' } },
-    ];
-
-    expect(extractToolSummary(transcript)).toEqual({ Bash: 2, Read: 1, Glob: 1 });
-  });
-
   test('returns empty object for empty transcript', () => {
     expect(extractToolSummary([])).toEqual({});
   });

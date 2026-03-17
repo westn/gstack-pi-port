@@ -118,38 +118,17 @@ export function judgePassed(
  */
 export function extractToolSummary(transcript: any[]): Record<string, number> {
   const counts: Record<string, number> = {};
-
-  const normalize = (name: string | undefined): string => {
-    const n = (name || 'unknown').toLowerCase();
-    if (n === 'bash') return 'Bash';
-    if (n === 'read') return 'Read';
-    if (n === 'write') return 'Write';
-    if (n === 'edit') return 'Edit';
-    if (n === 'grep') return 'Grep';
-    if (n === 'find' || n === 'glob') return 'Glob';
-    if (n === 'ls') return 'LS';
-    return name || 'unknown';
-  };
-
   for (const event of transcript) {
-    // Legacy stream-json format
     if (event.type === 'assistant') {
       const content = event.message?.content || [];
       for (const item of content) {
         if (item.type === 'tool_use') {
-          const name = normalize(item.name);
+          const name = item.name || 'unknown';
           counts[name] = (counts[name] || 0) + 1;
         }
       }
     }
-
-    // pi JSON event stream format (authoritative)
-    if (event.type === 'tool_execution_start') {
-      const name = normalize(event.toolName);
-      counts[name] = (counts[name] || 0) + 1;
-    }
   }
-
   return counts;
 }
 

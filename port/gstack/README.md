@@ -6,14 +6,7 @@
 
 **gstack turns pi from one generic assistant into a team of specialists you can summon on demand.**
 
-Nine opinionated workflow skills for [pi](https://www.npmjs.com/package/@mariozechner/pi-coding-agent). Plan review, code review, one-command shipping, browser automation, QA testing, and engineering retrospectives — all as slash commands.
-
-## What changed from upstream
-
-- Install flow points to `westn/gstack-pi-port`
-- Paths use Pi locations (`~/.pi/agent/skills` and `.pi/skills`)
-- Commands use `/skill:<name>`
-- Context guidance references `AGENTS.md` (Pi-native; `CLAUDE.md` also works in pi)
+Twelve opinionated workflow skills for [pi](https://www.npmjs.com/package/@mariozechner/pi-coding-agent). Plan review, design review, code review, one-command shipping, browser automation, QA testing, engineering retrospectives, and post-ship documentation — all as slash commands.
 
 ### Without gstack
 
@@ -30,13 +23,16 @@ Nine opinionated workflow skills for [pi](https://www.npmjs.com/package/@marioze
 |-------|------|--------------|
 | `/skill:plan-ceo-review` | Founder / CEO | Rethink the problem. Find the 10-star product hiding inside the request. |
 | `/skill:plan-eng-review` | Eng manager / tech lead | Lock in architecture, data flow, diagrams, edge cases, and tests. |
+| `/plan-design-review` | Senior product designer | Designer's eye audit. 80-item checklist, letter grades, AI Slop detection, DESIGN.md inference. Report only — never touches code. |
 | `/skill:review` | Paranoid staff engineer | Find the bugs that pass CI but blow up in production. Triages Greptile review comments. |
 | `/skill:ship` | Release engineer | Sync main, run tests, resolve Greptile reviews, push, open PR. For a ready branch, not for deciding what to build. |
 | `/skill:browse` | QA engineer | Give the agent eyes. It logs in, clicks through your app, takes screenshots, catches breakage. Full QA pass in 60 seconds. |
 | `/skill:qa` | QA + fix engineer | Test app, find bugs, fix them with atomic commits, re-verify. Before/after health scores and ship-readiness summary. Three tiers: Quick, Standard, Exhaustive. |
 | `/skill:qa-only` | QA reporter | Report-only QA testing. Same methodology as /skill:qa but never fixes anything. Use when you want a pure bug report without code changes. |
+| `/qa-design-review` | Designer + frontend engineer | Same design audit as /plan-design-review, then fixes what it finds. Atomic `style(design):` commits, before/after screenshots, CSS-safe self-regulation. |
 | `/skill:setup-browser-cookies` | Session manager | Import cookies from your real browser (Comet, Chrome, Arc, Brave, Edge) into the headless session. Test authenticated pages without logging in manually. |
 | `/skill:retro` | Engineering manager | Team-aware retro: your deep-dive + per-person praise and growth opportunities for every contributor. |
+| `/document-release` | Technical writer | Update README, ARCHITECTURE, CONTRIBUTING, and project docs to match what you just shipped. |
 
 ## Demo: one feature, five modes
 
@@ -89,6 +85,30 @@ You:   /skill:qa https://staging.myapp.com --quick
 
 Agent: [Smoke test: homepage + 5 pages, 30 seconds]
         Health Score: 91/100. No critical issues. 1 medium: mobile nav overlap.
+
+You:   /plan-design-review https://staging.myapp.com
+
+Agent: Design Score: B  |  AI Slop Score: C
+
+        "The site communicates competence but not confidence."
+        "I notice the spacing between sections is uniform — nothing feels important."
+        "The first 3 things my eye goes to are: the gradient hero, a 3-column
+         feature grid with icons in circles, and a cookie-cutter CTA."
+        "If I had to describe this in one word: template."
+
+        Top issues: generic typography (Inter everywhere), AI slop patterns
+        (3-column icon grid, purple gradient), flat heading scale.
+
+        [Full report with letter grades, 12 findings, inferred design system]
+        Want me to save this as your DESIGN.md?
+
+You:   /qa-design-review
+
+Agent: [Runs the same audit, then fixes 8 design issues]
+        style(design): FINDING-001 — replace Inter with system font stack
+        style(design): FINDING-003 — add heading scale contrast
+        style(design): FINDING-007 — break 3-column grid into asymmetric layout
+        Design Score: B → A-  |  AI Slop Score: C → A
 ```
 
 ## Who this is for
@@ -115,11 +135,11 @@ This is the setup I use. One person, ten parallel agents, each with the right co
 
 Open pi and paste this. The agent will do the rest.
 
-> Install gstack (Pi port): run `git clone https://github.com/westn/gstack-pi-port.git /tmp/gstack-pi-port && cd /tmp/gstack-pi-port && ./scripts/install.sh --global --build` then add a "gstack" section to AGENTS.md (or CLAUDE.md) that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:setup-browser-cookies, /skill:retro. Then ask the user if they also want to add gstack to the current project so teammates get it.
+> Install gstack (Pi port): run `git clone https://github.com/westn/gstack-pi-port.git /tmp/gstack-pi-port && cd /tmp/gstack-pi-port && ./scripts/install.sh --global --build` then add a "gstack" section to AGENTS.md (or CLAUDE.md) that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /plan-design-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /qa-design-review, /skill:setup-browser-cookies, /skill:retro, /document-release. Then ask the user if they also want to add gstack to the current project so teammates get it.
 
 ### Step 2: Add to your repo so teammates get it (optional)
 
-> Add gstack to this project: run `cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack && rm -rf .pi/skills/gstack/.git && cd .pi/skills/gstack && ./setup` then add a "gstack" section to this project's AGENTS.md (or CLAUDE.md) that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:setup-browser-cookies, /skill:retro, and tells pi that if gstack skills aren't working, run `cd .pi/skills/gstack && ./setup` to build the binary and register skills.
+> Add gstack to this project: run `cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack && rm -rf .pi/skills/gstack/.git && cd .pi/skills/gstack && ./setup` then add a "gstack" section to this project's AGENTS.md (or CLAUDE.md) that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /plan-design-review, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /qa-design-review, /skill:setup-browser-cookies, /skill:retro, /document-release, and tells pi that if gstack skills aren't working, run `cd .pi/skills/gstack && ./setup` to build the binary and register skills.
 
 Real files get committed to your repo (not a submodule), so `git clone` just works. The binary and node\_modules are gitignored — teammates just need to run `cd .pi/skills/gstack && ./setup` once to build (or `/skill:browse` handles it automatically on first use).
 
@@ -265,6 +285,99 @@ That is `/skill:plan-eng-review`.
 
 Not "make the idea smaller."
 **Make the idea buildable.**
+
+---
+
+## `/plan-design-review`
+
+This is my **senior designer mode**.
+
+Most developers cannot tell whether their site looks AI-generated. I could not, until I started paying attention. There is a growing class of sites that are functional but soulless — they work fine but scream "an AI built this and nobody with taste looked at it." Purple gradients, 3-column icon grids, uniform bubbly border-radius on everything, centered text on every section, decorative blobs floating in the background. The ChatGPT aesthetic.
+
+`/plan-design-review` gives the agent a designer's eye.
+
+It opens your site and reacts to it the way a Stripe or Linear designer would — immediately, viscerally, with opinions. The first output is a structured gut reaction: what the site communicates at a glance, what the eye is drawn to, and a one-word verdict. That is the most valuable part. Everything after is supporting evidence.
+
+Then it extracts your actual design system by reading the CSS: how many fonts are you really using? What is your heading scale? How many colors? Is your spacing on a grid or arbitrary? It structures this as an **Inferred Design System** and offers to save it as a `DESIGN.md` — so now you have a design system you never had before, derived from what you actually shipped.
+
+The audit covers 80 items across 10 categories. Typography, spacing, hierarchy, color, responsive design, interaction states, motion, content quality, performance feel, and — the headline feature — **AI Slop Detection**. Ten specific anti-patterns that mark a site as machine-generated.
+
+Every finding gets a letter grade (A through F) per category. The report opens with two headline scores: **Design Score** and **AI Slop Score**. "Your site got a B on design but a D on AI Slop" tells you exactly where to focus.
+
+### Example
+
+```
+You:   /plan-design-review https://myapp.com
+
+Agent: Design Score: C  |  AI Slop Score: D
+
+        "The site communicates generic SaaS energy."
+        "I notice the hero section uses a blue-to-purple gradient
+         with a 3-column feature grid below it — the single most
+         recognizable AI-generated layout pattern."
+        "The first 3 things my eye goes to are: the gradient, the
+         symmetrical icon grid, and a 'Get Started' button that
+         looks like every other 'Get Started' button."
+        "If I had to describe this in one word: template."
+
+        Inferred Design System:
+        - Fonts: Inter (body), Inter (headings) — 1 font family
+        - Colors: 14 unique non-gray colors (flag: >12)
+        - Heading scale: 36/24/18/16 — flat, no drama between sizes
+        - Spacing: mostly 16px and 24px — no rhythm
+
+        Top 5 Design Improvements:
+        1. Break the 3-column icon grid (High, AI Slop)
+        2. Add heading scale contrast — at least 2:1 ratio (High, Typography)
+        3. Replace uniform border-radius with intentional hierarchy (Medium, Spacing)
+        4. Kill the gradient hero — use a real image or bold typography (High, AI Slop)
+        5. Add a second font for headings — Inter-only reads as generic (Medium, Typography)
+
+        [Full report saved to .gstack/design-reports/]
+        Want me to save this inferred design system as your DESIGN.md?
+```
+
+This is report only — it never touches your code. Use `/qa-design-review` when you want it to fix what it finds.
+
+---
+
+## `/qa-design-review`
+
+This is my **designer who codes mode**.
+
+`/plan-design-review` tells you what is wrong. `/qa-design-review` fixes it.
+
+It runs the same 80-item audit, then enters a fix loop: for each design finding, it locates the source file, makes the minimal CSS/styling change, commits with `style(design): FINDING-NNN`, re-navigates to verify, and takes before/after screenshots. One commit per fix, fully bisectable.
+
+The self-regulation heuristic is tuned for design work — CSS-only changes get a free pass (they are inherently safe and reversible), but changes to component JSX/TSX files count against the risk budget. Hard cap at 30 fixes. If the risk score exceeds 20%, it stops and asks.
+
+```
+You:   /qa-design-review https://myapp.com
+
+Agent: [Runs full design audit — same output as /plan-design-review]
+        Design Score: C  |  AI Slop Score: D
+        12 findings (4 high, 5 medium, 3 polish)
+
+        Fixing 9 design issues...
+
+        style(design): FINDING-001 — replace 3-column icon grid with asymmetric layout
+        style(design): FINDING-002 — add heading scale 48/32/24/18/16
+        style(design): FINDING-003 — remove gradient hero, use bold typography
+        style(design): FINDING-004 — add second font for headings
+        style(design): FINDING-005 — vary border-radius by element role
+        style(design): FINDING-006 — left-align body text, reserve center for headings
+        style(design): FINDING-007 — add hover/focus states to all interactive elements
+        style(design): FINDING-008 — add prefers-reduced-motion media query
+        style(design): FINDING-009 — set max content width to 680px for body text
+
+        Final audit:
+        Design Score: C → B+  |  AI Slop Score: D → A
+        9 fixes applied (8 verified, 1 best-effort). 3 deferred.
+
+        [Report with before/after screenshots saved to .gstack/design-reports/]
+```
+
+Nine commits, each touching one concern. The AI Slop score went from D to A because the three most recognizable patterns (gradient hero, 3-column grid, uniform radius) are gone. The design score improved two grades because the typography now has a scale, the spacing has hierarchy, and interactive elements have proper states.
 
 ---
 
@@ -601,6 +714,29 @@ It saves a JSON snapshot to `.context/retros/` so the next run can show trends. 
 
 ---
 
+## `/document-release`
+
+This is my **technical writer mode**.
+
+After `/skill:ship` creates the PR but before it merges, `/document-release` reads every documentation file in the project and cross-references it against the diff. It updates file paths, command lists, project structure trees, and anything else that drifted. Risky or subjective changes get surfaced as questions — everything else is handled automatically.
+
+```
+You:   /document-release
+
+Agent: Analyzing 21 files changed across 3 commits. Found 8 documentation files.
+
+        README.md: updated skill count from 9 to 10, added new skill to table
+        AGENTS.md (or CLAUDE.md): added new directory to project structure
+        CONTRIBUTING.md: current — no changes needed
+        TODOS.md: marked 2 items complete, added 1 new item
+
+        All docs updated and committed. PR body updated with doc diff.
+```
+
+It also polishes CHANGELOG voice (without ever overwriting entries), cleans up completed TODOS, checks cross-doc consistency, and asks about VERSION bumps only when appropriate.
+
+---
+
 ## Troubleshooting
 
 **Skill not showing up in pi?**
@@ -625,7 +761,7 @@ Or set `auto_upgrade: true` in `~/.gstack/config.yaml` to upgrade automatically 
 
 Paste this into pi:
 
-> Uninstall gstack: remove the skill symlinks by running `for s in browse plan-ceo-review plan-eng-review review ship retro qa qa-only setup-browser-cookies; do rm -f ~/.pi/agent/skills/$s; done` then run `rm -rf ~/.pi/agent/skills/gstack` and remove the gstack section from AGENTS.md (or CLAUDE.md). If this project also has gstack at .pi/skills/gstack, remove it by running `for s in browse plan-ceo-review plan-eng-review review ship retro qa qa-only setup-browser-cookies; do rm -f .pi/skills/$s; done && rm -rf .pi/skills/gstack` and remove the gstack section from the project AGENTS.md (or CLAUDE.md) too.
+> Uninstall gstack: remove the skill symlinks by running `for s in browse plan-ceo-review plan-eng-review plan-design-review review ship retro qa qa-only qa-design-review setup-browser-cookies document-release; do rm -f ~/.pi/agent/skills/$s; done` then run `rm -rf ~/.pi/agent/skills/gstack` and remove the gstack section from AGENTS.md (or CLAUDE.md). If this project also has gstack at .pi/skills/gstack, remove it by running `for s in browse plan-ceo-review plan-eng-review plan-design-review review ship retro qa qa-only qa-design-review setup-browser-cookies document-release; do rm -f .pi/skills/$s; done && rm -rf .pi/skills/gstack` and remove the gstack section from the project AGENTS.md (or CLAUDE.md) too.
 
 ## Development
 

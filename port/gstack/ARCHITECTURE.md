@@ -180,7 +180,7 @@ The `console`, `network`, and `dialog` commands read from the in-memory buffers,
 
 ### The problem
 
-SKILL.md files tell pi agents how to use the browse commands. If the docs list a flag that doesn't exist, or miss a command that was added, the agent hits errors. Hand-maintained docs always drift from code.
+SKILL.md files tell Claude how to use the browse commands. If the docs list a flag that doesn't exist, or miss a command that was added, the agent hits errors. Hand-maintained docs always drift from code.
 
 ### The solution
 
@@ -200,6 +200,9 @@ Templates contain the workflows, tips, and examples that require human judgment.
 | `{{SNAPSHOT_FLAGS}}` | `snapshot.ts` | Flag reference with examples |
 | `{{PREAMBLE}}` | `gen-skill-docs.ts` | Startup block: update check, session tracking, contributor mode, ask the user in chat format |
 | `{{BROWSE_SETUP}}` | `gen-skill-docs.ts` | Binary discovery + setup instructions |
+| `{{BASE_BRANCH_DETECT}}` | `gen-skill-docs.ts` | Dynamic base branch detection for PR-targeting skills (ship, review, qa, plan-ceo-review) |
+| `{{QA_METHODOLOGY}}` | `gen-skill-docs.ts` | Shared QA methodology block for /skill:qa and /skill:qa-only |
+| `{{DESIGN_METHODOLOGY}}` | `gen-skill-docs.ts` | Shared design audit methodology for /plan-design-review and /qa-design-review |
 
 This is structurally sound — if a command exists in code, it appears in docs. If it doesn't exist, it can't appear.
 
@@ -216,7 +219,7 @@ Every skill starts with a `{{PREAMBLE}}` block that runs before the skill's own 
 
 Three reasons:
 
-1. **pi reads SKILL.md at skill load time.** There's no build step when a user invokes `/skill:browse`. The file must already exist and be correct.
+1. **Claude reads SKILL.md at skill load time.** There's no build step when a user invokes `/skill:browse`. The file must already exist and be correct.
 2. **CI can validate freshness.** `gen:skill-docs --dry-run` + `git diff --exit-code` catches stale docs before merge.
 3. **Git blame works.** You can see when a command was added and in which commit.
 
@@ -225,8 +228,8 @@ Three reasons:
 | Tier | What | Cost | Speed |
 |------|------|------|-------|
 | 1 — Static validation | Parse every `$B` command in SKILL.md, validate against registry | Free | <2s |
-| 2 — E2E via `pi --mode json` | Spawn real pi session, run each skill, check for errors | Model-dependent | ~20min |
-| 3 — LLM-as-judge | Configured pi model scores docs on clarity/completeness/actionability | Model-dependent | ~30s |
+| 2 — E2E via `claude -p` | Spawn real Claude session, run each skill, check for errors | ~$3.85 | ~20min |
+| 3 — LLM-as-judge | Sonnet scores docs on clarity/completeness/actionability | ~$0.15 | ~30s |
 
 Tier 1 runs on every `bun test`. Tiers 2+3 are gated behind `EVALS=1`. The idea is: catch 95% of issues for free, use LLMs only for judgment calls.
 
@@ -266,13 +269,13 @@ The server doesn't try to self-heal. If Chromium crashes (`browser.on('disconnec
 
 ### Session runner (`test/helpers/session-runner.ts`)
 
-E2E tests spawn `pi --mode json --print` as a completely independent subprocess — not via the Agent SDK. The runner:
+E2E tests spawn `claude -p` as a completely independent subprocess — not via the Agent SDK, which can't nest inside pi sessions. The runner:
 
-1. Spawns `pi --mode json --print --no-session` with the test prompt
-2. Streams JSONL from stdout for real-time progress
-3. Races against a configurable timeout
-4. Enforces a local max-turns cap in the runner
-5. Parses the full JSONL transcript into structured results
+1. Writes the prompt to a temp file (avoids shell escaping issues)
+2. Spawns `sh -c 'cat prompt | claude -p --output-format stream-json --verbose'`
+3. Streams NDJSON from stdout for real-time progress
+4. Races against a configurable timeout
+5. Parses the full NDJSON transcript into structured results
 
 The `parseNDJSON()` function is pure — no I/O, no side effects — making it independently testable.
 
@@ -339,8 +342,8 @@ The `EvalCollector` accumulates test results and writes them in two ways:
 | Tier | What | Cost | Speed |
 |------|------|------|-------|
 | 1 — Static validation | Parse `$B` commands, validate against registry, observability unit tests | Free | <5s |
-| 2 — E2E via `pi --mode json` | Spawn real pi session, run each skill, scan for errors | Model-dependent | ~20min |
-| 3 — LLM-as-judge | Configured pi model scores docs on clarity/completeness/actionability | Model-dependent | ~30s |
+| 2 — E2E via `claude -p` | Spawn real Claude session, run each skill, scan for errors | ~$3.85 | ~20min |
+| 3 — LLM-as-judge | Sonnet scores docs on clarity/completeness/actionability | ~$0.15 | ~30s |
 
 Tier 1 runs on every `bun test`. Tiers 2+3 are gated behind `EVALS=1`. The idea: catch 95% of issues for free, use LLMs only for judgment calls and integration testing.
 
