@@ -6,6 +6,8 @@ SOURCE_DIR="$ROOT_DIR/port/gstack"
 
 TARGET=""
 RUN_BUILD=0
+PRESERVE_BROWSE_DIST=0
+BROWSE_DIST_BACKUP=""
 
 usage() {
   cat <<'EOF'
@@ -73,8 +75,25 @@ if [[ "$TARGET_BASENAME" != "gstack" ]]; then
 fi
 
 mkdir -p "$SKILLS_DIR"
+
+# If we're not rebuilding, preserve an existing browse/dist so updates don't
+# temporarily remove the binary until the next setup run.
+if [[ "$RUN_BUILD" -eq 0 && -d "$TARGET/browse/dist" ]]; then
+  BROWSE_DIST_BACKUP="$(mktemp -d)"
+  cp -a "$TARGET/browse/dist" "$BROWSE_DIST_BACKUP/dist"
+  PRESERVE_BROWSE_DIST=1
+fi
+
 rm -rf "$TARGET"
 cp -a "$SOURCE_DIR" "$TARGET"
+
+if [[ "$PRESERVE_BROWSE_DIST" -eq 1 && -d "$BROWSE_DIST_BACKUP/dist" ]]; then
+  mkdir -p "$TARGET/browse"
+  rm -rf "$TARGET/browse/dist"
+  cp -a "$BROWSE_DIST_BACKUP/dist" "$TARGET/browse/dist"
+  rm -rf "$BROWSE_DIST_BACKUP"
+  echo "Preserved existing browse/dist (run --build to rebuild against latest source)."
+fi
 
 echo "Installed gstack port to: $TARGET"
 
