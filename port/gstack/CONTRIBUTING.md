@@ -54,6 +54,10 @@ the issue, fix it, and open a PR.
 This is the best way to contribute: fix gstack while doing your real work, in the
 project where you actually felt the pain.
 
+### Session awareness
+
+When you have 3+ gstack sessions open simultaneously, every question tells you which project, which branch, and what's happening. No more staring at a question thinking "wait, which window is this?" The format is consistent across all 13 skills.
+
 ## Working on gstack inside the gstack repo
 
 When you're editing gstack skills and want to test them by actually using gstack
@@ -219,7 +223,7 @@ bun run skill:check
 bun run dev:skill
 ```
 
-For template authoring best practices (natural language over bash-isms, dynamic branch detection, `{{BASE_BRANCH_DETECT}}` usage), see AGENTS.md (or CLAUDE.md)'s "Writing SKILL templates" section.
+For template authoring best practices (natural language over bash-isms, dynamic branch detection, `{{BASE_BRANCH_DETECT}}` usage), see AGENTS.md's "Writing SKILL templates" section.
 
 To add a browse command, add it to `browse/src/commands.ts`. To add a snapshot flag, add it to `SNAPSHOT_FLAGS` in `browse/src/snapshot.ts`. Then rebuild.
 

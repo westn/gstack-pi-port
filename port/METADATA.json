@@ -2,12 +2,12 @@
   "upstream": {
     "repo": "https://github.com/garrytan/gstack.git",
     "branch": "main",
-    "commit": "4a77cc2c34506d9ce57193b3378e48e22b7b9842",
-    "version": "0.5.0"
+    "commit": "716e4c934aff10c142a5b4735ad3e919bcb77c2c",
+    "version": "0.6.4.0"
   },
-  "generatedAt": "2026-03-17T05:22:27.073894+00:00",
+  "generatedAt": "2026-03-18T08:28:22.510541+00:00",
   "portDir": "port/gstack",
-  "changedFiles": 57,
+  "changedFiles": 59,
   "transformRules": {
     "pathReplacements": [
       [
@@ -180,7 +180,7 @@
       ],
       [
         "CLAUDE.md",
-        "AGENTS.md (or CLAUDE.md)"
+        "AGENTS.md"
       ]
     ],
     "skillCommands": [
@@ -195,6 +195,7 @@
       "retro",
       "gstack-upgrade",
       "plan-design-review",
+      "design-review",
       "qa-design-review",
       "design-consultation",
       "document-release"

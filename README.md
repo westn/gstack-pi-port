@@ -32,6 +32,7 @@ Then run `/reload` inside pi and use skills via `/skill:<name>`.
 - Skill invocations are normalized to `/skill:<name>`
 - User-facing docs are adjusted for Pi workflows and `AGENTS.md`
 - Install flow uses this repository as the source of truth
+- Model/provider selection is Pi-native and model-agnostic (use `pi --provider ... --model ...`)
 
 ## Existing port check (as of 2026-03-15)
 
@@ -91,7 +92,7 @@ Then invoke skills via:
 /skill:browse
 /skill:qa
 /skill:qa-only
-/skill:qa-design-review
+/skill:design-review
 /skill:setup-browser-cookies
 /skill:retro
 /skill:design-consultation

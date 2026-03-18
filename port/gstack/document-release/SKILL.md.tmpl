@@ -3,7 +3,7 @@ name: document-release
 version: 1.0.0
 description: |
   Post-ship documentation update. Reads all project docs, cross-references the
-  diff, updates README/ARCHITECTURE/CONTRIBUTING/AGENTS.md (or CLAUDE.md) to match what shipped,
+  diff, updates README/ARCHITECTURE/CONTRIBUTING/AGENTS.md to match what shipped,
   polishes CHANGELOG voice, cleans up TODOS, and optionally bumps VERSION.
 allowed-tools:
   - Bash
@@ -108,7 +108,7 @@ Read each documentation file and cross-reference it against the diff. Use these 
 - Are workflow descriptions (dev setup, contributor mode, etc.) current?
 - Flag anything that would fail or confuse a first-time contributor.
 
-**AGENTS.md (or CLAUDE.md) / project instructions:**
+**AGENTS.md / project instructions:**
 - Does the project structure section match the actual file tree?
 - Are listed commands and scripts accurate?
 - Do build/test instructions match what's in package.json (or equivalent)?
@@ -190,11 +190,11 @@ preserved them. This skill must NEVER do that.
 
 After auditing each file individually, do a cross-doc consistency pass:
 
-1. Does the README's feature/capability list match what AGENTS.md (or CLAUDE.md) (or project instructions) describes?
+1. Does the README's feature/capability list match what AGENTS.md (or project instructions) describes?
 2. Does ARCHITECTURE's component list match CONTRIBUTING's project structure description?
 3. Does CHANGELOG's latest version match the VERSION file?
-4. **Discoverability:** Is every documentation file reachable from README.md or AGENTS.md (or CLAUDE.md)? If
-   ARCHITECTURE.md exists but neither README nor AGENTS.md (or CLAUDE.md) links to it, flag it. Every doc
+4. **Discoverability:** Is every documentation file reachable from README.md or AGENTS.md? If
+   ARCHITECTURE.md exists but neither README nor AGENTS.md links to it, flag it. Every doc
    should be discoverable from one of the two entry-point files.
 5. Flag any contradictions between documents. Auto-fix clear factual inconsistencies (e.g., a
    version mismatch). Use ask the user in chat for narrative contradictions.
@@ -350,6 +350,6 @@ Where status is one of:
 - **Never bump VERSION silently.** Always ask. Even if already bumped, check whether it covers the full scope of changes.
 - **Be explicit about what changed.** Every edit gets a one-line summary.
 - **Generic heuristics, not project-specific.** The audit checks work on any repo.
-- **Discoverability matters.** Every doc file should be reachable from README or AGENTS.md (or CLAUDE.md).
+- **Discoverability matters.** Every doc file should be reachable from README or AGENTS.md.
 - **Voice: friendly, user-forward, not obscure.** Write like you're explaining to a smart person
   who hasn't seen the code.

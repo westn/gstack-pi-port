@@ -34,6 +34,8 @@ DEFAULT_SKILL_COMMANDS = [
     "retro",
     "gstack-upgrade",
     "plan-design-review",
+    "design-review",
+    # Legacy alias still present in some upstream docs/changelog entries.
     "qa-design-review",
     "design-consultation",
     "document-release",
@@ -127,7 +129,7 @@ PHRASE_REPLACEMENTS = [
         "Want to brainstorm first with `/brainstorm`?",
         "Want to brainstorm first with `/skill:plan-ceo-review`?",
     ),
-    ("CLAUDE.md", "AGENTS.md (or CLAUDE.md)"),
+    ("CLAUDE.md", "AGENTS.md"),
 ]
 
 REVIEW_PATH_REPLACEMENTS = [
@@ -327,6 +329,18 @@ def patch_port_readme(text: str, path: Path) -> str:
             1,
         )
 
+    readme_replacements = [
+        # Upstream renamed this skill to /design-review in 0.6.x.
+        ("/skill:qa-design-review", "/skill:design-review"),
+        # Polish lingering Claude-specific wording from upstream prose.
+        ("Open pi and paste this. Claude does the rest.", "Open pi and paste this. The agent does the rest."),
+        ("Open pi and paste this. Claude will do the rest.", "Open pi and paste this. The agent will do the rest."),
+        ("**Claude says it can't see the skills?**", "**pi says it can't see the skills?**"),
+        ("[Claude writes 2,400 lines across 11 files — models, services,", "[Agent writes 2,400 lines across 11 files — models, services,"),
+    ]
+    for old, new in readme_replacements:
+        updated = updated.replace(old, new)
+
     return updated
 
 
@@ -471,6 +485,12 @@ def verify_port_quality() -> None:
         for phrase in stale_phrases:
             if phrase in content:
                 findings.append(f"{rel}: contains stale phrase '{phrase}'")
+
+        if rel == "README.md" and "/skill:qa-design-review" in content:
+            findings.append(
+                "README.md: contains stale '/skill:qa-design-review' reference "
+                "(expected '/skill:design-review')"
+            )
 
         for cmd in SKILL_COMMANDS:
             pattern = re.compile(

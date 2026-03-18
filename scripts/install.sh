@@ -100,6 +100,23 @@ echo "Installed gstack port to: $TARGET"
 # pi discovery behavior: if a directory contains SKILL.md, recursion stops there.
 # Create top-level symlinks so each gstack sub-skill appears as an individual skill.
 linked=()
+removed=()
+
+# Clean stale links from previous installs (for renamed/removed skills).
+for existing in "$SKILLS_DIR"/*; do
+  [[ -L "$existing" ]] || continue
+  link_target="$(readlink "$existing" || true)"
+
+  case "$link_target" in
+    "$TARGET_BASENAME"/*)
+      if [[ ! -e "$SKILLS_DIR/$link_target" ]]; then
+        rm -f "$existing"
+        removed+=("$(basename "$existing")")
+      fi
+      ;;
+  esac
+done
+
 for skill_dir in "$TARGET"/*/; do
   [[ -d "$skill_dir" ]] || continue
   [[ -f "$skill_dir/SKILL.md" ]] || continue
@@ -110,6 +127,10 @@ for skill_dir in "$TARGET"/*/; do
   ln -snf "$TARGET_BASENAME/$skill_name" "$target_link"
   linked+=("$skill_name")
 done
+
+if [[ ${#removed[@]} -gt 0 ]]; then
+  echo "Removed stale sub-skill links: ${removed[*]}"
+fi
 
 if [[ ${#linked[@]} -gt 0 ]]; then
   echo "Linked sub-skills: ${linked[*]}"
@@ -124,27 +145,18 @@ if [[ "$RUN_BUILD" -eq 1 ]]; then
   fi
 fi
 
-cat <<EOF
+echo
+echo "Done."
+echo
 
-Done.
+if [[ ${#linked[@]} -gt 0 ]]; then
+  echo "Use skills in pi as:"
+  for skill_name in "${linked[@]}"; do
+    echo "  /skill:$skill_name"
+  done
+  echo
+fi
 
-Use skills in pi as:
-  /skill:plan-ceo-review
-  /skill:plan-eng-review
-  /skill:plan-design-review
-  /skill:review
-  /skill:ship
-  /skill:browse
-  /skill:qa
-  /skill:qa-only
-  /skill:qa-design-review
-  /skill:setup-browser-cookies
-  /skill:retro
-  /skill:design-consultation
-  /skill:document-release
-  /skill:gstack-upgrade
-
-If skills do not appear immediately, run /reload inside pi.
-Use --build when you want to compile browse binary/deps:
-  ./scripts/install.sh --global --build
-EOF
+echo "If skills do not appear immediately, run /reload inside pi."
+echo "Use --build when you want to compile browse binary/deps:"
+echo "  ./scripts/install.sh --global --build"

@@ -1,6 +1,6 @@
 # Architecture
 
-This document explains **why** gstack is built the way it is. For setup and commands, see AGENTS.md (or CLAUDE.md). For contributing, see CONTRIBUTING.md.
+This document explains **why** gstack is built the way it is. For setup and commands, see AGENTS.md. For contributing, see CONTRIBUTING.md.
 
 ## The core idea
 
@@ -202,7 +202,9 @@ Templates contain the workflows, tips, and examples that require human judgment.
 | `{{BROWSE_SETUP}}` | `gen-skill-docs.ts` | Binary discovery + setup instructions |
 | `{{BASE_BRANCH_DETECT}}` | `gen-skill-docs.ts` | Dynamic base branch detection for PR-targeting skills (ship, review, qa, plan-ceo-review) |
 | `{{QA_METHODOLOGY}}` | `gen-skill-docs.ts` | Shared QA methodology block for /skill:qa and /skill:qa-only |
-| `{{DESIGN_METHODOLOGY}}` | `gen-skill-docs.ts` | Shared design audit methodology for /skill:plan-design-review and /skill:qa-design-review |
+| `{{DESIGN_METHODOLOGY}}` | `gen-skill-docs.ts` | Shared design audit methodology for /skill:plan-design-review and /skill:design-review |
+| `{{REVIEW_DASHBOARD}}` | `gen-skill-docs.ts` | Review Readiness Dashboard for /skill:ship pre-flight |
+| `{{TEST_BOOTSTRAP}}` | `gen-skill-docs.ts` | Test framework detection, bootstrap, CI/CD setup for /skill:qa, /skill:ship, /skill:design-review |
 
 This is structurally sound — if a command exists in code, it appears in docs. If it doesn't exist, it can't appear.
 
