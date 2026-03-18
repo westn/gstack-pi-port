@@ -347,7 +347,7 @@ For each contributor (including the current user), compute:
 
 **If only one contributor (solo repo):** Skip the team breakdown and proceed as before — the retro is personal.
 
-**If there are Co-Authored-By trailers:** Parse `Co-Authored-By:` lines in commit messages. Credit those authors for the commit alongside the primary author. Note AI co-authors (e.g., `noreply@anthropic.com`) but do not include them as team members — instead, track "AI-assisted commits" as a separate metric.
+**If there are Co-Authored-By trailers:** Parse `Co-Authored-By:` lines in commit messages. Credit those authors for the commit alongside the primary author. Note AI co-authors (e.g., `noreply@ai-assistant.local`) but do not include them as team members — instead, track "AI-assisted commits" as a separate metric.
 
 ### Step 10: Week-over-Week Trends (if window >= 14d)
 
@@ -557,7 +557,7 @@ For each teammate (sorted by commits descending), write a section:
   - "3 of the 5 PRs were 800+ LOC — breaking these up would catch issues earlier and make review easier"
   - "All commits land between 1-4am — sustainable pace matters for code quality long-term"
 
-**AI collaboration note:** If many commits have `Co-Authored-By` AI trailers (e.g., Claude, Copilot), note the AI-assisted commit percentage as a team metric. Frame it neutrally — "N% of commits were AI-assisted" — without judgment.
+**AI collaboration note:** If many commits have `Co-Authored-By` AI trailers (e.g., AI assistants such as Copilot), note the AI-assisted commit percentage as a team metric. Frame it neutrally — "N% of commits were AI-assisted" — without judgment.
 
 ### Top 3 Team Wins
 Identify the 3 highest-impact things shipped in the window across the whole team. For each:

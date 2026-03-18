@@ -129,6 +129,13 @@ PHRASE_REPLACEMENTS = [
         "Want to brainstorm first with `/brainstorm`?",
         "Want to brainstorm first with `/skill:plan-ceo-review`?",
     ),
+    # Keep commit trailer examples model-agnostic for pi's multi-provider support.
+    (
+        "Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>",
+        "Co-Authored-By: AI Assistant <noreply@ai-assistant.local>",
+    ),
+    ("noreply@anthropic.com", "noreply@ai-assistant.local"),
+    ("(e.g., Claude, Copilot)", "(e.g., AI assistants such as Copilot)"),
     ("CLAUDE.md", "AGENTS.md"),
 ]
 

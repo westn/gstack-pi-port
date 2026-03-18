@@ -5,7 +5,7 @@
     "commit": "716e4c934aff10c142a5b4735ad3e919bcb77c2c",
     "version": "0.6.4.0"
   },
-  "generatedAt": "2026-03-18T08:28:22.510541+00:00",
+  "generatedAt": "2026-03-18T08:36:52.042598+00:00",
   "portDir": "port/gstack",
   "changedFiles": 59,
   "transformRules": {
@@ -177,6 +177,18 @@
       [
         "Want to brainstorm first with `/brainstorm`?",
         "Want to brainstorm first with `/skill:plan-ceo-review`?"
+      ],
+      [
+        "Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>",
+        "Co-Authored-By: AI Assistant <noreply@ai-assistant.local>"
+      ],
+      [
+        "noreply@anthropic.com",
+        "noreply@ai-assistant.local"
+      ],
+      [
+        "(e.g., Claude, Copilot)",
+        "(e.g., AI assistants such as Copilot)"
       ],
       [
         "CLAUDE.md",
