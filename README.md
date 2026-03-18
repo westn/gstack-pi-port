@@ -102,7 +102,27 @@ Then invoke skills via:
 
 ## Update flow
 
-When upstream changes:
+Recommended (single command, full process):
+
+```bash
+./scripts/update.sh
+```
+
+By default this runs:
+1) upstream sync,
+2) update-tooling sanity checks,
+3) Pi-native harness sanity tests,
+4) global install (`~/.pi/agent/skills/gstack`).
+
+Common variants:
+
+```bash
+./scripts/update.sh --build        # also rebuild browse binary/deps
+./scripts/update.sh --no-install   # repo update + verification only
+./scripts/update.sh --project /path/to/repo --build
+```
+
+Manual equivalent (if you want to run pieces separately):
 
 ```bash
 ./scripts/sync_from_upstream.py
