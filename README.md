@@ -117,6 +117,17 @@ Optional (recommended) LLM audit via pi:
 
 That re-pulls upstream main, regenerates the port, reinstalls, and gives you an additional report-only quality pass for wording/porting artifacts.
 
+### Pi-native depth guardrails (built into sync)
+
+`./scripts/sync_from_upstream.py` now also:
+
+- enforces Pi-native eval harness wording (`pi --mode json -p`),
+- enforces model-agnostic prompt language (no provider-locked examples),
+- fails fast if stale upstream terms reappear (e.g. `claude -p`, `@anthropic-ai/sdk`, `ANTHROPIC_API_KEY`),
+- applies maintained overrides from `overrides/gstack/` for Pi-specific eval helper code.
+
+So when someone clones this repo and asks pi to update, the sync step now catches/normalizes deeper porting drift automatically.
+
 ## Licensing
 
 - Root wrapper/port tooling in this repository is licensed under MIT (`LICENSE`).

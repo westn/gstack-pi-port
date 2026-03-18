@@ -5,9 +5,9 @@
     "commit": "716e4c934aff10c142a5b4735ad3e919bcb77c2c",
     "version": "0.6.4.0"
   },
-  "generatedAt": "2026-03-18T08:36:52.042598+00:00",
+  "generatedAt": "2026-03-18T09:06:57.569819+00:00",
   "portDir": "port/gstack",
-  "changedFiles": 59,
+  "changedFiles": 64,
   "transformRules": {
     "pathReplacements": [
       [
@@ -191,8 +191,134 @@
         "(e.g., AI assistants such as Copilot)"
       ],
       [
+        "Uses the Anthropic API directly (not Agent SDK) to evaluate whether",
+        "Uses pi CLI (with your configured provider/model) to evaluate whether"
+      ],
+      [
+        "Requires: ANTHROPIC_API_KEY env var (or EVALS=1 with key already set)",
+        "Requires: pi configured with provider credentials."
+      ],
+      [
+        "Run: EVALS=1 bun run test:eval\n *",
+        "Run: EVALS=1 bun run test:evals\n *"
+      ],
+      [
+        "Cost: ~$0.05-0.15 per run (sonnet)",
+        "Cost: provider/model dependent (typically low for short judge prompts)"
+      ],
+      [
+        "import Anthropic from '@anthropic-ai/sdk';\n",
+        ""
+      ],
+      [
+        "// Run when EVALS=1 is set (requires ANTHROPIC_API_KEY in env)",
+        "// Run when EVALS=1 is set (requires pi CLI + provider credentials configured)"
+      ],
+      [
+        "// Fail fast if Anthropic API is unreachable \u2014 don't burn through 13 tests getting ConnectionRefused",
+        "// Fail fast if pi's configured provider is unreachable \u2014 don't burn through expensive E2E runs."
+      ],
+      [
+        "echo \"ping\" | claude -p --max-turns 1 --output-format stream-json --verbose --dangerously-skip-permissions",
+        "echo \"ping\" | pi --no-session --no-tools --mode text -p"
+      ],
+      [
+        "Anthropic API unreachable \u2014 aborting E2E suite. Fix connectivity and retry.",
+        "pi provider API unreachable \u2014 aborting E2E suite. Fix connectivity and retry."
+      ],
+      [
+        "// Outcome evals also need ANTHROPIC_API_KEY for the LLM judge",
+        "// Outcome evals use the shared pi-based judge helper."
+      ],
+      [
+        "const hasApiKey = !!process.env.ANTHROPIC_API_KEY;",
+        "const hasApiKey = true;"
+      ],
+      [
+        "const client = new Anthropic();\n    const response = await client.messages.create({\n      model: 'claude-sonnet-4-6',\n      max_tokens: 1024,\n      messages: [{\n        role: 'user',\n        content: `You are comparing two versions of CLI documentation for an AI coding agent.\n\nVERSION A (baseline \u2014 hand-maintained):\n${baseline}\n\nVERSION B (auto-generated from source):\n${genSection}\n\nWhich version is better for an AI agent trying to use these commands? Consider:\n- Completeness (more commands documented? all args shown?)\n- Clarity (descriptions helpful?)\n- Coverage (missing commands in either version?)\n\nRespond with ONLY valid JSON:\n{\"winner\": \"A\" or \"B\" or \"tie\", \"reasoning\": \"brief explanation\", \"a_score\": N, \"b_score\": N}\n\nScores are 1-5 overall quality.`,\n      }],\n    });\n\n    const text = response.content[0].type === 'text' ? response.content[0].text : '';\n    const jsonMatch = text.match(/\\{[\\s\\S]*\\}/);\n    if (!jsonMatch) throw new Error(`Judge returned non-JSON: ${text.slice(0, 200)}`);\n    const result = JSON.parse(jsonMatch[0]);\n",
+        "const result = await callJudge<{ winner: 'A' | 'B' | 'tie'; reasoning: string; a_score: number; b_score: number }>(`You are comparing two versions of CLI documentation for an AI coding agent.\n\nVERSION A (baseline \u2014 hand-maintained):\n${baseline}\n\nVERSION B (auto-generated from source):\n${genSection}\n\nWhich version is better for an AI agent trying to use these commands? Consider:\n- Completeness (more commands documented? all args shown?)\n- Clarity (descriptions helpful?)\n- Coverage (missing commands in either version?)\n\nRespond with ONLY valid JSON:\n{\"winner\": \"A\" or \"B\" or \"tie\", \"reasoning\": \"brief explanation\", \"a_score\": N, \"b_score\": N}\n\nScores are 1-5 overall quality.`);\n"
+      ],
+      [
         "CLAUDE.md",
         "AGENTS.md"
+      ]
+    ],
+    "docOnlyPhraseReplacements": [
+      [
+        "`claude -p`",
+        "`pi --mode json -p`"
+      ],
+      [
+        "claude -p",
+        "pi --mode json -p"
+      ],
+      [
+        "Anthropic API",
+        "pi provider API"
+      ],
+      [
+        "ANTHROPIC_API_KEY",
+        "pi provider credentials"
+      ],
+      [
+        "claude-sonnet-4-6",
+        "your configured pi model"
+      ],
+      [
+        "Spawn real Claude session",
+        "Spawn real pi session"
+      ],
+      [
+        "cat prompt | pi --mode json -p --output-format stream-json --verbose",
+        "cat prompt | pi --mode json -p"
+      ],
+      [
+        "as a subprocess with `--output-format stream-json --verbose`, streams NDJSON",
+        "as a subprocess in JSON mode, streams JSONL"
+      ],
+      [
+        "`pi --mode json -p --output-format stream-json --verbose`",
+        "`pi --mode json -p`"
+      ],
+      [
+        "`--output-format stream-json --verbose`",
+        "`JSON mode events`"
+      ],
+      [
+        "set pi provider credentials=sk-ant-...",
+        "set one provider key (for example OPENAI_API_KEY=...)"
+      ],
+      [
+        "Put your `pi provider credentials` in `.env`",
+        "Put your provider API key in `.env`"
+      ],
+      [
+        "Calls the pi provider API directly (not `pi --mode json -p`), so it works from anywhere including inside pi",
+        "Uses the shared pi judge helper, so it works from anywhere including inside pi"
+      ],
+      [
+        "Sonnet scores docs on clarity/completeness/actionability",
+        "Configured model scores docs on clarity/completeness/actionability"
+      ],
+      [
+        "- Auto-skips if running inside pi (`pi --mode json -p` can't nest)",
+        "- Works in plain terminals and inside pi (plain terminal recommended for stable eval timing)"
+      ],
+      [
+        "`test:evals` requires `pi provider credentials`.",
+        "`test:evals` requires a provider API key configured for pi."
+      ],
+      [
+        "Uses Claude Sonnet to score generated SKILL.md docs on three dimensions:",
+        "Uses your configured pi model to score generated SKILL.md docs on three dimensions:"
+      ],
+      [
+        "# Must run from a plain terminal \u2014 can't nest inside pi or Conductor",
+        "# Recommended from a plain terminal for stable timing (inside pi works but can be noisier)"
+      ],
+      [
+        "# Needs pi provider credentials in .env \u2014 included in bun run test:evals",
+        "# Needs a provider API key configured in .env \u2014 included in bun run test:evals"
       ]
     ],
     "skillCommands": [
@@ -212,6 +338,7 @@
       "design-consultation",
       "document-release"
     ],
-    "removeAllowedTools": true
+    "removeAllowedTools": true,
+    "overridesDir": "overrides/gstack"
   }
 }

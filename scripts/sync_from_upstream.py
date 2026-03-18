@@ -18,6 +18,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 UPSTREAM_DIR = REPO_ROOT / ".upstream" / "gstack"
 PORT_DIR = REPO_ROOT / "port" / "gstack"
 METADATA_PATH = REPO_ROOT / "port" / "METADATA.json"
+OVERRIDES_DIR = REPO_ROOT / "overrides" / "gstack"
 
 UPSTREAM_REPO = "https://github.com/garrytan/gstack.git"
 UPSTREAM_BRANCH = "main"
@@ -136,7 +137,153 @@ PHRASE_REPLACEMENTS = [
     ),
     ("noreply@anthropic.com", "noreply@ai-assistant.local"),
     ("(e.g., Claude, Copilot)", "(e.g., AI assistants such as Copilot)"),
+    (
+        "Uses the Anthropic API directly (not Agent SDK) to evaluate whether",
+        "Uses pi CLI (with your configured provider/model) to evaluate whether",
+    ),
+    (
+        "Requires: ANTHROPIC_API_KEY env var (or EVALS=1 with key already set)",
+        "Requires: pi configured with provider credentials.",
+    ),
+    (
+        "Run: EVALS=1 bun run test:eval\n *",
+        "Run: EVALS=1 bun run test:evals\n *",
+    ),
+    (
+        "Cost: ~$0.05-0.15 per run (sonnet)",
+        "Cost: provider/model dependent (typically low for short judge prompts)",
+    ),
+    # E2E harness and judge are pi-native in this port.
+    ("import Anthropic from '@anthropic-ai/sdk';\n", ""),
+    (
+        "// Run when EVALS=1 is set (requires ANTHROPIC_API_KEY in env)",
+        "// Run when EVALS=1 is set (requires pi CLI + provider credentials configured)",
+    ),
+    (
+        "// Fail fast if Anthropic API is unreachable — don't burn through 13 tests getting ConnectionRefused",
+        "// Fail fast if pi's configured provider is unreachable — don't burn through expensive E2E runs.",
+    ),
+    (
+        'echo "ping" | claude -p --max-turns 1 --output-format stream-json --verbose --dangerously-skip-permissions',
+        'echo "ping" | pi --no-session --no-tools --mode text -p',
+    ),
+    (
+        "Anthropic API unreachable — aborting E2E suite. Fix connectivity and retry.",
+        "pi provider API unreachable — aborting E2E suite. Fix connectivity and retry.",
+    ),
+    (
+        "// Outcome evals also need ANTHROPIC_API_KEY for the LLM judge",
+        "// Outcome evals use the shared pi-based judge helper.",
+    ),
+    ("const hasApiKey = !!process.env.ANTHROPIC_API_KEY;", "const hasApiKey = true;"),
+    (
+        """const client = new Anthropic();
+    const response = await client.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1024,
+      messages: [{
+        role: 'user',
+        content: `You are comparing two versions of CLI documentation for an AI coding agent.
+
+VERSION A (baseline — hand-maintained):
+${baseline}
+
+VERSION B (auto-generated from source):
+${genSection}
+
+Which version is better for an AI agent trying to use these commands? Consider:
+- Completeness (more commands documented? all args shown?)
+- Clarity (descriptions helpful?)
+- Coverage (missing commands in either version?)
+
+Respond with ONLY valid JSON:
+{"winner": "A" or "B" or "tie", "reasoning": "brief explanation", "a_score": N, "b_score": N}
+
+Scores are 1-5 overall quality.`,
+      }],
+    });
+
+    const text = response.content[0].type === 'text' ? response.content[0].text : '';
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error(`Judge returned non-JSON: ${text.slice(0, 200)}`);
+    const result = JSON.parse(jsonMatch[0]);
+""",
+        """const result = await callJudge<{ winner: 'A' | 'B' | 'tie'; reasoning: string; a_score: number; b_score: number }>(`You are comparing two versions of CLI documentation for an AI coding agent.
+
+VERSION A (baseline — hand-maintained):
+${baseline}
+
+VERSION B (auto-generated from source):
+${genSection}
+
+Which version is better for an AI agent trying to use these commands? Consider:
+- Completeness (more commands documented? all args shown?)
+- Clarity (descriptions helpful?)
+- Coverage (missing commands in either version?)
+
+Respond with ONLY valid JSON:
+{"winner": "A" or "B" or "tie", "reasoning": "brief explanation", "a_score": N, "b_score": N}
+
+Scores are 1-5 overall quality.`);
+""",
+    ),
     ("CLAUDE.md", "AGENTS.md"),
+]
+
+# Apply only to docs/templates (not source code) so runtime semantics remain stable.
+DOC_ONLY_PHRASE_REPLACEMENTS = [
+    ("`claude -p`", "`pi --mode json -p`"),
+    ("claude -p", "pi --mode json -p"),
+    ("Anthropic API", "pi provider API"),
+    ("ANTHROPIC_API_KEY", "pi provider credentials"),
+    ("claude-sonnet-4-6", "your configured pi model"),
+    ("Spawn real Claude session", "Spawn real pi session"),
+    (
+        "cat prompt | pi --mode json -p --output-format stream-json --verbose",
+        "cat prompt | pi --mode json -p",
+    ),
+    (
+        "as a subprocess with `--output-format stream-json --verbose`, streams NDJSON",
+        "as a subprocess in JSON mode, streams JSONL",
+    ),
+    ("`pi --mode json -p --output-format stream-json --verbose`", "`pi --mode json -p`"),
+    ("`--output-format stream-json --verbose`", "`JSON mode events`"),
+    (
+        "set pi provider credentials=sk-ant-...",
+        "set one provider key (for example OPENAI_API_KEY=...)",
+    ),
+    (
+        "Put your `pi provider credentials` in `.env`",
+        "Put your provider API key in `.env`",
+    ),
+    (
+        "Calls the pi provider API directly (not `pi --mode json -p`), so it works from anywhere including inside pi",
+        "Uses the shared pi judge helper, so it works from anywhere including inside pi",
+    ),
+    (
+        "Sonnet scores docs on clarity/completeness/actionability",
+        "Configured model scores docs on clarity/completeness/actionability",
+    ),
+    (
+        "- Auto-skips if running inside pi (`pi --mode json -p` can't nest)",
+        "- Works in plain terminals and inside pi (plain terminal recommended for stable eval timing)",
+    ),
+    (
+        "`test:evals` requires `pi provider credentials`.",
+        "`test:evals` requires a provider API key configured for pi.",
+    ),
+    (
+        "Uses Claude Sonnet to score generated SKILL.md docs on three dimensions:",
+        "Uses your configured pi model to score generated SKILL.md docs on three dimensions:",
+    ),
+    (
+        "# Must run from a plain terminal — can't nest inside pi or Conductor",
+        "# Recommended from a plain terminal for stable timing (inside pi works but can be noisier)",
+    ),
+    (
+        "# Needs pi provider credentials in .env — included in bun run test:evals",
+        "# Needs a provider API key configured in .env — included in bun run test:evals",
+    ),
 ]
 
 REVIEW_PATH_REPLACEMENTS = [
@@ -365,6 +512,11 @@ def transform_text(text: str, path: Path) -> str:
     for old, new in PHRASE_REPLACEMENTS:
         updated = updated.replace(old, new)
 
+    is_doc_like = path.suffix == ".md" or path.name.endswith(".md.tmpl")
+    if is_doc_like:
+        for old, new in DOC_ONLY_PHRASE_REPLACEMENTS:
+            updated = updated.replace(old, new)
+
     updated = normalize_pi_wording(updated)
     updated = patch_port_readme(updated, path)
 
@@ -419,6 +571,86 @@ def transform_port_tree() -> int:
             path.write_text(updated, encoding="utf-8")
             changed += 1
     return changed
+
+
+def apply_overrides() -> int:
+    """Apply maintained Pi-specific overrides after mechanical transforms."""
+    if not OVERRIDES_DIR.exists():
+        return 0
+
+    changed = 0
+    for src in OVERRIDES_DIR.rglob("*"):
+        if not src.is_file():
+            continue
+
+        rel = src.relative_to(OVERRIDES_DIR)
+        dest = PORT_DIR / rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+
+        src_bytes = src.read_bytes()
+        dest_bytes = dest.read_bytes() if dest.exists() else None
+        if dest_bytes != src_bytes:
+            dest.write_bytes(src_bytes)
+            changed += 1
+
+    return changed
+
+
+def patch_env_example_for_pi() -> bool:
+    path = PORT_DIR / ".env.example"
+    if not path.exists():
+        return False
+
+    desired = (
+        "# Copy to .env and fill in values\n"
+        "# bun auto-loads .env — no dotenv needed\n\n"
+        "# Optional: pin eval runner to a specific pi provider/model.\n"
+        "# If unset, pi uses your default configured provider/model.\n"
+        "PI_EVAL_PROVIDER=\n"
+        "PI_EVAL_MODEL=\n"
+        "PI_EVAL_THINKING=\n\n"
+        "# Configure at least one provider API key supported by pi.\n"
+        "# Examples (pick what you use):\n"
+        "# OPENAI_API_KEY=...\n"
+        "# GEMINI_API_KEY=...\n"
+        "# OPENROUTER_API_KEY=...\n"
+    )
+
+    current = path.read_text(encoding="utf-8")
+    if current == desired:
+        return False
+
+    path.write_text(desired, encoding="utf-8")
+    return True
+
+
+def patch_package_json_for_pi() -> bool:
+    path = PORT_DIR / "package.json"
+    if not path.exists():
+        return False
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+    changed = False
+
+    dev = data.get("devDependencies")
+    if isinstance(dev, dict) and "@anthropic-ai/sdk" in dev:
+        dev.pop("@anthropic-ai/sdk", None)
+        changed = True
+        if not dev:
+            data.pop("devDependencies", None)
+
+    keywords = data.get("keywords")
+    if isinstance(keywords, list):
+        updated_keywords = ["pi" if kw == "claude" else kw for kw in keywords]
+        if updated_keywords != keywords:
+            data["keywords"] = updated_keywords
+            changed = True
+
+    if not changed:
+        return False
+
+    path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    return True
 
 
 def ensure_agents_context_file() -> bool:
@@ -477,6 +709,15 @@ def verify_port_quality() -> None:
         "call ask the user in chat",
         "/{skill-name}",
         "/{skill}",
+        # Contributor/eval harness should stay pi-native and model-agnostic.
+        "claude -p",
+        "Anthropic API",
+        "ANTHROPIC_API_KEY",
+        "@anthropic-ai/sdk",
+        "claude-sonnet-4-6",
+        "noreply@anthropic.com",
+        "--output-format stream-json",
+        "Spawn real Claude session",
     ]
 
     findings: list[str] = []
@@ -540,8 +781,10 @@ def write_metadata(changed_files: int) -> None:
             "pathReplacements": PATH_REPLACEMENTS,
             "reviewPathReplacements": REVIEW_PATH_REPLACEMENTS,
             "phraseReplacements": PHRASE_REPLACEMENTS,
+            "docOnlyPhraseReplacements": DOC_ONLY_PHRASE_REPLACEMENTS,
             "skillCommands": SKILL_COMMANDS,
             "removeAllowedTools": True,
+            "overridesDir": str(OVERRIDES_DIR.relative_to(REPO_ROOT)) if OVERRIDES_DIR.exists() else None,
         },
     }
 
@@ -557,6 +800,16 @@ def main() -> None:
 
     copy_upstream()
     changed_files = transform_port_tree()
+
+    override_count = apply_overrides()
+    changed_files += override_count
+
+    if patch_env_example_for_pi():
+        changed_files += 1
+
+    if patch_package_json_for_pi():
+        changed_files += 1
+
     if ensure_agents_context_file():
         changed_files += 1
 

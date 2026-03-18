@@ -347,7 +347,7 @@
 
 **Why:** CI integration catches quality regressions before merge and provides persistent eval records per PR.
 
-**Context:** Requires `ANTHROPIC_API_KEY` in CI secrets. Cost is ~$4/run. Eval persistence system (v0.3.6) writes JSON to `~/.gstack-dev/evals/` — CI would upload as GitHub Actions artifacts and use `eval:compare` to post delta comment.
+**Context:** Requires `pi provider credentials` in CI secrets. Cost is ~$4/run. Eval persistence system (v0.3.6) writes JSON to `~/.gstack-dev/evals/` — CI would upload as GitHub Actions artifacts and use `eval:compare` to post delta comment.
 
 **Effort:** M
 **Priority:** P2
@@ -355,7 +355,7 @@
 
 ### E2E model pinning
 
-**What:** Pin E2E tests to claude-sonnet-4-6 for cost efficiency, add retry:2 for flaky LLM responses.
+**What:** Pin E2E tests to your configured pi model for cost efficiency, add retry:2 for flaky LLM responses.
 
 **Why:** Reduce E2E test cost and flakiness.
 
@@ -380,7 +380,7 @@
 
 **Why:** Automated quality gate catches regressions before merge. Currently QA is manual — CI integration makes it part of the standard workflow.
 
-**Context:** Requires headless browse binary available in CI. The `/skill:qa` skill already produces `baseline.json` with health scores — CI step would compare against the main branch baseline and fail if score drops. Would need `ANTHROPIC_API_KEY` in CI secrets since `/skill:qa` uses Claude.
+**Context:** Requires headless browse binary available in CI. The `/skill:qa` skill already produces `baseline.json` with health scores — CI step would compare against the main branch baseline and fail if score drops. Would need `pi provider credentials` in CI secrets since `/skill:qa` uses Claude.
 
 **Effort:** M
 **Priority:** P2

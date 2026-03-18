@@ -230,8 +230,8 @@ Three reasons:
 | Tier | What | Cost | Speed |
 |------|------|------|-------|
 | 1 — Static validation | Parse every `$B` command in SKILL.md, validate against registry | Free | <2s |
-| 2 — E2E via `claude -p` | Spawn real Claude session, run each skill, check for errors | ~$3.85 | ~20min |
-| 3 — LLM-as-judge | Sonnet scores docs on clarity/completeness/actionability | ~$0.15 | ~30s |
+| 2 — E2E via `pi --mode json -p` | Spawn real pi session, run each skill, check for errors | ~$3.85 | ~20min |
+| 3 — LLM-as-judge | Configured model scores docs on clarity/completeness/actionability | ~$0.15 | ~30s |
 
 Tier 1 runs on every `bun test`. Tiers 2+3 are gated behind `EVALS=1`. The idea is: catch 95% of issues for free, use LLMs only for judgment calls.
 
@@ -271,10 +271,10 @@ The server doesn't try to self-heal. If Chromium crashes (`browser.on('disconnec
 
 ### Session runner (`test/helpers/session-runner.ts`)
 
-E2E tests spawn `claude -p` as a completely independent subprocess — not via the Agent SDK, which can't nest inside pi sessions. The runner:
+E2E tests spawn `pi --mode json -p` as a completely independent subprocess — not via the Agent SDK, which can't nest inside pi sessions. The runner:
 
 1. Writes the prompt to a temp file (avoids shell escaping issues)
-2. Spawns `sh -c 'cat prompt | claude -p --output-format stream-json --verbose'`
+2. Spawns `sh -c 'cat prompt | pi --mode json -p'`
 3. Streams NDJSON from stdout for real-time progress
 4. Races against a configurable timeout
 5. Parses the full NDJSON transcript into structured results
@@ -344,8 +344,8 @@ The `EvalCollector` accumulates test results and writes them in two ways:
 | Tier | What | Cost | Speed |
 |------|------|------|-------|
 | 1 — Static validation | Parse `$B` commands, validate against registry, observability unit tests | Free | <5s |
-| 2 — E2E via `claude -p` | Spawn real Claude session, run each skill, scan for errors | ~$3.85 | ~20min |
-| 3 — LLM-as-judge | Sonnet scores docs on clarity/completeness/actionability | ~$0.15 | ~30s |
+| 2 — E2E via `pi --mode json -p` | Spawn real pi session, run each skill, scan for errors | ~$3.85 | ~20min |
+| 3 — LLM-as-judge | Configured model scores docs on clarity/completeness/actionability | ~$0.15 | ~30s |
 
 Tier 1 runs on every `bun test`. Tiers 2+3 are gated behind `EVALS=1`. The idea: catch 95% of issues for free, use LLMs only for judgment calls and integration testing.
 

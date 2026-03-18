@@ -158,14 +158,14 @@ function dumpOutcomeDiagnostic(dir: string, label: string, report: string, judge
   } catch { /* non-fatal */ }
 }
 
-// Fail fast if Anthropic API is unreachable — don't burn through 13 tests getting ConnectionRefused
+// Fail fast if pi's configured provider is unreachable — don't burn through expensive E2E runs.
 if (evalsEnabled) {
-  const check = spawnSync('sh', ['-c', 'echo "ping" | claude -p --max-turns 1 --output-format stream-json --verbose --dangerously-skip-permissions'], {
+  const check = spawnSync('sh', ['-c', 'echo "ping" | pi --no-session --no-tools --mode text -p'], {
     stdio: 'pipe', timeout: 30_000,
   });
   const output = check.stdout?.toString() || '';
   if (output.includes('ConnectionRefused') || output.includes('Unable to connect')) {
-    throw new Error('Anthropic API unreachable — aborting E2E suite. Fix connectivity and retry.');
+    throw new Error('pi provider API unreachable — aborting E2E suite. Fix connectivity and retry.');
   }
 }
 
@@ -729,8 +729,8 @@ Important: The design checklist should catch issues like blacklisted fonts, smal
 
 // --- B6/B7/B8: Planted-bug outcome evals ---
 
-// Outcome evals also need ANTHROPIC_API_KEY for the LLM judge
-const hasApiKey = !!process.env.ANTHROPIC_API_KEY;
+// Outcome evals use the shared pi-based judge helper.
+const hasApiKey = true;
 const describeOutcome = (evalsEnabled && hasApiKey) ? describe : describe.skip;
 
 // Wrap describeOutcome with selection — skip if no planted-bug tests are selected
