@@ -4,7 +4,11 @@ version: 1.0.0
 description: |
   Eng manager-mode plan review. Lock in the execution plan — architecture,
   data flow, diagrams, edge cases, test coverage, performance. Walks through
-  issues interactively with opinionated recommendations.
+  issues interactively with opinionated recommendations. Use when asked to
+  "review the architecture", "engineering review", or "lock in the plan".
+  Proactively suggest when the user has a plan or design doc and is about to
+  start coding — to catch architecture issues before implementation.
+benefits-from: [office-hours]
 allowed-tools:
   - Read
   - Write
@@ -12,6 +16,7 @@ allowed-tools:
   - Glob
   - ask the user in chat
   - Bash
+  - WebSearch
 ---
 
 {{PREAMBLE}}
@@ -60,12 +65,32 @@ When evaluating architecture, think "boring by default." When reviewing tests, t
 
 ## BEFORE YOU START:
 
+### Design Doc Check
+```bash
+SLUG=$(~/.pi/agent/skills/gstack/browse/bin/remote-slug 2>/dev/null || basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)")
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null | tr '/' '-' || echo 'no-branch')
+DESIGN=$(ls -t ~/.gstack/projects/$SLUG/*-$BRANCH-design-*.md 2>/dev/null | head -1)
+[ -z "$DESIGN" ] && DESIGN=$(ls -t ~/.gstack/projects/$SLUG/*-design-*.md 2>/dev/null | head -1)
+[ -n "$DESIGN" ] && echo "Design doc found: $DESIGN" || echo "No design doc found"
+```
+If a design doc exists, read it. Use it as the source of truth for the problem statement, constraints, and chosen approach. If it has a `Supersedes:` field, note that this is a revised design — check the prior version for context on what changed and why.
+
+{{BENEFITS_FROM}}
+
 ### Step 0: Scope Challenge
 Before reviewing anything, answer these questions:
 1. **What existing code already partially or fully solves each sub-problem?** Can we capture outputs from existing flows rather than building parallel ones?
 2. **What is the minimum set of changes that achieves the stated goal?** Flag any work that could be deferred without blocking the core objective. Be ruthless about scope creep.
 3. **Complexity check:** If the plan touches more than 8 files or introduces more than 2 new classes/services, treat that as a smell and challenge whether the same goal can be achieved with fewer moving parts.
-4. **TODOS cross-reference:** Read `TODOS.md` if it exists. Are any deferred items blocking this plan? Can any deferred items be bundled into this PR without expanding scope? Does this plan create new work that should be captured as a TODO?
+4. **Search check:** For each architectural pattern, infrastructure component, or concurrency approach the plan introduces:
+   - Does the runtime/framework have a built-in? Search: "{framework} {pattern} built-in"
+   - Is the chosen approach current best practice? Search: "{pattern} best practice {current year}"
+   - Are there known footguns? Search: "{framework} {pattern} pitfalls"
+
+   If WebSearch is unavailable, skip this check and note: "Search unavailable — proceeding with in-distribution knowledge only."
+
+   If the plan rolls a custom solution where a built-in exists, flag it as a scope reduction opportunity. Annotate recommendations with **[Layer 1]**, **[Layer 2]**, **[Layer 3]**, or **[EUREKA]** (see preamble's Search Before Building section). If you find a eureka moment — a reason the standard approach is wrong for this case — present it as an architectural insight.
+5. **TODOS cross-reference:** Read `TODOS.md` if it exists. Are any deferred items blocking this plan? Can any deferred items be bundled into this PR without expanding scope? Does this plan create new work that should be captured as a TODO?
 
 5. **Completeness check:** Is the plan doing the complete version or a shortcut? With AI-assisted coding, the cost of completeness (100% test coverage, full edge case handling, complete error paths) is 10-100x cheaper than with a human team. If the plan proposes a shortcut that saves human-hours but only saves minutes with CC+gstack, recommend the complete version. Boil the lake.
 
@@ -101,45 +126,12 @@ Evaluate:
 **STOP.** For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Only proceed to the next section after ALL issues in this section are resolved.
 
 ### 3. Test review
-Make a diagram of all new UX, new data flow, new codepaths, and new branching if statements or outcomes. For each, note what is new about the features discussed in this branch and plan. Then, for each new item in the diagram, make sure there is a JS or Rails test.
+
+{{TEST_COVERAGE_AUDIT_PLAN}}
 
 For LLM/prompt changes: check the "Prompt/LLM changes" file patterns listed in AGENTS.md. If this plan touches ANY of those patterns, state which eval suites must be run, which cases should be added, and what baselines to compare against. Then ask the user to confirm the eval scope.
 
 **STOP.** For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Only proceed to the next section after ALL issues in this section are resolved.
-
-### Test Plan Artifact
-
-After producing the test diagram, write a test plan artifact to the project directory so `/skill:qa` and `/skill:qa-only` can consume it as primary test input (replacing the lossy git-diff heuristic):
-
-```bash
-eval $(~/.pi/agent/skills/gstack/bin/gstack-slug 2>/dev/null)
-USER=$(whoami)
-DATETIME=$(date +%Y%m%d-%H%M%S)
-mkdir -p ~/.gstack/projects/$SLUG
-```
-
-Write to `~/.gstack/projects/{slug}/{user}-{branch}-test-plan-{datetime}.md`:
-
-```markdown
-# Test Plan
-Generated by /skill:plan-eng-review on {date}
-Branch: {branch}
-Repo: {owner/repo}
-
-## Affected Pages/Routes
-- {URL path} — {what to test and why}
-
-## Key Interactions to Verify
-- {interaction description} on {page}
-
-## Edge Cases
-- {edge case} on {page}
-
-## Critical Paths
-- {end-to-end flow that must work}
-```
-
-This file is consumed by `/skill:qa` and `/skill:qa-only` as primary test input. Include only the information that helps a QA tester know **what to test and where** — not implementation details.
 
 ### 4. Performance review
 Evaluate:
@@ -149,6 +141,8 @@ Evaluate:
 * Slow or high-complexity code paths.
 
 **STOP.** For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Only proceed to the next section after ALL issues in this section are resolved.
+
+{{CODEX_PLAN_REVIEW}}
 
 ## CRITICAL RULE — How to ask questions
 Follow the ask the user in chat format from the Preamble above. Additional rules for plan reviews:
@@ -205,6 +199,7 @@ At the end of the review, fill in and display this summary so the user can see a
 - What already exists: written
 - TODOS.md updates: ___ items proposed to user
 - Failure modes: ___ critical gaps flagged
+- Outside voice: ran (codex/claude) / skipped
 - Lake Score: X/Y recommendations chose complete option
 
 ## Retrospective learning
@@ -218,12 +213,16 @@ Check the git log for this branch. If there are prior commits suggesting a previ
 
 ## Review Log
 
-After producing the Completion Summary above, persist the review result:
+After producing the Completion Summary above, persist the review result.
+
+**PLAN MODE EXCEPTION — ALWAYS RUN:** This command writes review metadata to
+`~/.gstack/` (user config directory, not project files). The skill preamble
+already writes to `~/.gstack/sessions/` and `~/.gstack/analytics/` — this is
+the same pattern. The review dashboard depends on this data. Skipping this
+command breaks the review readiness dashboard in /skill:ship.
 
 ```bash
-eval $(~/.pi/agent/skills/gstack/bin/gstack-slug 2>/dev/null)
-mkdir -p ~/.gstack/projects/$SLUG
-echo '{"skill":"plan-eng-review","timestamp":"TIMESTAMP","status":"STATUS","unresolved":N,"critical_gaps":N,"mode":"MODE"}' >> ~/.gstack/projects/$SLUG/$BRANCH-reviews.jsonl
+~/.pi/agent/skills/gstack/bin/gstack-review-log '{"skill":"plan-eng-review","timestamp":"TIMESTAMP","status":"STATUS","unresolved":N,"critical_gaps":N,"issues_found":N,"mode":"MODE","commit":"COMMIT"}'
 ```
 
 Substitute values from the Completion Summary:
@@ -231,9 +230,30 @@ Substitute values from the Completion Summary:
 - **STATUS**: "clean" if 0 unresolved decisions AND 0 critical gaps; otherwise "issues_open"
 - **unresolved**: number from "Unresolved decisions" count
 - **critical_gaps**: number from "Failure modes: ___ critical gaps flagged"
+- **issues_found**: total issues found across all review sections (Architecture + Code Quality + Performance + Test gaps)
 - **MODE**: FULL_REVIEW / SCOPE_REDUCED
+- **COMMIT**: output of `git rev-parse --short HEAD`
 
 {{REVIEW_DASHBOARD}}
+
+{{PLAN_FILE_REVIEW_REPORT}}
+
+## Next Steps — Review Chaining
+
+After displaying the Review Readiness Dashboard, check if additional reviews would be valuable. Read the dashboard output to see which reviews have already been run and whether they are stale.
+
+**Suggest /skill:plan-design-review if UI changes exist and no design review has been run** — detect from the test diagram, architecture review, or any section that touched frontend components, CSS, views, or user-facing interaction flows. If an existing design review's commit hash shows it predates significant changes found in this eng review, note that it may be stale.
+
+**Mention /skill:plan-ceo-review if this is a significant product change and no CEO review exists** — this is a soft suggestion, not a push. CEO review is optional. Only mention it if the plan introduces new user-facing features, changes product direction, or expands scope substantially.
+
+**Note staleness** of existing CEO or design reviews if this eng review found assumptions that contradict them, or if the commit hash shows significant drift.
+
+**If no additional reviews are needed** (or `skip_eng_review` is `true` in the dashboard config, meaning this eng review was optional): state "All relevant reviews complete. Run /skill:ship when ready."
+
+Use ask the user in chat with only the applicable options:
+- **A)** Run /skill:plan-design-review (only if UI scope detected and no design review exists)
+- **B)** Run /skill:plan-ceo-review (only if significant product change and no CEO review exists)
+- **C)** Ready to implement — run /skill:ship when done
 
 ## Unresolved decisions
 If the user does not respond to an ask the user in chat or interrupts to move on, note which decisions were left unresolved. At the end of the review, list these as "Unresolved decisions that may bite you later" — never silently default to an option.

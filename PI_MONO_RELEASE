@@ -1,0 +1,3 @@
+# Reviewed badlogic/pi-mono release tag used as update baseline.
+# Update with: python3 scripts/check_pi_mono_release.py --write-lock
+v0.62.0

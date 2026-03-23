@@ -3,7 +3,8 @@ name: gstack-upgrade
 version: 1.1.0
 description: |
   Upgrade gstack to the latest version. Detects global vs vendored install,
-  runs the upgrade, and shows what's new.
+  runs the upgrade, and shows what's new. Use when asked to "upgrade gstack",
+  "update gstack", or "get latest version".
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -74,9 +75,15 @@ Continue with the current skill.
 if [ -d "$HOME/.pi/agent/skills/gstack/.git" ]; then
   INSTALL_TYPE="global-git"
   INSTALL_DIR="$HOME/.pi/agent/skills/gstack"
+elif [ -d "$HOME/.gstack/repos/gstack/.git" ]; then
+  INSTALL_TYPE="global-git"
+  INSTALL_DIR="$HOME/.gstack/repos/gstack"
 elif [ -d ".pi/skills/gstack/.git" ]; then
   INSTALL_TYPE="local-git"
   INSTALL_DIR=".pi/skills/gstack"
+elif [ -d ".agents/skills/gstack/.git" ]; then
+  INSTALL_TYPE="local-git"
+  INSTALL_DIR=".agents/skills/gstack"
 elif [ -d ".pi/skills/gstack" ]; then
   INSTALL_TYPE="vendored"
   INSTALL_DIR=".pi/skills/gstack"

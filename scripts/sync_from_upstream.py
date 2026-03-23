@@ -177,6 +177,39 @@ PHRASE_REPLACEMENTS = [
     ),
     ("const hasApiKey = !!process.env.ANTHROPIC_API_KEY;", "const hasApiKey = true;"),
     (
+        "E2E tests stream progress in real-time (tool-by-tool via `--output-format stream-json\n--verbose`).",
+        "E2E tests stream progress in real-time (tool-by-tool via JSON mode events).",
+    ),
+    ("Key differences from Claude session-runner:", "Key differences from pi session-runner:"),
+    (
+        "- Uses `codex exec` instead of `claude -p`",
+        "- Uses `codex exec` instead of `pi --mode json -p`",
+    ),
+    (
+        "- Uses `--json` flag instead of `--output-format stream-json`",
+        "- Uses `--json` flag instead of pi JSON mode events",
+    ),
+    (
+        "- Uses `--output-format stream-json --yolo` instead of `--json -s read-only`",
+        "- Uses `--output-format` + `stream-json` + `--yolo` instead of `--json -s read-only`",
+    ),
+    (
+        "Parse an array of JSONL lines from `gemini -p --output-format stream-json`.",
+        "Parse an array of JSONL lines from Gemini JSON event output (`gemini -p`).",
+    ),
+    (
+        "// Check if Anthropic API key is available (needed for outcome evals)",
+        "// Check if provider API access is available (needed for outcome evals)",
+    ),
+    (
+        "// Fail fast if Anthropic API is unreachable — don't burn through tests getting ConnectionRefused",
+        "// Fail fast if provider API is unreachable — don't burn through tests getting ConnectionRefused",
+    ),
+    (
+        "model?: string;                // e.g. 'claude-sonnet-4-6' or 'claude-opus-4-6'",
+        "model?: string;                // e.g. your configured pi model",
+    ),
+    (
         """const client = new Anthropic();
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',

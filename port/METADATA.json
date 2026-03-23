@@ -2,12 +2,12 @@
   "upstream": {
     "repo": "https://github.com/garrytan/gstack.git",
     "branch": "main",
-    "commit": "716e4c934aff10c142a5b4735ad3e919bcb77c2c",
-    "version": "0.6.4.0"
+    "commit": "7fbf68bb3f253ef799f38862fb1cb0b62d756a64",
+    "version": "0.11.5.2"
   },
-  "generatedAt": "2026-03-18T09:06:57.569819+00:00",
+  "generatedAt": "2026-03-23T09:01:30.045015+00:00",
   "portDir": "port/gstack",
-  "changedFiles": 64,
+  "changedFiles": 113,
   "transformRules": {
     "pathReplacements": [
       [
@@ -235,6 +235,42 @@
         "const hasApiKey = true;"
       ],
       [
+        "E2E tests stream progress in real-time (tool-by-tool via `--output-format stream-json\n--verbose`).",
+        "E2E tests stream progress in real-time (tool-by-tool via JSON mode events)."
+      ],
+      [
+        "Key differences from Claude session-runner:",
+        "Key differences from pi session-runner:"
+      ],
+      [
+        "- Uses `codex exec` instead of `claude -p`",
+        "- Uses `codex exec` instead of `pi --mode json -p`"
+      ],
+      [
+        "- Uses `--json` flag instead of `--output-format stream-json`",
+        "- Uses `--json` flag instead of pi JSON mode events"
+      ],
+      [
+        "- Uses `--output-format stream-json --yolo` instead of `--json -s read-only`",
+        "- Uses `--output-format` + `stream-json` + `--yolo` instead of `--json -s read-only`"
+      ],
+      [
+        "Parse an array of JSONL lines from `gemini -p --output-format stream-json`.",
+        "Parse an array of JSONL lines from Gemini JSON event output (`gemini -p`)."
+      ],
+      [
+        "// Check if Anthropic API key is available (needed for outcome evals)",
+        "// Check if provider API access is available (needed for outcome evals)"
+      ],
+      [
+        "// Fail fast if Anthropic API is unreachable \u2014 don't burn through tests getting ConnectionRefused",
+        "// Fail fast if provider API is unreachable \u2014 don't burn through tests getting ConnectionRefused"
+      ],
+      [
+        "model?: string;                // e.g. 'claude-sonnet-4-6' or 'claude-opus-4-6'",
+        "model?: string;                // e.g. your configured pi model"
+      ],
+      [
         "const client = new Anthropic();\n    const response = await client.messages.create({\n      model: 'claude-sonnet-4-6',\n      max_tokens: 1024,\n      messages: [{\n        role: 'user',\n        content: `You are comparing two versions of CLI documentation for an AI coding agent.\n\nVERSION A (baseline \u2014 hand-maintained):\n${baseline}\n\nVERSION B (auto-generated from source):\n${genSection}\n\nWhich version is better for an AI agent trying to use these commands? Consider:\n- Completeness (more commands documented? all args shown?)\n- Clarity (descriptions helpful?)\n- Coverage (missing commands in either version?)\n\nRespond with ONLY valid JSON:\n{\"winner\": \"A\" or \"B\" or \"tie\", \"reasoning\": \"brief explanation\", \"a_score\": N, \"b_score\": N}\n\nScores are 1-5 overall quality.`,\n      }],\n    });\n\n    const text = response.content[0].type === 'text' ? response.content[0].text : '';\n    const jsonMatch = text.match(/\\{[\\s\\S]*\\}/);\n    if (!jsonMatch) throw new Error(`Judge returned non-JSON: ${text.slice(0, 200)}`);\n    const result = JSON.parse(jsonMatch[0]);\n",
         "const result = await callJudge<{ winner: 'A' | 'B' | 'tie'; reasoning: string; a_score: number; b_score: number }>(`You are comparing two versions of CLI documentation for an AI coding agent.\n\nVERSION A (baseline \u2014 hand-maintained):\n${baseline}\n\nVERSION B (auto-generated from source):\n${genSection}\n\nWhich version is better for an AI agent trying to use these commands? Consider:\n- Completeness (more commands documented? all args shown?)\n- Clarity (descriptions helpful?)\n- Coverage (missing commands in either version?)\n\nRespond with ONLY valid JSON:\n{\"winner\": \"A\" or \"B\" or \"tie\", \"reasoning\": \"brief explanation\", \"a_score\": N, \"b_score\": N}\n\nScores are 1-5 overall quality.`);\n"
       ],
@@ -336,7 +372,20 @@
       "design-review",
       "qa-design-review",
       "design-consultation",
-      "document-release"
+      "document-release",
+      "autoplan",
+      "benchmark",
+      "canary",
+      "careful",
+      "codex",
+      "cso",
+      "freeze",
+      "guard",
+      "investigate",
+      "land-and-deploy",
+      "office-hours",
+      "setup-deploy",
+      "unfreeze"
     ],
     "removeAllowedTools": true,
     "overridesDir": "overrides/gstack"

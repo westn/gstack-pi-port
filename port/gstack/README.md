@@ -4,11 +4,13 @@
 >
 > If you are using **pi**, install from this repo (not from `garrytan/gstack`).
 
-Hi, I'm [Garry Tan](https://x.com/garrytan). I'm President & CEO of [Y Combinator](https://www.ycombinator.com/), where I've worked with thousands of startups including Coinbase, Instacart, and Rippling when the founders were just one or two people in a garage — companies now worth tens of billions of dollars. Before YC, I designed the Palantir logo and was one of the first eng manager/PM/designers there. I cofounded Posterous, a blog platform we sold to Twitter. I built Bookface, YC's internal social network, back in 2013. I've been building products as a designer, PM, and eng manager for a long time.
+> "I don't think I've typed like a line of code probably since December, basically, which is an extremely large change." — [Andrej Karpathy](https://fortune.com/2026/03/21/andrej-karpathy-openai-cofounder-ai-agents-coding-state-of-psychosis-openclaw/), No Priors podcast, March 2026
 
-And right now I am in the middle of something that feels like a new era entirely.
+When I heard Karpathy say this, I wanted to find out how. How does one person ship like a team of twenty? Peter Steinberger built [OpenClaw](https://github.com/openclaw/openclaw) — 247K GitHub stars — essentially solo with AI agents. The revolution is here. A single builder with the right tooling can move faster than a traditional team.
 
-In the last 60 days I have written **over 600,000 lines of production code** — 35% tests — and I am doing **10,000 to 20,000 usable lines of code per day** as a part-time part of my day while doing all my duties as CEO of YC. That is not a typo. My last `/skill:retro` (developer stats from the last 7 days) across 3 projects: **140,751 lines added, 362 commits, ~115k net LOC**. The models are getting dramatically better every week. We are at the dawn of something real — one person shipping at a scale that used to require a team of twenty.
+I'm [Garry Tan](https://x.com/garrytan), President & CEO of [Y Combinator](https://www.ycombinator.com/). I've worked with thousands of startups — Coinbase, Instacart, Rippling — when they were one or two people in a garage. Before YC, I was one of the first eng/PM/designers at Palantir, cofounded Posterous (sold to Twitter), and built Bookface, YC's internal social network.
+
+**gstack is my answer.** I've been building products for twenty years, and right now I'm shipping more code than I ever have. In the last 60 days: **600,000+ lines of production code** (35% tests), **10,000-20,000 lines per day**, part-time, while running YC full-time. Here's my last `/skill:retro` across 3 projects: **140,751 lines added, 362 commits, ~115k net LOC** in one week.
 
 **2026 — 1,237 contributions and counting:**
 
@@ -20,148 +22,174 @@ In the last 60 days I have written **over 600,000 lines of production code** —
 
 Same person. Different era. The difference is the tooling.
 
-**gstack is how I do it.** It is my open source software factory. It turns pi into a virtual engineering team you actually manage — a CEO who rethinks the product, an eng manager who locks the architecture, a designer who catches AI slop, a paranoid reviewer who finds production bugs, a QA lead who opens a real browser and clicks through your app, and a release engineer who ships the PR. Thirteen specialists, all as slash commands, all Markdown, **all free, MIT license, available right now.**
+**gstack is how I do it.** It turns pi into a virtual engineering team — a CEO who rethinks the product, an eng manager who locks architecture, a designer who catches AI slop, a reviewer who finds production bugs, a QA lead who opens a real browser, a security officer who runs OWASP + STRIDE audits, and a release engineer who ships the PR. Twenty specialists and eight power tools, all slash commands, all Markdown, all free, MIT license.
 
-I am learning how to get to the edge of what agentic systems can do as of March 2026, and this is my live experiment. I am sharing it because I want the whole world on this journey with me.
+This is my open source software factory. I use it every day. I'm sharing it because these tools should be available to everyone.
 
-Fork it. Improve it. Make it yours. Don't player hate, appreciate.
+Fork it. Improve it. Make it yours. And if you want to hate on free open source software — you're welcome to, but I'd rather you just try it first.
 
 **Who this is for:**
-- **Founders and CEOs** — especially technical ones who still want to ship. This is how you build like a team of twenty.
-- **First-time pi users** — gstack is the best way to start. Structured roles instead of a blank prompt.
-- **Tech leads and staff engineers** — bring rigorous review, QA, and release automation to every PR
+- **Founders and CEOs** — especially technical ones who still want to ship
+- **First-time pi users** — structured roles instead of a blank prompt
+- **Tech leads and staff engineers** — rigorous review, QA, and release automation on every PR
 
-## Quick start: your first 10 minutes
+## Quick start
 
 1. Install gstack (30 seconds — see below)
-2. Run `/skill:plan-ceo-review` on any feature idea
-3. Run `/skill:review` on any branch with changes
-4. Run `/skill:qa` on your staging URL
-5. Stop there. You'll know if this is for you.
+2. Run `/skill:office-hours` — describe what you're building
+3. Run `/skill:plan-ceo-review` on any feature idea
+4. Run `/skill:review` on any branch with changes
+5. Run `/skill:qa` on your staging URL
+6. Stop there. You'll know if this is for you.
 
-Expect first useful run in under 5 minutes on any repo with tests already set up.
+## Install — 30 seconds
 
-**If you only read one more section, read this one.**
-
-## Install — takes 30 seconds
-
-**Requirements:** [pi](https://www.npmjs.com/package/@mariozechner/pi-coding-agent), [Git](https://git-scm.com/), [Bun](https://bun.sh/) v1.0+
+**Requirements:** [pi](https://www.npmjs.com/package/@mariozechner/pi-coding-agent), [Git](https://git-scm.com/), [Bun](https://bun.sh/) v1.0+, [Node.js](https://nodejs.org/) (Windows only)
 
 ### Step 1: Install on your machine
 
 Open pi and paste this. The agent does the rest.
 
-> Install gstack: run **`git clone https://github.com/westn/gstack-pi-port.git /tmp/gstack-pi-port && cd /tmp/gstack-pi-port && ./scripts/install.sh --global --build`** then add a "gstack" section to AGENTS.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:design-consultation, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:retro, /skill:document-release. Then ask the user if they also want to add gstack to the current project so teammates get it.
+> Install gstack: run **`git clone https://github.com/westn/gstack-pi-port.git /tmp/gstack-pi-port && cd /tmp/gstack-pi-port && ./scripts/install.sh --global --build`** then add a "gstack" section to AGENTS.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:office-hours, /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:design-consultation, /skill:review, /skill:ship, /skill:land-and-deploy, /skill:canary, /skill:benchmark, /skill:browse, /skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro, /skill:investigate, /skill:document-release, /skill:codex, /skill:cso, /skill:autoplan, /skill:careful, /skill:freeze, /skill:guard, /skill:unfreeze, /skill:gstack-upgrade. Then ask the user if they also want to add gstack to the current project so teammates get it.
 
 ### Step 2: Add to your repo so teammates get it (optional)
 
-> Add gstack to this project: run **`cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack && rm -rf .pi/skills/gstack/.git && cd .pi/skills/gstack && ./setup`** then add a "gstack" section to this project's AGENTS.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:design-consultation, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:retro, /skill:document-release, and tells the user that if gstack skills aren't working, run `cd .pi/skills/gstack && ./setup` to build the binary and register skills.
+> Add gstack to this project: run **`cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack && rm -rf .pi/skills/gstack/.git && cd .pi/skills/gstack && ./setup`** then add a "gstack" section to this project's AGENTS.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /skill:office-hours, /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:design-consultation, /skill:review, /skill:ship, /skill:land-and-deploy, /skill:canary, /skill:benchmark, /skill:browse, /skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro, /skill:investigate, /skill:document-release, /skill:codex, /skill:cso, /skill:careful, /skill:freeze, /skill:guard, /skill:unfreeze, /skill:gstack-upgrade, and tells the user that if gstack skills aren't working, run `cd .pi/skills/gstack && ./setup` to build the binary and register skills.
 
 Real files get committed to your repo (not a submodule), so `git clone` just works. Everything lives inside `.pi/` (plus runtime state in `.gstack/`). Nothing touches your PATH or runs in the background.
+
+### Codex, Gemini CLI, or Cursor
+
+gstack works on any agent that supports the [SKILL.md standard](https://github.com/anthropics/claude-code). Skills live in `.agents/skills/` and are discovered automatically.
+
+Install to one repo:
+
+```bash
+git clone https://github.com/garrytan/gstack.git .agents/skills/gstack
+cd .agents/skills/gstack && ./setup --host codex
+```
+
+When setup runs from `.agents/skills/gstack`, it installs the generated Codex skills next to it in the same repo and does not write to `~/.codex/skills`.
+
+Install once for your user account:
+
+```bash
+git clone https://github.com/garrytan/gstack.git ~/gstack
+cd ~/gstack && ./setup --host codex
+```
+
+`setup --host codex` creates the runtime root at `~/.codex/skills/gstack` and
+links the generated Codex skills at the top level. This avoids duplicate skill
+discovery from the source repo checkout.
+
+Or let setup auto-detect which agents you have installed:
+
+```bash
+git clone https://github.com/garrytan/gstack.git ~/gstack
+cd ~/gstack && ./setup --host auto
+```
+
+For Codex-compatible hosts, setup now supports both repo-local installs from `.agents/skills/gstack` and user-global installs from `~/.codex/skills/gstack`. All 28 skills work across all supported agents. Hook-based safety skills (careful, freeze, guard) use inline safety advisory prose on non-Claude hosts.
 
 ## See it work
 
 ```
-You:    I want to add photo upload for sellers.
-You:    /skill:plan-ceo-review
-Agent: "Photo upload" is not the feature. The real job is helping
-        sellers create listings that actually sell. What if we
-        auto-identify the product, pull specs and comps from the
-        web, and draft the listing automatically? That's 10 stars.
-        "Upload a photo" is 3 stars. Which are we building?
-        [8 expansion proposals, you cherry-pick 5, defer 3 to backlog]
+You:    I want to build a daily briefing app for my calendar.
+You:    /skill:office-hours
+Agent: [asks about the pain — specific examples, not hypotheticals]
 
-You:    /skill:plan-design-review
-Agent: Design Score: B  |  AI Slop Score: C
-        "Upload flow looks like a default Bootstrap form."
-        [80-item audit, infers your design system, exports DESIGN.md]
-        [flags 3 AI slop patterns: gradient hero, icon grid, uniform radius]
+You:    Multiple Google calendars, events with stale info, wrong locations.
+        Prep takes forever and the results aren't good enough...
+
+Agent: I'm going to push back on the framing. You said "daily briefing
+        app." But what you actually described is a personal chief of
+        staff AI.
+        [extracts 5 capabilities you didn't realize you were describing]
+        [challenges 4 premises — you agree, disagree, or adjust]
+        [generates 3 implementation approaches with effort estimates]
+        RECOMMENDATION: Ship the narrowest wedge tomorrow, learn from
+        real usage. The full vision is a 3-month project — start with
+        the daily briefing that actually works.
+        [writes design doc → feeds into downstream skills automatically]
+
+You:    /skill:plan-ceo-review
+        [reads the design doc, challenges scope, runs 10-section review]
 
 You:    /skill:plan-eng-review
-Agent: ┌─────────┐    ┌──────────┐    ┌──────────┐    ┌─────────┐
-        │ Upload  │───▶│ Classify │───▶│ Enrich   │───▶│ Draft   │
-        │ (sync)  │    │ (async)  │    │ (async)  │    │ (async) │
-        └─────────┘    └──────────┘    └──────────┘    └─────────┘
-        [ASCII diagrams for every data flow, state machine, error path]
-        [14-case test matrix, 6 failure modes mapped, 3 security concerns]
+        [ASCII diagrams for data flow, state machines, error paths]
+        [test matrix, failure modes, security concerns]
 
 You:    Approve plan. Exit plan mode.
-        [Agent writes 2,400 lines across 11 files — models, services,
-         controllers, views, migrations, and tests. ~8 minutes.]
+        [writes 2,400 lines across 11 files. ~8 minutes.]
 
 You:    /skill:review
-Agent: [AUTO-FIXED] Orphan S3 cleanup on failed upload
-        [AUTO-FIXED] Missing index on listings.status
-        [ASK] Race condition on hero image selection → You: yes
-        [traces every new enum value through all switch statements]
-        3 issues — 2 auto-fixed, 1 fixed.
+        [AUTO-FIXED] 2 issues. [ASK] Race condition → you approve fix.
 
 You:    /skill:qa https://staging.myapp.com
-Agent: [opens real browser, logs in, uploads photos, clicks through flows]
-        Upload → classify → enrich → draft: end to end ✓
-        Mobile: ✓  |  Slow connection: ✓  |  Bad image: ✓
-        [finds bug: preview doesn't clear on second upload — fixes it]
-        Regression test generated.
+        [opens real browser, clicks through flows, finds and fixes a bug]
 
 You:    /skill:ship
-Agent: Tests: 42 → 51 (+9 new)
-        Coverage: 14/14 code paths (100%)
-        PR: github.com/you/app/pull/42
+        Tests: 42 → 51 (+9 new). PR: github.com/you/app/pull/42
 ```
 
-One feature. Seven commands. The agent reframed the product, ran an 80-item design audit, drew the architecture, wrote 2,400 lines of code, found a race condition I would have missed, auto-fixed two issues, opened a real browser to QA test, found and fixed a bug I didn't know about, wrote 9 tests, and generated a regression test. That is not a copilot. That is a team.
+You said "daily briefing app." The agent said "you're building a chief of staff AI" — because it listened to your pain, not your feature request. Eight commands, end to end. That is not a copilot. That is a team.
 
-## The team
+## The sprint
+
+gstack is a process, not a collection of tools. The skills run in the order a sprint runs:
+
+**Think → Plan → Build → Review → Test → Ship → Reflect**
+
+Each skill feeds into the next. `/skill:office-hours` writes a design doc that `/skill:plan-ceo-review` reads. `/skill:plan-eng-review` writes a test plan that `/skill:qa` picks up. `/skill:review` catches bugs that `/skill:ship` verifies are fixed. Nothing falls through the cracks because every step knows what came before it.
 
 | Skill | Your specialist | What they do |
 |-------|----------------|--------------|
+| `/skill:office-hours` | **YC Office Hours** | Start here. Six forcing questions that reframe your product before you write code. Pushes back on your framing, challenges premises, generates implementation alternatives. Design doc feeds into every downstream skill. |
 | `/skill:plan-ceo-review` | **CEO / Founder** | Rethink the problem. Find the 10-star product hiding inside the request. Four modes: Expansion, Selective Expansion, Hold Scope, Reduction. |
 | `/skill:plan-eng-review` | **Eng Manager** | Lock in architecture, data flow, diagrams, edge cases, and tests. Forces hidden assumptions into the open. |
-| `/skill:plan-design-review` | **Senior Designer** | 80-item design audit with letter grades. AI Slop detection. Infers your design system. Report only — never touches code. |
-| `/skill:design-consultation` | **Design Partner** | Build a complete design system from scratch. Knows the landscape, proposes creative risks, generates realistic product mockups. Design at the heart of all other phases. |
+| `/skill:plan-design-review` | **Senior Designer** | Rates each design dimension 0-10, explains what a 10 looks like, then edits the plan to get there. AI Slop detection. Interactive — one user question in chat per design choice. |
+| `/skill:design-consultation` | **Design Partner** | Build a complete design system from scratch. Researches the landscape, proposes creative risks, generates realistic product mockups. |
 | `/skill:review` | **Staff Engineer** | Find the bugs that pass CI but blow up in production. Auto-fixes the obvious ones. Flags completeness gaps. |
-| `/skill:ship` | **Release Engineer** | Sync main, run tests, audit coverage, push, open PR. Bootstraps test frameworks if you don't have one. One command. |
-| `/skill:browse` | **QA Engineer** | Give the agent eyes. Real Chromium browser, real clicks, real screenshots. ~100ms per command. |
-| `/skill:qa` | **QA Lead** | Test your app, find bugs, fix them with atomic commits, re-verify. Auto-generates regression tests for every fix. |
-| `/skill:qa-only` | **QA Reporter** | Same methodology as /skill:qa but report only. Use when you want a pure bug report without code changes. |
+| `/skill:investigate` | **Debugger** | Systematic root-cause debugging. Iron Law: no fixes without investigation. Traces data flow, tests hypotheses, stops after 3 failed fixes. |
 | `/skill:design-review` | **Designer Who Codes** | Same audit as /skill:plan-design-review, then fixes what it finds. Atomic commits, before/after screenshots. |
-| `/skill:setup-browser-cookies` | **Session Manager** | Import cookies from your real browser (Chrome, Arc, Brave, Edge) into the headless session. Test authenticated pages. |
-| `/skill:retro` | **Eng Manager** | Team-aware weekly retro. Per-person breakdowns, shipping streaks, test health trends, growth opportunities. |
+| `/skill:qa` | **QA Lead** | Test your app, find bugs, fix them with atomic commits, re-verify. Auto-generates regression tests for every fix. |
+| `/skill:qa-only` | **QA Reporter** | Same methodology as /skill:qa but report only. Pure bug report without code changes. |
+| `/skill:cso` | **Chief Security Officer** | OWASP Top 10 + STRIDE threat model. Zero-noise: 17 false positive exclusions, 8/10+ confidence gate, independent finding verification. Each finding includes a concrete exploit scenario. |
+| `/skill:ship` | **Release Engineer** | Sync main, run tests, audit coverage, push, open PR. Bootstraps test frameworks if you don't have one. |
+| `/skill:land-and-deploy` | **Release Engineer** | Merge the PR, wait for CI and deploy, verify production health. One command from "approved" to "verified in production." |
+| `/skill:canary` | **SRE** | Post-deploy monitoring loop. Watches for console errors, performance regressions, and page failures. |
+| `/skill:benchmark` | **Performance Engineer** | Baseline page load times, Core Web Vitals, and resource sizes. Compare before/after on every PR. |
 | `/skill:document-release` | **Technical Writer** | Update all project docs to match what you just shipped. Catches stale READMEs automatically. |
+| `/skill:retro` | **Eng Manager** | Team-aware weekly retro. Per-person breakdowns, shipping streaks, test health trends, growth opportunities. `/skill:retro global` runs across all your projects and AI tools (pi, Codex, Gemini). |
+| `/skill:browse` | **QA Engineer** | Real Chromium browser, real clicks, real screenshots. ~100ms per command. |
+| `/skill:setup-browser-cookies` | **Session Manager** | Import cookies from your real browser (Chrome, Arc, Brave, Edge) into the headless session. Test authenticated pages. |
+| `/skill:autoplan` | **Review Pipeline** | One command, fully reviewed plan. Runs CEO → design → eng review automatically with encoded decision principles. Surfaces only taste decisions for your approval. |
+
+### Power tools
+
+| Skill | What it does |
+|-------|-------------|
+| `/skill:codex` | **Second Opinion** — independent code review from OpenAI Codex CLI. Three modes: review (pass/fail gate), adversarial challenge, and open consultation. Cross-model analysis when both `/skill:review` and `/skill:codex` have run. |
+| `/skill:careful` | **Safety Guardrails** — warns before destructive commands (rm -rf, DROP TABLE, force-push). Say "be careful" to activate. Override any warning. |
+| `/skill:freeze` | **Edit Lock** — restrict file edits to one directory. Prevents accidental changes outside scope while debugging. |
+| `/skill:guard` | **Full Safety** — `/skill:careful` + `/skill:freeze` in one command. Maximum safety for prod work. |
+| `/skill:unfreeze` | **Unlock** — remove the `/skill:freeze` boundary. |
+| `/skill:setup-deploy` | **Deploy Configurator** — one-time setup for `/skill:land-and-deploy`. Detects your platform, production URL, and deploy commands. |
+| `/skill:gstack-upgrade` | **Self-Updater** — upgrade gstack to latest. Detects global vs vendored install, syncs both, shows what changed. |
 
 **[Deep dives with examples and philosophy for every skill →](docs/skills.md)**
 
-## What's new and why it matters
+## Parallel sprints
 
-**Design is at the heart.** `/skill:design-consultation` doesn't just pick fonts. It researches what's out there in your space, proposes safe choices AND creative risks, generates realistic mockups of your actual product, and writes `DESIGN.md` — and then `/skill:design-review` and `/skill:plan-eng-review` read what you chose. Design decisions flow through the whole system.
+gstack works well with one sprint. It gets interesting with ten running at once.
 
-**`/skill:qa` was a massive unlock.** It let me go from 6 to 12 parallel workers. pi saying *"I SEE THE ISSUE"* and then actually fixing it, generating a regression test, and verifying the fix — that changed how I work. The agent has eyes now.
+[Conductor](https://conductor.build) runs multiple pi sessions in parallel — each in its own isolated workspace. One session on `/skill:office-hours`, another on `/skill:review`, a third implementing a feature, a fourth running `/skill:qa`. All at the same time. The sprint structure is what makes parallelism work — without a process, ten agents is ten sources of chaos. With a process, each agent knows exactly what to do and when to stop.
 
-**Smart review routing.** Just like at a well-run startup: CEO doesn't have to look at infra bug fixes, design review isn't needed for backend changes. gstack tracks what reviews are run, figures out what's appropriate, and just does the smart thing. The Review Readiness Dashboard tells you where you stand before you ship.
+---
 
-**Test everything.** `/skill:ship` bootstraps test frameworks from scratch if your project doesn't have one. Every `/skill:ship` run produces a coverage audit. Every `/skill:qa` bug fix generates a regression test. 100% test coverage is the goal — tests make vibe coding safe instead of yolo coding.
+Free, MIT licensed, open source. No premium tier, no waitlist.
 
-**`/skill:document-release` is the engineer you never had.** It reads every doc file in your project, cross-references the diff, and updates everything that drifted. README, ARCHITECTURE, CONTRIBUTING, AGENTS.md, TODOS — all kept current automatically.
-
-## 10 sessions at once
-
-gstack is powerful with one session. It is transformative with ten.
-
-[Conductor](https://conductor.build) runs multiple pi sessions in parallel — each in its own isolated workspace. One session running `/skill:qa` on staging, another doing `/skill:review` on a PR, a third implementing a feature, and seven more on other branches. All at the same time.
-
-One person, ten parallel agents, each with the right cognitive mode. That is a different way of building software.
-
-## Come ride the wave
-
-This is **free, MIT licensed, open source, available now.** No premium tier. No waitlist. No strings.
-
-I open sourced how I do development and I am actively upgrading my own software factory here. You can fork it and make it your own. That's the whole point. I want everyone on this journey.
-
-Same tools, different outcome — because gstack gives you structured roles and review gates, not generic agent chaos. That governance is the difference between shipping fast and shipping reckless.
-
-The models are getting better fast. The people who figure out how to work with them now — really work with them, not just dabble — are going to have a massive advantage. This is that window. Let's go.
-
-Thirteen specialists. All slash commands. All Markdown. All free. **[github.com/garrytan/gstack](https://github.com/garrytan/gstack)** — MIT License
+I open sourced how I build software. You can fork it and make it your own.
 
 > **We're hiring.** Want to ship 10K+ LOC/day and help harden gstack?
 > Come work at YC — [ycombinator.com/software](https://ycombinator.com/software)
@@ -172,10 +200,25 @@ Thirteen specialists. All slash commands. All Markdown. All free. **[github.com/
 | Doc | What it covers |
 |-----|---------------|
 | [Skill Deep Dives](docs/skills.md) | Philosophy, examples, and workflow for every skill (includes Greptile integration) |
+| [Builder Ethos](ETHOS.md) | Builder philosophy: Boil the Lake, Search Before Building, three layers of knowledge |
 | [Architecture](ARCHITECTURE.md) | Design decisions and system internals |
 | [Browser Reference](BROWSER.md) | Full command reference for `/skill:browse` |
 | [Contributing](CONTRIBUTING.md) | Dev setup, testing, contributor mode, and dev mode |
 | [Changelog](CHANGELOG.md) | What's new in every version |
+
+## Privacy & Telemetry
+
+gstack includes **opt-in** usage telemetry to help improve the project. Here's exactly what happens:
+
+- **Default is off.** Nothing is sent anywhere unless you explicitly say yes.
+- **On first run,** gstack asks if you want to share anonymous usage data. You can say no.
+- **What's sent (if you opt in):** skill name, duration, success/fail, gstack version, OS. That's it.
+- **What's never sent:** code, file paths, repo names, branch names, prompts, or any user-generated content.
+- **Change anytime:** `gstack-config set telemetry off` disables everything instantly.
+
+Data is stored in [Supabase](https://supabase.com) (open source Firebase alternative). The schema is in [`supabase/migrations/001_telemetry.sql`](supabase/migrations/001_telemetry.sql) — you can verify exactly what's collected. The Supabase publishable key in the repo is a public key (like a Firebase API key) — row-level security policies restrict it to insert-only access.
+
+**Local analytics are always available.** Run `gstack-analytics` to see your personal usage dashboard from the local JSONL file — no remote data needed.
 
 ## Troubleshooting
 
@@ -185,14 +228,18 @@ Thirteen specialists. All slash commands. All Markdown. All free. **[github.com/
 
 **Stale install?** Run `/skill:gstack-upgrade` — or set `auto_upgrade: true` in `~/.gstack/config.yaml`
 
+**Windows users:** gstack works on Windows 11 via Git Bash or WSL. Node.js is required in addition to Bun — Bun has a known bug with Playwright's pipe transport on Windows ([bun#4253](https://github.com/oven-sh/bun/issues/4253)). The browse server automatically falls back to Node.js. Make sure both `bun` and `node` are on your PATH.
+
 **pi says it can't see the skills?** Make sure your project's `AGENTS.md` has a gstack section. Add this:
 
 ```
 ## gstack
 Use /skill:browse from gstack for all web browsing. Never use mcp__claude-in-chrome__* tools.
-Available skills: /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review,
-/skill:design-consultation, /skill:review, /skill:ship, /skill:browse, /skill:qa, /skill:qa-only, /skill:design-review,
-/skill:setup-browser-cookies, /skill:retro, /skill:document-release.
+Available skills: /skill:office-hours, /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review,
+/skill:design-consultation, /skill:review, /skill:ship, /skill:land-and-deploy, /skill:canary, /skill:benchmark, /skill:browse,
+/skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro,
+/skill:investigate, /skill:document-release, /skill:codex, /skill:cso, /skill:autoplan, /skill:careful, /skill:freeze, /skill:guard,
+/skill:unfreeze, /skill:gstack-upgrade.
 ```
 
 ## License

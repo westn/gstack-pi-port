@@ -6,6 +6,7 @@ ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 RUN_INSTALL=1
 RUN_BUILD=0
 RUN_TESTS=1
+RUN_PI_MONO_CHECK=1
 INSTALL_ARGS=(--global)
 
 usage() {
@@ -13,6 +14,7 @@ usage() {
 Update gstack-pi-port in one command.
 
 Default behavior (full process):
+  0) Check tracked pi-mono release is current
   1) Sync from upstream
   2) Run sync/install script sanity checks
   3) Run Pi-native eval harness sanity tests
@@ -29,6 +31,7 @@ Options:
   --target <path>    Install target: explicit path
   --build            Run install with --build (compile browse binary/deps)
   --skip-tests       Skip sanity test step
+  --skip-pi-mono-check  Skip pi-mono release freshness check
   -h, --help         Show this help
 
 Examples:
@@ -36,6 +39,7 @@ Examples:
   scripts/update.sh --no-install
   scripts/update.sh --build
   scripts/update.sh --project /path/to/repo --build
+  scripts/update.sh --skip-pi-mono-check
 EOF
 }
 
@@ -75,6 +79,10 @@ while [[ $# -gt 0 ]]; do
       RUN_TESTS=0
       shift
       ;;
+    --skip-pi-mono-check)
+      RUN_PI_MONO_CHECK=0
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -90,6 +98,13 @@ done
 if [[ "$RUN_BUILD" -eq 1 && "$RUN_INSTALL" -eq 0 ]]; then
   echo "--build requires install step (remove --no-install)" >&2
   exit 1
+fi
+
+if [[ "$RUN_PI_MONO_CHECK" -eq 1 ]]; then
+  echo "[0/4] Checking pi-mono release freshness..."
+  python3 "$ROOT_DIR/scripts/check_pi_mono_release.py"
+else
+  echo "[0/4] Skipping pi-mono release check (--skip-pi-mono-check)."
 fi
 
 echo "[1/4] Syncing from upstream..."

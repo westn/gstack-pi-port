@@ -1,5 +1,19 @@
 # TODOS
 
+## Builder Ethos
+
+### First-time Search Before Building intro
+
+**What:** Add a `generateSearchIntro()` function (like `generateLakeIntro()`) that introduces the Search Before Building principle on first use, with a link to the blog essay.
+
+**Why:** Boil the Lake has an intro flow that links to the essay and marks `.completeness-intro-seen`. Search Before Building should have the same pattern for discoverability.
+
+**Context:** Blocked on a blog post to link to. When the essay exists, add the intro flow with a `.search-intro-seen` marker file. Pattern: `generateLakeIntro()` at gen-skill-docs.ts:176.
+
+**Effort:** S
+**Priority:** P2
+**Depends on:** Blog post about Search Before Building
+
 ## Browse
 
 ### Bundle server.ts into compiled binary
@@ -52,7 +66,9 @@
 
 **Why:** Enables "resume where I left off" for QA sessions and repeatable auth states.
 
-**Effort:** M
+**Context:** The `saveState()`/`restoreState()` helpers from the handoff feature (browser-manager.ts) already capture cookies + localStorage + sessionStorage + URLs. Adding file I/O on top is ~20 lines.
+
+**Effort:** S
 **Priority:** P3
 **Depends on:** Sessions
 
@@ -161,17 +177,6 @@
 **Priority:** P2
 **Depends on:** None
 
-### Post-deploy verification (ship + browse)
-
-**What:** After push, browse staging/preview URL, screenshot key pages, check console for JS errors, compare staging vs prod via snapshot diff. Include verification screenshots in PR body. STOP if critical errors found.
-
-**Why:** Catch deployment-time regressions (JS errors, broken layouts) before merge.
-
-**Context:** Requires S3 upload infrastructure for PR screenshots. Pairs with visual PR annotations.
-
-**Effort:** L
-**Priority:** P2
-**Depends on:** /setup-gstack-upload, visual PR annotations
 
 ### Visual verification with screenshots in PR body
 
@@ -332,14 +337,6 @@
 **Priority:** P3
 **Depends on:** Video recording
 
-### Deploy-verify skill
-
-**What:** Lightweight post-deploy smoke test: hit key URLs, verify 200s, screenshot critical pages, console error check, compare against baseline snapshots. Pass/fail with evidence.
-
-**Why:** Fast post-deploy confidence check, separate from full QA.
-
-**Effort:** M
-**Priority:** P2
 
 ### GitHub Actions eval upload
 
@@ -353,14 +350,11 @@
 **Priority:** P2
 **Depends on:** Eval persistence (shipped in v0.3.6)
 
-### E2E model pinning
+### E2E model pinning — SHIPPED
 
-**What:** Pin E2E tests to your configured pi model for cost efficiency, add retry:2 for flaky LLM responses.
+~~**What:** Pin E2E tests to your configured pi model for cost efficiency, add retry:2 for flaky LLM responses.~~
 
-**Why:** Reduce E2E test cost and flakiness.
-
-**Effort:** XS
-**Priority:** P2
+Shipped: Default model changed to Sonnet for structure tests (~30), Opus retained for quality tests (~10). `--retry 2` added. `EVALS_MODEL` env var for override. `test:e2e:fast` tier added. Rate-limit telemetry (first_response_ms, max_inter_turn_ms) and wall_clock_ms tracking added to eval-store.
 
 ### Eval web dashboard
 
@@ -408,27 +402,65 @@
 **Priority:** P3
 **Depends on:** Ref staleness Parts 1+2 (shipped)
 
+## Office Hours / Design
+
+### Design docs → Supabase team store sync
+
+**What:** Add design docs (`*-design-*.md`) to the Supabase sync pipeline alongside test plans, retro snapshots, and QA reports.
+
+**Why:** Cross-team design discovery at scale. Local `~/.gstack/projects/$SLUG/` keyword-grep discovery works for same-machine users now, but Supabase sync makes it work across the whole team. Duplicate ideas surface, everyone sees what's been explored.
+
+**Context:** /skill:office-hours writes design docs to `~/.gstack/projects/$SLUG/`. The team store already syncs test plans, retro snapshots, QA reports. Design docs follow the same pattern — just add a sync adapter.
+
+**Effort:** S
+**Priority:** P2
+**Depends on:** `garrytan/team-supabase-store` branch landing on main
+
+### /yc-prep skill
+
+**What:** Skill that helps founders prepare their YC application after /skill:office-hours identifies strong signal. Pulls from the design doc, structures answers to YC app questions, runs a mock interview.
+
+**Why:** Closes the loop. /skill:office-hours identifies the founder, /yc-prep helps them apply well. The design doc already contains most of the raw material for a YC application.
+
+**Effort:** M (human: ~2 weeks / CC: ~2 hours)
+**Priority:** P2
+**Depends on:** office-hours founder discovery engine shipping first
+
 ## Design Review
 
-### /skill:design-consultation interactive skill — SHIPPED
+### /skill:plan-design-review + /skill:qa-design-review + /skill:design-consultation — SHIPPED
 
-~~**What:** Interactive skill that walks user through creating a DESIGN.md from scratch.~~
+Shipped as v0.5.0 on main. Includes `/skill:plan-design-review` (report-only design audit), `/skill:qa-design-review` (audit + fix loop), and `/skill:design-consultation` (interactive DESIGN.md creation). `{{DESIGN_METHODOLOGY}}` resolver provides shared 80-item design audit checklist.
 
-Shipped as `/skill:design-consultation` on garrytan/design branch. Renamed from `/setup-design-md` to reflect the consultant approach (agent proposes a complete coherent system, user adjusts). Includes competitive research via WebSearch, combined font+color preview page, coherence validation, and LLM-judged E2E tests.
+### Design outside voices in /skill:plan-eng-review
+
+**What:** Extend the parallel dual-voice pattern (Codex + Claude subagent) to /skill:plan-eng-review's architecture review section.
+
+**Why:** The design beachhead (v0.11.3.0) proves cross-model consensus works for subjective reviews. Architecture reviews have similar subjectivity in tradeoff decisions.
+
+**Context:** Depends on learnings from the design beachhead. If the litmus scorecard format proves useful, adapt it for architecture dimensions (coupling, scaling, reversibility).
+
+**Effort:** S
+**Priority:** P3
+**Depends on:** Design outside voices shipped (v0.11.3.0)
+
+### Outside voices in /skill:qa visual regression detection
+
+**What:** Add Codex design voice to /skill:qa for detecting visual regressions during bug-fix verification.
+
+**Why:** When fixing bugs, the fix can introduce visual regressions that code-level checks miss. Codex could flag "the fix broke the responsive layout" during re-test.
+
+**Context:** Depends on /skill:qa having design awareness. Currently /skill:qa focuses on functional testing.
+
+**Effort:** M
+**Priority:** P3
+**Depends on:** Design outside voices shipped (v0.11.3.0)
 
 ## Document-Release
 
-### Auto-invoke /skill:document-release from /skill:ship
+### Auto-invoke /skill:document-release from /skill:ship — SHIPPED
 
-**What:** Add Step 8.5 to /skill:ship that reads document-release/SKILL.md and executes the doc update workflow after creating the PR.
-
-**Why:** Zero-friction doc updates — user runs /skill:ship and docs are automatically current. No extra command to remember.
-
-**Context:** /skill:ship currently ends at Step 8 (PR URL output). Step 8.5 would continue into the document-release workflow. Same pattern as /skill:ship calling /skill:review's checklist in Step 3.5.
-
-**Effort:** S
-**Priority:** P1
-**Depends on:** /skill:document-release shipped
+Shipped in v0.8.3. Step 8.5 added to `/skill:ship` — after creating the PR, `/skill:ship` automatically reads `document-release/SKILL.md` and executes the doc update workflow. Zero-friction doc updates.
 
 ### `{{DOC_VOICE}}` shared resolver
 
@@ -456,17 +488,6 @@ Shipped as `/skill:design-consultation` on garrytan/design branch. Renamed from 
 **Priority:** P3
 **Depends on:** gstack-diff-scope (shipped)
 
-### /merge skill — review-gated PR merge
-
-**What:** Create a `/merge` skill that merges an approved PR, but first checks the Review Readiness Dashboard and runs `/skill:review` (Fix-First) if code review hasn't been done. Separates "ship" (create PR) from "merge" (land it).
-
-**Why:** Currently `/skill:review` runs inside `/skill:ship` Step 3.5 but isn't tracked as a gate. A `/merge` skill ensures code review always happens before landing, and enables workflows where someone else reviews the PR first.
-
-**Context:** `/skill:ship` creates the PR. `/merge` would: check dashboard → run `/skill:review` if needed → `gh pr merge`. This is where code review tracking belongs — at merge time, not at plan time.
-
-**Effort:** M
-**Priority:** P2
-**Depends on:** Ship Confidence Dashboard (shipped)
 
 ## Completeness
 
@@ -482,7 +503,52 @@ Shipped as `/skill:design-consultation` on garrytan/design branch. Renamed from 
 **Priority:** P3
 **Depends on:** Boil the Lake shipped (v0.6.1)
 
+## Safety & Observability
+
+### On-demand hook skills (/skill:careful, /skill:freeze, /skill:guard) — SHIPPED
+
+~~**What:** Three new skills that use pi's session-scoped PreToolUse hooks to add safety guardrails on demand.~~
+
+Shipped as `/skill:careful`, `/skill:freeze`, `/skill:guard`, and `/skill:unfreeze` in v0.6.5. Includes hook fire-rate telemetry (pattern name only, no command content) and inline skill activation telemetry.
+
+### Skill usage telemetry — SHIPPED
+
+~~**What:** Track which skills get invoked, how often, from which repo.~~
+
+Shipped in v0.6.5. TemplateContext in gen-skill-docs.ts bakes skill name into preamble telemetry line. Analytics CLI (`bun run analytics`) for querying. /skill:retro integration shows skills-used-this-week.
+
+### /skill:investigate scoped debugging enhancements (gated on telemetry)
+
+**What:** Six enhancements to /skill:investigate auto-freeze, contingent on telemetry showing the freeze hook actually fires in real debugging sessions.
+
+**Why:** /skill:investigate v0.7.1 auto-freezes edits to the module being debugged. If telemetry shows the hook fires often, these enhancements make the experience smarter. If it never fires, the problem wasn't real and these aren't worth building.
+
+**Context:** All items are prose additions to `investigate/SKILL.md.tmpl`. No new scripts.
+
+**Items:**
+1. Stack trace auto-detection for freeze directory (parse deepest app frame)
+2. Freeze boundary widening (ask to widen instead of hard-block when hitting boundary)
+3. Post-fix auto-unfreeze + full test suite run
+4. Debug instrumentation cleanup (tag with DEBUG-TEMP, remove before commit)
+5. Debug session persistence (~/.gstack/investigate-sessions/ — save investigation for reuse)
+6. Investigation timeline in debug report (hypothesis log with timing)
+
+**Effort:** M (all 6 combined)
+**Priority:** P3
+**Depends on:** Telemetry data showing freeze hook fires in real /skill:investigate sessions
+
 ## Completed
+
+### Deploy pipeline (v0.9.8.0)
+- /skill:land-and-deploy — merge PR, wait for CI/deploy, canary verification
+- /skill:canary — post-deploy monitoring loop with anomaly detection
+- /skill:benchmark — performance regression detection with Core Web Vitals
+- /skill:setup-deploy — one-time deploy platform configuration
+- /skill:review Performance & Bundle Impact pass
+- E2E model pinning (Sonnet default, Opus for quality tests)
+- E2E timing telemetry (first_response_ms, max_inter_turn_ms, wall_clock_ms)
+- test:e2e:fast tier, --retry 2 on all E2E scripts
+**Completed:** v0.9.8.0
 
 ### Phase 1: Foundations (v0.2.0)
 - Rename to gstack

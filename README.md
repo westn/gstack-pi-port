@@ -109,6 +109,7 @@ Recommended (single command, full process):
 ```
 
 By default this runs:
+0) pi-mono release freshness check (tracked in `PI_MONO_RELEASE`),
 1) upstream sync,
 2) update-tooling sanity checks,
 3) Pi-native harness sanity tests,
@@ -117,9 +118,16 @@ By default this runs:
 Common variants:
 
 ```bash
-./scripts/update.sh --build        # also rebuild browse binary/deps
-./scripts/update.sh --no-install   # repo update + verification only
+./scripts/update.sh --build                 # also rebuild browse binary/deps
+./scripts/update.sh --no-install            # repo update + verification only
 ./scripts/update.sh --project /path/to/repo --build
+./scripts/update.sh --skip-pi-mono-check    # bypass pi-mono freshness gate
+```
+
+When a new `badlogic/pi-mono` release lands, review it and advance the tracked baseline:
+
+```bash
+python3 scripts/check_pi_mono_release.py --write-lock
 ```
 
 Manual equivalent (if you want to run pieces separately):
