@@ -50,13 +50,18 @@ Fork it. Improve it. Make it yours. And if you want to hate on free open source 
 
 Open pi and paste this. The agent does the rest.
 
-> Install gstack: run **`git clone https://github.com/westn/gstack-pi-port.git /tmp/gstack-pi-port && cd /tmp/gstack-pi-port && ./scripts/install.sh --global --build`** then add a "gstack" section to AGENTS.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:office-hours, /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:design-consultation, /skill:review, /skill:ship, /skill:land-and-deploy, /skill:canary, /skill:benchmark, /skill:browse, /skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro, /skill:investigate, /skill:document-release, /skill:codex, /skill:cso, /skill:autoplan, /skill:careful, /skill:freeze, /skill:guard, /skill:unfreeze, /skill:gstack-upgrade. Then ask the user if they also want to add gstack to the current project so teammates get it.
+> Install gstack: run **`git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.pi/agent/skills/gstack && cd ~/.pi/agent/skills/gstack && ./setup`** then add a "gstack" section to AGENTS.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:office-hours, /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:design-consultation, /skill:review, /skill:ship, /skill:land-and-deploy, /skill:canary, /skill:benchmark, /skill:browse, /skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro, /skill:investigate, /skill:document-release, /skill:codex, /skill:cso, /skill:autoplan, /skill:careful, /skill:freeze, /skill:guard, /skill:unfreeze, /skill:gstack-upgrade. Then ask the user if they also want to add gstack to the current project so teammates get it.
 
 ### Step 2: Add to your repo so teammates get it (optional)
 
 > Add gstack to this project: run **`cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack && rm -rf .pi/skills/gstack/.git && cd .pi/skills/gstack && ./setup`** then add a "gstack" section to this project's AGENTS.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /skill:office-hours, /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:design-consultation, /skill:review, /skill:ship, /skill:land-and-deploy, /skill:canary, /skill:benchmark, /skill:browse, /skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro, /skill:investigate, /skill:document-release, /skill:codex, /skill:cso, /skill:careful, /skill:freeze, /skill:guard, /skill:unfreeze, /skill:gstack-upgrade, and tells the user that if gstack skills aren't working, run `cd .pi/skills/gstack && ./setup` to build the binary and register skills.
 
 Real files get committed to your repo (not a submodule), so `git clone` just works. Everything lives inside `.pi/` (plus runtime state in `.gstack/`). Nothing touches your PATH or runs in the background.
+
+> **Contributing or need full history?** The commands above use `--depth 1` for a fast install. If you plan to contribute or need full git history, do a full clone instead:
+> ```bash
+> git clone https://github.com/garrytan/gstack.git ~/.pi/agent/skills/gstack
+> ```
 
 ### Codex, Gemini CLI, or Cursor
 
@@ -65,7 +70,7 @@ gstack works on any agent that supports the [SKILL.md standard](https://github.c
 Install to one repo:
 
 ```bash
-git clone https://github.com/garrytan/gstack.git .agents/skills/gstack
+git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git .agents/skills/gstack
 cd .agents/skills/gstack && ./setup --host codex
 ```
 
@@ -74,7 +79,7 @@ When setup runs from `.agents/skills/gstack`, it installs the generated Codex sk
 Install once for your user account:
 
 ```bash
-git clone https://github.com/garrytan/gstack.git ~/gstack
+git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
 cd ~/gstack && ./setup --host codex
 ```
 
@@ -85,7 +90,7 @@ discovery from the source repo checkout.
 Or let setup auto-detect which agents you have installed:
 
 ```bash
-git clone https://github.com/garrytan/gstack.git ~/gstack
+git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
 cd ~/gstack && ./setup --host auto
 ```
 
@@ -161,7 +166,7 @@ Each skill feeds into the next. `/skill:office-hours` writes a design doc that `
 | `/skill:benchmark` | **Performance Engineer** | Baseline page load times, Core Web Vitals, and resource sizes. Compare before/after on every PR. |
 | `/skill:document-release` | **Technical Writer** | Update all project docs to match what you just shipped. Catches stale READMEs automatically. |
 | `/skill:retro` | **Eng Manager** | Team-aware weekly retro. Per-person breakdowns, shipping streaks, test health trends, growth opportunities. `/skill:retro global` runs across all your projects and AI tools (pi, Codex, Gemini). |
-| `/skill:browse` | **QA Engineer** | Real Chromium browser, real clicks, real screenshots. ~100ms per command. |
+| `/skill:browse` | **QA Engineer** | Give the agent eyes. Real Chromium browser, real clicks, real screenshots. ~100ms per command. `$B connect` launches your real Chrome as a headed window — watch every action live. |
 | `/skill:setup-browser-cookies` | **Session Manager** | Import cookies from your real browser (Chrome, Arc, Brave, Edge) into the headless session. Test authenticated pages. |
 | `/skill:autoplan` | **Review Pipeline** | One command, fully reviewed plan. Runs CEO → design → eng review automatically with encoded decision principles. Surfaces only taste decisions for your approval. |
 
@@ -183,7 +188,37 @@ Each skill feeds into the next. `/skill:office-hours` writes a design doc that `
 
 gstack works well with one sprint. It gets interesting with ten running at once.
 
-[Conductor](https://conductor.build) runs multiple pi sessions in parallel — each in its own isolated workspace. One session on `/skill:office-hours`, another on `/skill:review`, a third implementing a feature, a fourth running `/skill:qa`. All at the same time. The sprint structure is what makes parallelism work — without a process, ten agents is ten sources of chaos. With a process, each agent knows exactly what to do and when to stop.
+**Design is at the heart.** `/skill:design-consultation` doesn't just pick fonts. It researches what's out there in your space, proposes safe choices AND creative risks, generates realistic mockups of your actual product, and writes `DESIGN.md` — and then `/skill:design-review` and `/skill:plan-eng-review` read what you chose. Design decisions flow through the whole system.
+
+**`/skill:qa` was a massive unlock.** It let me go from 6 to 12 parallel workers. pi saying *"I SEE THE ISSUE"* and then actually fixing it, generating a regression test, and verifying the fix — that changed how I work. The agent has eyes now.
+
+**Smart review routing.** Just like at a well-run startup: CEO doesn't have to look at infra bug fixes, design review isn't needed for backend changes. gstack tracks what reviews are run, figures out what's appropriate, and just does the smart thing. The Review Readiness Dashboard tells you where you stand before you ship.
+
+**Test everything.** `/skill:ship` bootstraps test frameworks from scratch if your project doesn't have one. Every `/skill:ship` run produces a coverage audit. Every `/skill:qa` bug fix generates a regression test. 100% test coverage is the goal — tests make vibe coding safe instead of yolo coding.
+
+**`/skill:document-release` is the engineer you never had.** It reads every doc file in your project, cross-references the diff, and updates everything that drifted. README, ARCHITECTURE, CONTRIBUTING, AGENTS.md, TODOS — all kept current automatically. And now `/skill:ship` auto-invokes it — docs stay current without an extra command.
+
+**Real browser mode.** `$B connect` launches your actual Chrome as a headed window controlled by Playwright. You watch Claude click, fill, and navigate in real time — same window, same screen. A subtle green shimmer at the top edge tells you which Chrome window gstack controls. All existing browse commands work unchanged. `$B disconnect` returns to headless. A Chrome extension Side Panel shows a live activity feed of every command and a chat sidebar where you can direct Claude. This is co-presence — Claude isn't remote-controlling a hidden browser, it's sitting next to you in the same cockpit.
+
+**Sidebar agent — your AI browser assistant.** Type natural language instructions in the Chrome side panel and a child Claude instance executes them. "Navigate to the settings page and screenshot it." "Fill out this form with test data." "Go through every item in this list and extract the prices." Each task gets up to 5 minutes. The sidebar agent runs in an isolated session, so it won't interfere with your main pi window. It's like having a second pair of hands in the browser.
+
+**Personal automation.** The sidebar agent isn't just for dev workflows. Example: "Browse my kid's school parent portal and add all the other parents' names, phone numbers, and photos to my Google Contacts." Two ways to get authenticated: (1) log in once in the headed browser — your session persists, or (2) run `/skill:setup-browser-cookies` to import cookies from your real Chrome. Once authenticated, Claude navigates the directory, extracts the data, and creates the contacts.
+
+**Browser handoff when the AI gets stuck.** Hit a CAPTCHA, auth wall, or MFA prompt? `$B handoff` opens a visible Chrome at the exact same page with all your cookies and tabs intact. Solve the problem, tell Claude you're done, `$B resume` picks up right where it left off. The agent even suggests it automatically after 3 consecutive failures.
+
+**Multi-AI second opinion.** `/skill:codex` gets an independent review from OpenAI's Codex CLI — a completely different AI looking at the same diff. Three modes: code review with a pass/fail gate, adversarial challenge that actively tries to break your code, and open consultation with session continuity. When both `/skill:review` (Claude) and `/skill:codex` (OpenAI) have reviewed the same branch, you get a cross-model analysis showing which findings overlap and which are unique to each.
+
+**Safety guardrails on demand.** Say "be careful" and `/skill:careful` warns before any destructive command — rm -rf, DROP TABLE, force-push, git reset --hard. `/skill:freeze` locks edits to one directory while debugging so Claude can't accidentally "fix" unrelated code. `/skill:guard` activates both. `/skill:investigate` auto-freezes to the module being investigated.
+
+**Proactive skill suggestions.** gstack notices what stage you're in — brainstorming, reviewing, debugging, testing — and suggests the right skill. Don't like it? Say "stop suggesting" and it remembers across sessions.
+
+## 10-15 parallel sprints
+
+gstack is powerful with one sprint. It is transformative with ten running at once.
+
+[Conductor](https://conductor.build) runs multiple pi sessions in parallel — each in its own isolated workspace. One session running `/skill:office-hours` on a new idea, another doing `/skill:review` on a PR, a third implementing a feature, a fourth running `/skill:qa` on staging, and six more on other branches. All at the same time. I regularly run 10-15 parallel sprints — that's the practical max right now.
+
+The sprint structure is what makes parallelism work. Without a process, ten agents is ten sources of chaos. With a process — think, plan, build, review, test, ship — each agent knows exactly what to do and when to stop. You manage them the way a CEO manages a team: check in on the decisions that matter, let the rest run.
 
 ---
 
@@ -216,7 +251,7 @@ gstack includes **opt-in** usage telemetry to help improve the project. Here's e
 - **What's never sent:** code, file paths, repo names, branch names, prompts, or any user-generated content.
 - **Change anytime:** `gstack-config set telemetry off` disables everything instantly.
 
-Data is stored in [Supabase](https://supabase.com) (open source Firebase alternative). The schema is in [`supabase/migrations/001_telemetry.sql`](supabase/migrations/001_telemetry.sql) — you can verify exactly what's collected. The Supabase publishable key in the repo is a public key (like a Firebase API key) — row-level security policies restrict it to insert-only access.
+Data is stored in [Supabase](https://supabase.com) (open source Firebase alternative). The schema is in [`supabase/migrations/`](supabase/migrations/) — you can verify exactly what's collected. The Supabase publishable key in the repo is a public key (like a Firebase API key) — row-level security policies deny all direct access. Telemetry flows through validated edge functions that enforce schema checks, event type allowlists, and field length limits.
 
 **Local analytics are always available.** Run `gstack-analytics` to see your personal usage dashboard from the local JSONL file — no remote data needed.
 
@@ -227,6 +262,8 @@ Data is stored in [Supabase](https://supabase.com) (open source Firebase alterna
 **`/skill:browse` fails?** `cd ~/.pi/agent/skills/gstack && bun install && bun run build`
 
 **Stale install?** Run `/skill:gstack-upgrade` — or set `auto_upgrade: true` in `~/.gstack/config.yaml`
+
+**Codex says "Skipped loading skill(s) due to invalid SKILL.md"?** Your Codex skill descriptions are stale. Fix: `cd ~/.codex/skills/gstack && git pull && ./setup --host codex` — or for repo-local installs: `cd "$(readlink -f .agents/skills/gstack)" && git pull && ./setup --host codex`
 
 **Windows users:** gstack works on Windows 11 via Git Bash or WSL. Node.js is required in addition to Bun — Bun has a known bug with Playwright's pipe transport on Windows ([bun#4253](https://github.com/oven-sh/bun/issues/4253)). The browse server automatically falls back to Node.js. Make sure both `bun` and `node` are on your PATH.
 

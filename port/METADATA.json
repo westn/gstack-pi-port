@@ -2,12 +2,12 @@
   "upstream": {
     "repo": "https://github.com/garrytan/gstack.git",
     "branch": "main",
-    "commit": "7fbf68bb3f253ef799f38862fb1cb0b62d756a64",
-    "version": "0.11.5.2"
+    "commit": "5319b8a13bce04a60328323397d51360e0538b7b",
+    "version": "0.12.9.0"
   },
-  "generatedAt": "2026-03-23T09:01:30.045015+00:00",
+  "generatedAt": "2026-03-27T11:28:18.824630+00:00",
   "portDir": "port/gstack",
-  "changedFiles": 113,
+  "changedFiles": 145,
   "transformRules": {
     "pathReplacements": [
       [
@@ -207,6 +207,38 @@
         "Cost: provider/model dependent (typically low for short judge prompts)"
       ],
       [
+        "sidebar-navigate: Full E2E with real Claude (requires ANTHROPIC_API_KEY).",
+        "sidebar-navigate: Full E2E with a real pi-configured provider."
+      ],
+      [
+        "Starts server + sidebar-agent, sends a message, waits for Claude to respond.",
+        "Starts server + sidebar-agent, sends a message, waits for the agent to respond."
+      ],
+      [
+        "// --- Sidebar Navigate (real Claude, requires ANTHROPIC_API_KEY) ---",
+        "// --- Sidebar Navigate (real pi-configured provider) ---"
+      ],
+      [
+        "No real Claude needed \u2014 this is a fast, cheap, deterministic test.",
+        "No real agent run needed \u2014 this is a fast, cheap, deterministic test."
+      ],
+      [
+        "Ask Claude a simple question",
+        "Ask the agent a simple question"
+      ],
+      [
+        "Claude should have responded with something",
+        "Agent should have responded with something"
+      ],
+      [
+        "BROWSE_BIN: 'echo',  // browse commands won't work, but Claude can use curl",
+        "BROWSE_BIN: 'echo',  // browse commands won't work, but the agent can still use curl"
+      ],
+      [
+        "          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}\n",
+        ""
+      ],
+      [
         "import Anthropic from '@anthropic-ai/sdk';\n",
         ""
       ],
@@ -333,6 +365,18 @@
         "Uses the shared pi judge helper, so it works from anywhere including inside pi"
       ],
       [
+        "pi's `--output-format stream-json` format",
+        "pi's JSON mode event format"
+      ],
+      [
+        "pi's stream-json per workspace",
+        "pi JSON mode events per workspace"
+      ],
+      [
+        "| Format | Claude's stream-json | Conductor already parses this; no new schema |",
+        "| Format | pi JSON mode events | Conductor already parses JSONL event streams; no new schema |"
+      ],
+      [
         "Sonnet scores docs on clarity/completeness/actionability",
         "Configured model scores docs on clarity/completeness/actionability"
       ],
@@ -378,6 +422,7 @@
       "canary",
       "careful",
       "codex",
+      "connect-chrome",
       "cso",
       "freeze",
       "guard",

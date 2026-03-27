@@ -153,6 +153,29 @@ PHRASE_REPLACEMENTS = [
         "Cost: ~$0.05-0.15 per run (sonnet)",
         "Cost: provider/model dependent (typically low for short judge prompts)",
     ),
+    (
+        "sidebar-navigate: Full E2E with real Claude (requires ANTHROPIC_API_KEY).",
+        "sidebar-navigate: Full E2E with a real pi-configured provider.",
+    ),
+    (
+        "Starts server + sidebar-agent, sends a message, waits for Claude to respond.",
+        "Starts server + sidebar-agent, sends a message, waits for the agent to respond.",
+    ),
+    (
+        "// --- Sidebar Navigate (real Claude, requires ANTHROPIC_API_KEY) ---",
+        "// --- Sidebar Navigate (real pi-configured provider) ---",
+    ),
+    (
+        "No real Claude needed — this is a fast, cheap, deterministic test.",
+        "No real agent run needed — this is a fast, cheap, deterministic test.",
+    ),
+    ("Ask Claude a simple question", "Ask the agent a simple question"),
+    ("Claude should have responded with something", "Agent should have responded with something"),
+    (
+        "BROWSE_BIN: 'echo',  // browse commands won't work, but Claude can use curl",
+        "BROWSE_BIN: 'echo',  // browse commands won't work, but the agent can still use curl",
+    ),
+    ("          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}\n", ""),
     # E2E harness and judge are pi-native in this port.
     ("import Anthropic from '@anthropic-ai/sdk';\n", ""),
     (
@@ -237,7 +260,7 @@ Scores are 1-5 overall quality.`,
     });
 
     const text = response.content[0].type === 'text' ? response.content[0].text : '';
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const jsonMatch = text.match(/\\{[\\s\\S]*\\}/);
     if (!jsonMatch) throw new Error(`Judge returned non-JSON: ${text.slice(0, 200)}`);
     const result = JSON.parse(jsonMatch[0]);
 """,
@@ -292,6 +315,18 @@ DOC_ONLY_PHRASE_REPLACEMENTS = [
     (
         "Calls the pi provider API directly (not `pi --mode json -p`), so it works from anywhere including inside pi",
         "Uses the shared pi judge helper, so it works from anywhere including inside pi",
+    ),
+    (
+        "pi's `--output-format stream-json` format",
+        "pi's JSON mode event format",
+    ),
+    (
+        "pi's stream-json per workspace",
+        "pi JSON mode events per workspace",
+    ),
+    (
+        "| Format | Claude's stream-json | Conductor already parses this; no new schema |",
+        "| Format | pi JSON mode events | Conductor already parses JSONL event streams; no new schema |",
     ),
     (
         "Sonnet scores docs on clarity/completeness/actionability",

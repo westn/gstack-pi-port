@@ -105,13 +105,25 @@ removed=()
 # Clean stale links from previous installs (for renamed/removed skills).
 for existing in "$SKILLS_DIR"/*; do
   [[ -L "$existing" ]] || continue
+  link_name="$(basename "$existing")"
   link_target="$(readlink "$existing" || true)"
 
   case "$link_target" in
     "$TARGET_BASENAME"/*)
+      target_name="$(basename "$link_target")"
+
+      # Remove stale links for deleted/renamed skills.
       if [[ ! -e "$SKILLS_DIR/$link_target" ]]; then
         rm -f "$existing"
-        removed+=("$(basename "$existing")")
+        removed+=("$link_name")
+        continue
+      fi
+
+      # Clean up legacy prefixed aliases (gstack-foo -> gstack/foo) while
+      # preserving real skill names like gstack-upgrade -> gstack/gstack-upgrade.
+      if [[ "$link_name" == gstack-* && "$link_name" != "$target_name" ]]; then
+        rm -f "$existing"
+        removed+=("$link_name")
       fi
       ;;
   esac
@@ -139,7 +151,8 @@ fi
 if [[ "$RUN_BUILD" -eq 1 ]]; then
   if [[ -x "$TARGET/setup" ]]; then
     echo "Running setup (builds browse binary and dependencies)..."
-    (cd "$TARGET" && ./setup)
+    # Force Claude-host install semantics but keep pi-friendly flat skill names.
+    (cd "$TARGET" && ./setup --host claude --no-prefix)
   else
     echo "No setup script found at $TARGET/setup"
   fi
