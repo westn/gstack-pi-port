@@ -5,9 +5,9 @@
     "commit": "a1a933614cda44839f8f3f94f3a30fdb864cb134",
     "version": "0.14.2.0"
   },
-  "generatedAt": "2026-03-30T19:53:53.243793+00:00",
+  "generatedAt": "2026-03-30T20:07:30.490515+00:00",
   "portDir": "port/gstack",
-  "changedFiles": 244,
+  "changedFiles": 245,
   "transformRules": {
     "pathReplacements": [
       [

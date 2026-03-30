@@ -748,6 +748,23 @@ def patch_package_json_for_pi() -> bool:
     return True
 
 
+def maybe_refresh_bun_lock() -> int:
+    """Refresh bun.lock after Pi-specific package.json edits, when Bun is available."""
+    bun = shutil.which("bun")
+    if not bun:
+        print("bun not found on PATH — skipping bun.lock refresh.")
+        return 0
+
+    package_json = PORT_DIR / "package.json"
+    if not package_json.exists():
+        return 0
+
+    before = snapshot_port_tree()
+    run([bun, "install", "--lockfile-only"], cwd=PORT_DIR)
+    after = snapshot_port_tree()
+    return count_snapshot_differences(before, after)
+
+
 def ensure_agents_context_file() -> bool:
     """Mirror CLAUDE.md to AGENTS.md for Pi-native context file discoverability."""
     claude_path = PORT_DIR / "CLAUDE.md"
@@ -915,6 +932,8 @@ def main() -> None:
 
     if patch_package_json_for_pi():
         changed_files += 1
+
+    changed_files += maybe_refresh_bun_lock()
 
     if ensure_agents_context_file():
         changed_files += 1

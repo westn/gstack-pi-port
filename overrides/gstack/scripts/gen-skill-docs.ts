@@ -2341,15 +2341,16 @@ function processTemplate(tmplPath: string, host: Host = 'pi'): { outputPath: str
 
   const ctx: TemplateContext = { skillName, tmplPath, benefitsFrom, host, paths: HOST_PATHS[host], preambleTier };
 
-  // Replace placeholders
-  let content = tmplContent.replace(/\{\{(\w+)\}\}/g, (match, name) => {
+  // Replace placeholders, including parameterized forms like {{INVOKE_SKILL:office-hours}}
+  let content = tmplContent.replace(/\{\{([A-Z_]+)(?::([^}]+))?\}\}/g, (match, name, rawArgs) => {
     const resolver = RESOLVERS[name];
-    if (!resolver) throw new Error(`Unknown placeholder {{${name}}} in ${relTmplPath}`);
-    return resolver(ctx);
+    if (!resolver) throw new Error(`Unknown placeholder ${match} in ${relTmplPath}`);
+    const args = typeof rawArgs === 'string' ? rawArgs.split(':').map((arg: string) => arg.trim()).filter(Boolean) : undefined;
+    return resolver(ctx, args);
   });
 
   // Check for any remaining unresolved placeholders
-  const remaining = content.match(/\{\{(\w+)\}\}/g);
+  const remaining = content.match(/\{\{[A-Z_]+(?::[^}]*)?\}\}/g);
   if (remaining) {
     throw new Error(`Unresolved placeholders in ${relTmplPath}: ${remaining.join(', ')}`);
   }
