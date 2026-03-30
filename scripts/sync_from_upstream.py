@@ -664,6 +664,33 @@ def apply_overrides() -> int:
     return changed
 
 
+def snapshot_port_tree() -> dict[str, bytes]:
+    snapshot: dict[str, bytes] = {}
+    for path in PORT_DIR.rglob("*"):
+        if path.is_file():
+            snapshot[path.relative_to(PORT_DIR).as_posix()] = path.read_bytes()
+    return snapshot
+
+
+def count_snapshot_differences(before: dict[str, bytes], after: dict[str, bytes]) -> int:
+    keys = set(before) | set(after)
+    return sum(1 for key in keys if before.get(key) != after.get(key))
+
+
+def maybe_regenerate_generated_skill_docs() -> int:
+    """Regenerate Pi/Codex SKILL.md output using the maintained host-aware generator."""
+    bun = shutil.which("bun")
+    if not bun:
+        print("bun not found on PATH — skipping first-class pi/codex SKILL.md regeneration.")
+        return 0
+
+    before = snapshot_port_tree()
+    for host in ("pi", "codex"):
+        run([bun, "run", "gen:skill-docs", "--host", host], cwd=PORT_DIR)
+    after = snapshot_port_tree()
+    return count_snapshot_differences(before, after)
+
+
 def patch_env_example_for_pi() -> bool:
     path = PORT_DIR / ".env.example"
     if not path.exists():
@@ -796,6 +823,9 @@ def verify_port_quality() -> None:
             continue
 
         rel = path.relative_to(PORT_DIR).as_posix()
+        if rel == "bun.lock":
+            continue
+
         content = path.read_text(encoding="utf-8")
 
         for phrase in stale_phrases:
@@ -853,6 +883,7 @@ def write_metadata(changed_files: int) -> None:
             "skillCommands": SKILL_COMMANDS,
             "removeAllowedTools": True,
             "overridesDir": str(OVERRIDES_DIR.relative_to(REPO_ROOT)) if OVERRIDES_DIR.exists() else None,
+            "regeneratedHosts": ["pi", "codex"],
         },
     }
 
@@ -871,6 +902,13 @@ def main() -> None:
 
     override_count = apply_overrides()
     changed_files += override_count
+
+    regenerated_count = maybe_regenerate_generated_skill_docs()
+    changed_files += regenerated_count
+
+    if regenerated_count:
+        changed_files += transform_port_tree()
+        changed_files += apply_overrides()
 
     if patch_env_example_for_pi():
         changed_files += 1

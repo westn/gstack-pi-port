@@ -18,12 +18,14 @@ Then run `/reload` inside pi and use skills via `/skill:<name>`.
 
 - Pulls latest upstream `garrytan/gstack`
 - Copies it into `port/gstack`
-- Applies mechanical compatibility transforms for pi:
+- Applies maintained Pi-specific source overrides so the port has a first-class `pi` host, inspired by upstream's multi-host work for Codex/Factory/Droid
+- Applies mechanical compatibility transforms for pi where source-level host support still isn't enough:
   - `~/.claude/skills/...` → `~/.pi/agent/skills/...`
   - `.claude/skills/...` → `.pi/skills/...`
   - `/review` style commands → `/skill:review`
   - `AskUserQuestion` wording → "ask the user in chat"
   - Removes `allowed-tools` frontmatter blocks (pi ignores these anyway)
+- Regenerates SKILL.md output from transformed templates via first-class hosts (`--host pi` and `--host codex`) when Bun is available
 - Writes `port/METADATA.json` with upstream commit/version and transform rules
 
 ## What changed from upstream
@@ -31,6 +33,7 @@ Then run `/reload` inside pi and use skills via `/skill:<name>`.
 - Skill paths are Pi-native (`~/.pi/agent/skills` and `.pi/skills`)
 - Skill invocations are normalized to `/skill:<name>`
 - User-facing docs are adjusted for Pi workflows and `AGENTS.md`
+- `setup` and skill doc generation now treat **pi** as a first-class host instead of piggybacking on Claude semantics
 - Install flow uses this repository as the source of truth
 - Model/provider selection is Pi-native and model-agnostic (use `pi --provider ... --model ...`)
 
@@ -154,7 +157,7 @@ That re-pulls upstream main, regenerates the port, reinstalls, and gives you an 
 - fails fast if stale upstream terms reappear (e.g. `claude -p`, `@anthropic-ai/sdk`, `ANTHROPIC_API_KEY`),
 - applies maintained overrides from `overrides/gstack/` for Pi-specific eval helper code.
 
-So when someone clones this repo and asks pi to update, the sync step now catches/normalizes deeper porting drift automatically.
+So when someone clones this repo and asks pi to update, the sync step now catches/normalizes deeper porting drift automatically, then re-emits Pi-native skills through the maintained `--host pi` generator path instead of relying only on post-hoc text replacement.
 
 ## Licensing
 

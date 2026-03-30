@@ -22,7 +22,7 @@ I'm [Garry Tan](https://x.com/garrytan), President & CEO of [Y Combinator](https
 
 Same person. Different era. The difference is the tooling.
 
-**gstack is how I do it.** It turns pi into a virtual engineering team — a CEO who rethinks the product, an eng manager who locks architecture, a designer who catches AI slop, a reviewer who finds production bugs, a QA lead who opens a real browser, a security officer who runs OWASP + STRIDE audits, and a release engineer who ships the PR. Twenty specialists and eight power tools, all slash commands, all Markdown, all free, MIT license.
+**gstack is how I do it.** It turns pi into a virtual engineering team — a CEO who rethinks the product, an eng manager who locks architecture, a designer who catches AI slop, a reviewer who finds production bugs, a QA lead who opens a real browser, a security officer who runs OWASP + STRIDE audits, and a release engineer who ships the PR. Twenty-three specialists and eight power tools, all slash commands, all Markdown, all free, MIT license.
 
 This is my open source software factory. I use it every day. I'm sharing it because these tools should be available to everyone.
 
@@ -50,11 +50,11 @@ Fork it. Improve it. Make it yours. And if you want to hate on free open source 
 
 Open pi and paste this. The agent does the rest.
 
-> Install gstack: run **`git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.pi/agent/skills/gstack && cd ~/.pi/agent/skills/gstack && ./setup`** then add a "gstack" section to AGENTS.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:office-hours, /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:design-consultation, /skill:review, /skill:ship, /skill:land-and-deploy, /skill:canary, /skill:benchmark, /skill:browse, /skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro, /skill:investigate, /skill:document-release, /skill:codex, /skill:cso, /skill:autoplan, /skill:careful, /skill:freeze, /skill:guard, /skill:unfreeze, /skill:gstack-upgrade. Then ask the user if they also want to add gstack to the current project so teammates get it.
+> Install gstack: run **`git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.pi/agent/skills/gstack && cd ~/.pi/agent/skills/gstack && ./setup`** then add a "gstack" section to AGENTS.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, and lists the available skills: /skill:office-hours, /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:design-consultation, /skill:design-shotgun, /skill:design-html, /skill:review, /skill:ship, /skill:land-and-deploy, /skill:canary, /skill:benchmark, /skill:browse, /skill:connect-chrome, /skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro, /skill:investigate, /skill:document-release, /skill:codex, /skill:cso, /skill:autoplan, /skill:careful, /skill:freeze, /skill:guard, /skill:unfreeze, /skill:gstack-upgrade, /skill:learn. Then ask the user if they also want to add gstack to the current project so teammates get it.
 
 ### Step 2: Add to your repo so teammates get it (optional)
 
-> Add gstack to this project: run **`cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack && rm -rf .pi/skills/gstack/.git && cd .pi/skills/gstack && ./setup`** then add a "gstack" section to this project's AGENTS.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /skill:office-hours, /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:design-consultation, /skill:review, /skill:ship, /skill:land-and-deploy, /skill:canary, /skill:benchmark, /skill:browse, /skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro, /skill:investigate, /skill:document-release, /skill:codex, /skill:cso, /skill:careful, /skill:freeze, /skill:guard, /skill:unfreeze, /skill:gstack-upgrade, and tells the user that if gstack skills aren't working, run `cd .pi/skills/gstack && ./setup` to build the binary and register skills.
+> Add gstack to this project: run **`cp -Rf ~/.pi/agent/skills/gstack .pi/skills/gstack && rm -rf .pi/skills/gstack/.git && cd .pi/skills/gstack && ./setup`** then add a "gstack" section to this project's AGENTS.md that says to use the /skill:browse skill from gstack for all web browsing, never use mcp\_\_claude-in-chrome\_\_\* tools, lists the available skills: /skill:office-hours, /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review, /skill:design-consultation, /skill:design-shotgun, /skill:design-html, /skill:review, /skill:ship, /skill:land-and-deploy, /skill:canary, /skill:benchmark, /skill:browse, /skill:connect-chrome, /skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro, /skill:investigate, /skill:document-release, /skill:codex, /skill:cso, /skill:autoplan, /skill:careful, /skill:freeze, /skill:guard, /skill:unfreeze, /skill:gstack-upgrade, /skill:learn, and tells the user that if gstack skills aren't working, run `cd .pi/skills/gstack && ./setup` to build the binary and register skills.
 
 Real files get committed to your repo (not a submodule), so `git clone` just works. Everything lives inside `.pi/` (plus runtime state in `.gstack/`). Nothing touches your PATH or runs in the background.
 
@@ -94,7 +94,18 @@ git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gst
 cd ~/gstack && ./setup --host auto
 ```
 
-For Codex-compatible hosts, setup now supports both repo-local installs from `.agents/skills/gstack` and user-global installs from `~/.codex/skills/gstack`. All 28 skills work across all supported agents. Hook-based safety skills (careful, freeze, guard) use inline safety advisory prose on non-Claude hosts.
+For Codex-compatible hosts, setup now supports both repo-local installs from `.agents/skills/gstack` and user-global installs from `~/.codex/skills/gstack`. All 31 skills work across all supported agents. Hook-based safety skills (careful, freeze, guard) use inline safety advisory prose on non-Claude hosts.
+
+### Factory Droid
+
+gstack works with [Factory Droid](https://factory.ai). Skills install to `.factory/skills/` and are discovered automatically. Sensitive skills (ship, land-and-deploy, guard) use `disable-model-invocation: true` so Droids don't auto-invoke them.
+
+```bash
+git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/gstack
+cd ~/gstack && ./setup --host factory
+```
+
+Skills install to `~/.factory/skills/gstack-*/`. Restart `droid` to rescan skills, then type `/skill:qa` to get started.
 
 ## See it work
 
@@ -157,6 +168,8 @@ Each skill feeds into the next. `/skill:office-hours` writes a design doc that `
 | `/skill:review` | **Staff Engineer** | Find the bugs that pass CI but blow up in production. Auto-fixes the obvious ones. Flags completeness gaps. |
 | `/skill:investigate` | **Debugger** | Systematic root-cause debugging. Iron Law: no fixes without investigation. Traces data flow, tests hypotheses, stops after 3 failed fixes. |
 | `/skill:design-review` | **Designer Who Codes** | Same audit as /skill:plan-design-review, then fixes what it finds. Atomic commits, before/after screenshots. |
+| `/skill:design-shotgun` | **Design Explorer** | Generate multiple AI design variants, open a comparison board in your browser, and iterate until you approve a direction. Taste memory biases toward your preferences. |
+| `/skill:design-html` | **Design Engineer** | Takes an approved mockup from `/skill:design-shotgun` and generates production-quality HTML with Pretext for computed text layout. Text reflows on resize, heights adjust to content. Smart API routing picks the right Pretext patterns per design type. Framework detection for React/Svelte/Vue. |
 | `/skill:qa` | **QA Lead** | Test your app, find bugs, fix them with atomic commits, re-verify. Auto-generates regression tests for every fix. |
 | `/skill:qa-only` | **QA Reporter** | Same methodology as /skill:qa but report only. Pure bug report without code changes. |
 | `/skill:cso` | **Chief Security Officer** | OWASP Top 10 + STRIDE threat model. Zero-noise: 17 false positive exclusions, 8/10+ confidence gate, independent finding verification. Each finding includes a concrete exploit scenario. |
@@ -169,6 +182,7 @@ Each skill feeds into the next. `/skill:office-hours` writes a design doc that `
 | `/skill:browse` | **QA Engineer** | Give the agent eyes. Real Chromium browser, real clicks, real screenshots. ~100ms per command. `$B connect` launches your real Chrome as a headed window — watch every action live. |
 | `/skill:setup-browser-cookies` | **Session Manager** | Import cookies from your real browser (Chrome, Arc, Brave, Edge) into the headless session. Test authenticated pages. |
 | `/skill:autoplan` | **Review Pipeline** | One command, fully reviewed plan. Runs CEO → design → eng review automatically with encoded decision principles. Surfaces only taste decisions for your approval. |
+| `/skill:learn` | **Memory** | Manage what gstack learned across sessions. Review, search, prune, and export project-specific patterns, pitfalls, and preferences. Learnings compound across sessions so gstack gets smarter on your codebase over time. |
 
 ### Power tools
 
@@ -179,6 +193,7 @@ Each skill feeds into the next. `/skill:office-hours` writes a design doc that `
 | `/skill:freeze` | **Edit Lock** — restrict file edits to one directory. Prevents accidental changes outside scope while debugging. |
 | `/skill:guard` | **Full Safety** — `/skill:careful` + `/skill:freeze` in one command. Maximum safety for prod work. |
 | `/skill:unfreeze` | **Unlock** — remove the `/skill:freeze` boundary. |
+| `/skill:connect-chrome` | **Chrome Controller** — launch Chrome with the Side Panel extension. Watch every action live, inspect CSS on any element, clean up pages, and take screenshots. Each tab gets its own agent. |
 | `/skill:setup-deploy` | **Deploy Configurator** — one-time setup for `/skill:land-and-deploy`. Detects your platform, production URL, and deploy commands. |
 | `/skill:gstack-upgrade` | **Self-Updater** — upgrade gstack to latest. Detects global vs vendored install, syncs both, shows what changed. |
 
@@ -188,7 +203,7 @@ Each skill feeds into the next. `/skill:office-hours` writes a design doc that `
 
 gstack works well with one sprint. It gets interesting with ten running at once.
 
-**Design is at the heart.** `/skill:design-consultation` doesn't just pick fonts. It researches what's out there in your space, proposes safe choices AND creative risks, generates realistic mockups of your actual product, and writes `DESIGN.md` — and then `/skill:design-review` and `/skill:plan-eng-review` read what you chose. Design decisions flow through the whole system.
+**Design is at the heart.** `/skill:design-consultation` builds your design system from scratch, researches the space, proposes creative risks, and writes `DESIGN.md`. `/skill:design-shotgun` generates multiple visual variants and opens a comparison board so you can pick a direction. `/skill:design-html` takes that approved mockup and generates production-quality HTML with Pretext, where text actually reflows on resize instead of breaking with hardcoded heights. Then `/skill:design-review` and `/skill:plan-eng-review` read what you chose. Design decisions flow through the whole system.
 
 **`/skill:qa` was a massive unlock.** It let me go from 6 to 12 parallel workers. pi saying *"I SEE THE ISSUE"* and then actually fixing it, generating a regression test, and verifying the fix — that changed how I work. The agent has eyes now.
 
@@ -263,6 +278,10 @@ Data is stored in [Supabase](https://supabase.com) (open source Firebase alterna
 
 **Stale install?** Run `/skill:gstack-upgrade` — or set `auto_upgrade: true` in `~/.gstack/config.yaml`
 
+**Want shorter commands?** `cd ~/.pi/agent/skills/gstack && ./setup --no-prefix` — switches from `/gstack-qa` to `/skill:qa`. Your choice is remembered for future upgrades.
+
+**Want namespaced commands?** `cd ~/.pi/agent/skills/gstack && ./setup --prefix` — switches from `/skill:qa` to `/gstack-qa`. Useful if you run other skill packs alongside gstack.
+
 **Codex says "Skipped loading skill(s) due to invalid SKILL.md"?** Your Codex skill descriptions are stale. Fix: `cd ~/.codex/skills/gstack && git pull && ./setup --host codex` — or for repo-local installs: `cd "$(readlink -f .agents/skills/gstack)" && git pull && ./setup --host codex`
 
 **Windows users:** gstack works on Windows 11 via Git Bash or WSL. Node.js is required in addition to Bun — Bun has a known bug with Playwright's pipe transport on Windows ([bun#4253](https://github.com/oven-sh/bun/issues/4253)). The browse server automatically falls back to Node.js. Make sure both `bun` and `node` are on your PATH.
@@ -273,10 +292,10 @@ Data is stored in [Supabase](https://supabase.com) (open source Firebase alterna
 ## gstack
 Use /skill:browse from gstack for all web browsing. Never use mcp__claude-in-chrome__* tools.
 Available skills: /skill:office-hours, /skill:plan-ceo-review, /skill:plan-eng-review, /skill:plan-design-review,
-/skill:design-consultation, /skill:review, /skill:ship, /skill:land-and-deploy, /skill:canary, /skill:benchmark, /skill:browse,
-/skill:qa, /skill:qa-only, /skill:design-review, /skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro,
-/skill:investigate, /skill:document-release, /skill:codex, /skill:cso, /skill:autoplan, /skill:careful, /skill:freeze, /skill:guard,
-/skill:unfreeze, /skill:gstack-upgrade.
+/skill:design-consultation, /skill:design-shotgun, /skill:design-html, /skill:review, /skill:ship, /skill:land-and-deploy,
+/skill:canary, /skill:benchmark, /skill:browse, /skill:connect-chrome, /skill:qa, /skill:qa-only, /skill:design-review,
+/skill:setup-browser-cookies, /skill:setup-deploy, /skill:retro, /skill:investigate, /skill:document-release, /skill:codex,
+/skill:cso, /skill:autoplan, /skill:careful, /skill:freeze, /skill:guard, /skill:unfreeze, /skill:gstack-upgrade, /skill:learn.
 ```
 
 ## License

@@ -95,6 +95,9 @@ export const E2E_TOUCHFILES: Record<string, string[]> = {
   'cso-diff-mode':    ['cso/**'],
   'cso-infra-scope':  ['cso/**'],
 
+  // Learnings
+  'learnings-show': ['learn/**', 'bin/gstack-learnings-search', 'bin/gstack-learnings-log', 'scripts/resolvers/learnings.ts'],
+
   // Document-release
   'document-release': ['document-release/**'],
 
@@ -130,6 +133,11 @@ export const E2E_TOUCHFILES: Record<string, string[]> = {
   'plan-design-review-no-ui-scope': ['plan-design-review/**', 'scripts/gen-skill-docs.ts'],
   'design-review-fix':              ['design-review/**', 'browse/src/**', 'scripts/gen-skill-docs.ts'],
 
+  // Design Shotgun
+  'design-shotgun-path':            ['design-shotgun/**', 'design/src/**', 'scripts/resolvers/design.ts'],
+  'design-shotgun-session':         ['design-shotgun/**', 'scripts/resolvers/design.ts'],
+  'design-shotgun-full':            ['design-shotgun/**', 'design/src/**', 'browse/src/**'],
+
   // gstack-upgrade
   'gstack-upgrade-happy-path': ['gstack-upgrade/**'],
 
@@ -144,6 +152,7 @@ export const E2E_TOUCHFILES: Record<string, string[]> = {
   // Sidebar agent
   'sidebar-navigate':              ['browse/src/server.ts', 'browse/src/sidebar-agent.ts', 'browse/src/sidebar-utils.ts', 'extension/**'],
   'sidebar-url-accuracy':          ['browse/src/server.ts', 'browse/src/sidebar-agent.ts', 'browse/src/sidebar-utils.ts', 'extension/background.js'],
+  'sidebar-css-interaction':       ['browse/src/server.ts', 'browse/src/sidebar-agent.ts', 'browse/src/write-commands.ts', 'browse/src/read-commands.ts', 'browse/src/cdp-inspector.ts', 'extension/**'],
 
   // Autoplan
   'autoplan-core':  ['autoplan/**', 'plan-ceo-review/**', 'plan-eng-review/**', 'plan-design-review/**'],
@@ -233,6 +242,9 @@ export const E2E_TIERS: Record<string, 'gate' | 'periodic'> = {
   'cso-diff-mode': 'gate',
   'cso-infra-scope': 'periodic',
 
+  // Learnings — gate (functional guardrail: seeded learnings must appear)
+  'learnings-show': 'gate',
+
   // Document-release — gate (CHANGELOG guardrail)
   'document-release': 'gate',
 
@@ -253,6 +265,9 @@ export const E2E_TIERS: Record<string, 'gate' | 'periodic'> = {
   'plan-design-review-plan-mode': 'periodic',
   'plan-design-review-no-ui-scope': 'gate',
   'design-review-fix': 'periodic',
+  'design-shotgun-path': 'gate',
+  'design-shotgun-session': 'gate',
+  'design-shotgun-full': 'periodic',
 
   // gstack-upgrade
   'gstack-upgrade-happy-path': 'gate',
@@ -268,6 +283,7 @@ export const E2E_TIERS: Record<string, 'gate' | 'periodic'> = {
   // Sidebar agent
   'sidebar-navigate': 'periodic',
   'sidebar-url-accuracy': 'periodic',
+  'sidebar-css-interaction': 'periodic',
 
   // Autoplan — periodic (not yet implemented)
   'autoplan-core': 'periodic',

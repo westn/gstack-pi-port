@@ -151,8 +151,8 @@ fi
 if [[ "$RUN_BUILD" -eq 1 ]]; then
   if [[ -x "$TARGET/setup" ]]; then
     echo "Running setup (builds browse binary and dependencies)..."
-    # Force Claude-host install semantics but keep pi-friendly flat skill names.
-    (cd "$TARGET" && ./setup --host claude --no-prefix)
+    # Use the first-class pi host while keeping pi-friendly flat skill names.
+    (cd "$TARGET" && ./setup --host pi --no-prefix)
   else
     echo "No setup script found at $TARGET/setup"
   fi
