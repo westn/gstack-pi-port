@@ -76,6 +76,22 @@ fi
 
 mkdir -p "$SKILLS_DIR"
 
+skill_frontmatter_name() {
+  local skill_dir="$1"
+  local skill_md="$skill_dir/SKILL.md"
+  [[ -f "$skill_md" ]] || return 1
+  awk '
+    BEGIN { in_frontmatter = 0 }
+    NR == 1 && $0 == "---" { in_frontmatter = 1; next }
+    in_frontmatter && /^name:[[:space:]]*/ {
+      sub(/^name:[[:space:]]*/, "", $0)
+      print $0
+      exit
+    }
+    in_frontmatter && $0 == "---" { exit }
+  ' "$skill_md"
+}
+
 # If we're not rebuilding, preserve an existing browse/dist so updates don't
 # temporarily remove the binary until the next setup run.
 if [[ "$RUN_BUILD" -eq 0 && -d "$TARGET/browse/dist" ]]; then
@@ -99,8 +115,11 @@ echo "Installed gstack port to: $TARGET"
 
 # pi discovery behavior: if a directory contains SKILL.md, recursion stops there.
 # Create top-level symlinks so each gstack sub-skill appears as an individual skill.
+# Skip alias directories whose frontmatter name does not match the directory name,
+# because pi treats that as a conflicting skill definition.
 linked=()
 removed=()
+skipped_aliases=()
 
 # Clean stale links from previous installs (for renamed/removed skills).
 for existing in "$SKILLS_DIR"/*; do
@@ -114,6 +133,13 @@ for existing in "$SKILLS_DIR"/*; do
 
       # Remove stale links for deleted/renamed skills.
       if [[ ! -e "$SKILLS_DIR/$link_target" ]]; then
+        rm -f "$existing"
+        removed+=("$link_name")
+        continue
+      fi
+
+      declared_name="$(skill_frontmatter_name "$SKILLS_DIR/$link_target" 2>/dev/null || true)"
+      if [[ -n "$declared_name" && "$declared_name" != "$link_name" ]]; then
         rm -f "$existing"
         removed+=("$link_name")
         continue
@@ -135,6 +161,13 @@ for skill_dir in "$TARGET"/*/; do
   skill_name="$(basename "$skill_dir")"
   [[ "$skill_name" == "node_modules" ]] && continue
 
+  declared_name="$(skill_frontmatter_name "$skill_dir" 2>/dev/null || true)"
+  if [[ -n "$declared_name" && "$declared_name" != "$skill_name" ]]; then
+    rm -f "$SKILLS_DIR/$skill_name"
+    skipped_aliases+=("$skill_name->$declared_name")
+    continue
+  fi
+
   target_link="$SKILLS_DIR/$skill_name"
   ln -snf "$TARGET_BASENAME/$skill_name" "$target_link"
   linked+=("$skill_name")
@@ -146,6 +179,10 @@ fi
 
 if [[ ${#linked[@]} -gt 0 ]]; then
   echo "Linked sub-skills: ${linked[*]}"
+fi
+
+if [[ ${#skipped_aliases[@]} -gt 0 ]]; then
+  echo "Skipped alias sub-skills for pi discovery: ${skipped_aliases[*]}"
 fi
 
 if [[ "$RUN_BUILD" -eq 1 ]]; then

@@ -38,4 +38,13 @@ describe('pi host port integration', () => {
     const installScript = fs.readFileSync(path.join(REPO_ROOT, 'scripts', 'install.sh'), 'utf-8');
     expect(installScript).toContain('./setup --host pi --no-prefix');
   });
+
+  test('pi install skips alias skill dirs that would collide in discovery', () => {
+    const setupContent = fs.readFileSync(path.join(ROOT, 'setup'), 'utf-8');
+    const installScript = fs.readFileSync(path.join(REPO_ROOT, 'scripts', 'install.sh'), 'utf-8');
+    expect(setupContent).toContain('skill_frontmatter_name');
+    expect(setupContent).toContain('skipped alias skills for pi discovery');
+    expect(installScript).toContain('skill_frontmatter_name');
+    expect(installScript).toContain('Skipped alias sub-skills for pi discovery');
+  });
 });

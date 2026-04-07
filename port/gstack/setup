@@ -204,14 +204,33 @@ fi
 # 3. Ensure ~/.gstack global state directory exists
 mkdir -p "$HOME/.gstack/projects"
 
+skill_frontmatter_name() {
+  local skill_dir="$1"
+  local skill_md="$skill_dir/SKILL.md"
+  [ -f "$skill_md" ] || return 1
+  awk '
+    BEGIN { in_frontmatter = 0 }
+    NR == 1 && $0 == "---" { in_frontmatter = 1; next }
+    in_frontmatter && /^name:[[:space:]]*/ {
+      sub(/^name:[[:space:]]*/, "", $0)
+      print $0
+      exit
+    }
+    in_frontmatter && $0 == "---" { exit }
+  ' "$skill_md"
+}
+
 # ─── Helper: link Claude skill subdirectories into a skills parent directory ──
 # When SKILL_PREFIX=1 (default), symlinks are prefixed with "gstack-" to avoid
 # namespace pollution (e.g., gstack-review instead of review).
 # Use --no-prefix to restore the old flat names.
+# Skip alias directories whose frontmatter name differs from the directory name,
+# because pi skill discovery treats them as conflicting definitions.
 link_claude_skill_dirs() {
   local gstack_dir="$1"
   local skills_dir="$2"
   local linked=()
+  local skipped_aliases=()
   for skill_dir in "$gstack_dir"/*/; do
     if [ -f "$skill_dir/SKILL.md" ]; then
       skill_name="$(basename "$skill_dir")"
@@ -226,7 +245,13 @@ link_claude_skill_dirs() {
       else
         link_name="$skill_name"
       fi
+      declared_name="$(skill_frontmatter_name "$skill_dir" 2>/dev/null || true)"
       target="$skills_dir/$link_name"
+      if [ -n "$declared_name" ] && [ "$declared_name" != "$skill_name" ]; then
+        [ -L "$target" ] && rm -f "$target"
+        skipped_aliases+=("$skill_name->$declared_name")
+        continue
+      fi
       # Create or update symlink; skip if a real file/directory exists
       if [ -L "$target" ] || [ ! -e "$target" ]; then
         ln -snf "gstack/$skill_name" "$target"
@@ -236,6 +261,9 @@ link_claude_skill_dirs() {
   done
   if [ ${#linked[@]} -gt 0 ]; then
     echo "  linked skills: ${linked[*]}"
+  fi
+  if [ ${#skipped_aliases[@]} -gt 0 ]; then
+    echo "  skipped alias skills for pi discovery: ${skipped_aliases[*]}"
   fi
 }
 
@@ -258,6 +286,12 @@ cleanup_old_claude_symlinks() {
         link_dest="$(readlink "$old_target" 2>/dev/null || true)"
         case "$link_dest" in
           gstack/*|*/gstack/*)
+            declared_name="$(skill_frontmatter_name "$gstack_dir/$skill_name" 2>/dev/null || true)"
+            if [ -n "$declared_name" ] && [ "$declared_name" != "$skill_name" ]; then
+              rm -f "$old_target"
+              removed+=("$skill_name")
+              continue
+            fi
             rm -f "$old_target"
             removed+=("$skill_name")
             ;;
