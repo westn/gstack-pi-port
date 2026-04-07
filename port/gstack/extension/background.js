@@ -1,7 +1,7 @@
 /**
  * gstack browse — background service worker
  *
- * Polls /skill:health every 10s to detect browse server.
+ * Polls /health every 10s to detect browse server.
  * Fetches /refs on snapshot completion, relays to content script.
  * Proxies commands from sidebar → browse server.
  * Updates badge: amber (connected), gray (disconnected).
@@ -34,7 +34,7 @@ function getBaseUrl() {
 
 async function loadAuthToken() {
   if (authToken) return;
-  // Get token from browse server /skill:health endpoint (localhost-only, safe).
+  // Get token from browse server /health endpoint (localhost-only, safe).
   // Previously read from .auth.json in extension dir, but that breaks
   // read-only .app bundles and codesigning.
   const base = getBaseUrl();
@@ -67,7 +67,7 @@ async function checkHealth() {
     if (!resp.ok) { setDisconnected(); return; }
     const data = await resp.json();
     if (data.status === 'healthy') {
-      // Always refresh auth token from /skill:health — the server generates a new
+      // Always refresh auth token from /health — the server generates a new
       // token on each restart, so the old one becomes stale.
       if (data.token) authToken = data.token;
       // Forward chatEnabled so sidepanel can show/hide chat tab

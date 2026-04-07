@@ -1,6 +1,6 @@
 {
   "name": "gstack",
-  "version": "0.15.15.0",
+  "version": "0.15.15.1",
   "description": "Garry's Stack \u2014 pi skills + fast headless browser. One repo, one install, entire AI engineering workflow.",
   "license": "MIT",
   "type": "module",

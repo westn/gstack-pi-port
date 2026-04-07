@@ -508,7 +508,7 @@ def remove_allowed_tools_frontmatter(text: str) -> str:
 def replace_skill_commands(text: str) -> str:
     for cmd in SKILL_COMMANDS:
         pattern = re.compile(
-            rf"(^|[\s`\"'<(\[])/{re.escape(cmd)}(?=$|[\s`\"')>\].,:;!?])",
+            rf"(^|[\s`\"'<>\[(])/{re.escape(cmd)}(?=$|[\s`\"')>\].,:;!?])",
             flags=re.MULTILINE,
         )
         text = pattern.sub(rf"\1/skill:{cmd}", text)
@@ -580,12 +580,13 @@ def transform_text(text: str, path: Path) -> str:
     for old, new in REVIEW_PATH_REPLACEMENTS:
         updated = updated.replace(old, new)
 
-    updated = replace_skill_commands(updated)
+    is_doc_like = path.suffix == ".md" or path.name.endswith(".md.tmpl")
+    if is_doc_like:
+        updated = replace_skill_commands(updated)
 
     for old, new in PHRASE_REPLACEMENTS:
         updated = updated.replace(old, new)
 
-    is_doc_like = path.suffix == ".md" or path.name.endswith(".md.tmpl")
     if is_doc_like:
         for old, new in DOC_ONLY_PHRASE_REPLACEMENTS:
             updated = updated.replace(old, new)
@@ -732,6 +733,13 @@ def patch_package_json_for_pi() -> bool:
     data = json.loads(path.read_text(encoding="utf-8"))
     changed = False
 
+    version_path = PORT_DIR / "VERSION"
+    if version_path.exists():
+        desired_version = version_path.read_text(encoding="utf-8").strip()
+        if desired_version and data.get("version") != desired_version:
+            data["version"] = desired_version
+            changed = True
+
     dev = data.get("devDependencies")
     if isinstance(dev, dict) and "@anthropic-ai/sdk" in dev:
         dev.pop("@anthropic-ai/sdk", None)
@@ -868,13 +876,14 @@ def verify_port_quality() -> None:
                 "(expected '/skill:design-review')"
             )
 
-        for cmd in SKILL_COMMANDS:
-            pattern = re.compile(
-                rf"(^|[\s`\"'<(\[])/{re.escape(cmd)}(?=$|[\s`\"')>\].,:;!?])",
-                flags=re.MULTILINE,
-            )
-            if pattern.search(content):
-                bare_command_findings.append(f"{rel}: found '/{cmd}' (expected '/skill:{cmd}')")
+        if rel.endswith('.md') or rel.endswith('.md.tmpl'):
+            for cmd in SKILL_COMMANDS:
+                pattern = re.compile(
+                    rf"(^|[\s`\"'<>\[(])/{re.escape(cmd)}(?=$|[\s`\"')>\].,:;!?])",
+                    flags=re.MULTILINE,
+                )
+                if pattern.search(content):
+                    bare_command_findings.append(f"{rel}: found '/{cmd}' (expected '/skill:{cmd}')")
 
     findings.extend(bare_command_findings)
 

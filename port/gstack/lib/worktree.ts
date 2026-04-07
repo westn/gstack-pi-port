@@ -5,7 +5,7 @@
  * harvests any changes the test agent makes as patches, and provides
  * deduplication across runs.
  *
- * Reusable platform module — future /batch or /skill:codex challenge skills
+ * Reusable platform module — future /batch or /codex challenge skills
  * can import this directly.
  */
 

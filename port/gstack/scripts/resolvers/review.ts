@@ -6,8 +6,8 @@
  * Data NOT sent:
  *   - Source code files, credentials, environment variables, git history
  *
- * Users invoke this explicitly via /skill:plan-eng-review, /skill:plan-ceo-review,
- * or /skill:plan-design-review. No data is sent without user invocation.
+ * Users invoke this explicitly via /plan-eng-review, /plan-ceo-review,
+ * or /plan-design-review. No data is sent without user invocation.
  *
  * Review logs are stored locally at ~/.gstack/reviews/review-log.jsonl.
  * Codex CLI prompts are written to temp files to prevent shell injection.
@@ -26,9 +26,9 @@ After completing the review, read the review log and config to display the dashb
 ~/.pi/agent/skills/gstack/bin/gstack-review-read
 \`\`\`
 
-Parse the output. Find the most recent entry for each skill (plan-ceo-review, plan-eng-review, review, plan-design-review, design-review-lite, adversarial-review, codex-review, codex-plan-review). Ignore entries with timestamps older than 7 days. For the Eng Review row, show whichever is more recent between \`review\` (diff-scoped pre-landing review) and \`plan-eng-review\` (plan-stage architecture review). Append "(DIFF)" or "(PLAN)" to the status to distinguish. For the Adversarial row, show whichever is more recent between \`adversarial-review\` (new auto-scaled) and \`codex-review\` (legacy). For Design Review, show whichever is more recent between \`plan-design-review\` (full visual audit) and \`design-review-lite\` (code-level check). Append "(FULL)" or "(LITE)" to the status to distinguish. For the Outside Voice row, show the most recent \`codex-plan-review\` entry — this captures outside voices from both /skill:plan-ceo-review and /skill:plan-eng-review.
+Parse the output. Find the most recent entry for each skill (plan-ceo-review, plan-eng-review, review, plan-design-review, design-review-lite, adversarial-review, codex-review, codex-plan-review). Ignore entries with timestamps older than 7 days. For the Eng Review row, show whichever is more recent between \`review\` (diff-scoped pre-landing review) and \`plan-eng-review\` (plan-stage architecture review). Append "(DIFF)" or "(PLAN)" to the status to distinguish. For the Adversarial row, show whichever is more recent between \`adversarial-review\` (new auto-scaled) and \`codex-review\` (legacy). For Design Review, show whichever is more recent between \`plan-design-review\` (full visual audit) and \`design-review-lite\` (code-level check). Append "(FULL)" or "(LITE)" to the status to distinguish. For the Outside Voice row, show the most recent \`codex-plan-review\` entry — this captures outside voices from both /plan-ceo-review and /plan-eng-review.
 
-**Source attribution:** If the most recent entry for a skill has a \\\`"via"\\\` field, append it to the status label in parentheses. Examples: \`plan-eng-review\` with \`via:"autoplan"\` shows as "CLEAR (PLAN via /skill:autoplan)". \`review\` with \`via:"ship"\` shows as "CLEAR (DIFF via /skill:ship)". Entries without a \`via\` field show as "CLEAR (PLAN)" or "CLEAR (DIFF)" as before.
+**Source attribution:** If the most recent entry for a skill has a \\\`"via"\\\` field, append it to the status label in parentheses. Examples: \`plan-eng-review\` with \`via:"autoplan"\` shows as "CLEAR (PLAN via /autoplan)". \`review\` with \`via:"ship"\` shows as "CLEAR (DIFF via /ship)". Entries without a \`via\` field show as "CLEAR (PLAN)" or "CLEAR (DIFF)" as before.
 
 Note: \`autoplan-voices\` and \`design-outside-voices\` entries are audit-trail-only (forensic data for cross-model consensus analysis). They do not appear in the dashboard and are not checked by any consumer.
 
@@ -55,7 +55,7 @@ Display:
 - **CEO Review (optional):** Use your judgment. Recommend it for big product/business changes, new user-facing features, or scope decisions. Skip for bug fixes, refactors, infra, and cleanup.
 - **Design Review (optional):** Use your judgment. Recommend it for UI/UX changes. Skip for backend-only, infra, or prompt-only changes.
 - **Adversarial Review (automatic):** Always-on for every review. Every diff gets both Claude adversarial subagent and Codex adversarial challenge. Large diffs (200+ lines) additionally get Codex structured review with P1 gate. No configuration needed.
-- **Outside Voice (optional):** Independent plan review from a different AI model. Offered after all review sections complete in /skill:plan-ceo-review and /skill:plan-eng-review. Falls back to Claude subagent if Codex is unavailable. Never gates shipping.
+- **Outside Voice (optional):** Independent plan review from a different AI model. Offered after all review sections complete in /plan-ceo-review and /plan-eng-review. Falls back to Claude subagent if Codex is unavailable. Never gates shipping.
 
 **Verdict logic:**
 - **CLEARED**: Eng Review has >= 1 entry within 7 days from either \\\`review\\\` or \\\`plan-eng-review\\\` with status "clean" (or \\\`skip_eng_review\\\` is \\\`true\\\`)
@@ -113,7 +113,7 @@ Produce this markdown table:
 | Review | Trigger | Why | Runs | Status | Findings |
 |--------|---------|-----|------|--------|----------|
 | CEO Review | \\\`/plan-ceo-review\\\` | Scope & strategy | {runs} | {status} | {findings} |
-| Codex Review | \\\`/skill:codex review\\\` | Independent 2nd opinion | {runs} | {status} | {findings} |
+| Codex Review | \\\`/codex review\\\` | Independent 2nd opinion | {runs} | {status} | {findings} |
 | Eng Review | \\\`/plan-eng-review\\\` | Architecture & tests (required) | {runs} | {status} | {findings} |
 | Design Review | \\\`/plan-design-review\\\` | UI/UX gaps | {runs} | {status} | {findings} |
 | DX Review | \\\`/plan-devex-review\\\` | Developer experience gaps | {runs} | {status} | {findings} |
@@ -364,7 +364,7 @@ SECOND OPINION (Claude subagent):
 If A: revise the premise and note the revision. If B: proceed (and note that the user defended this premise with reasoning — this is a founder signal if they articulate WHY they disagree, not just dismiss).`;
 }
 
-// ─── Scope Drift Detection (shared between /skill:review and /skill:ship) ────────
+// ─── Scope Drift Detection (shared between /review and /ship) ────────
 
 export function generateScopeDrift(ctx: TemplateContext): string {
   const isShip = ctx.skillName === 'ship';
@@ -376,7 +376,7 @@ Before reviewing code quality, check: **did they build what was requested — no
 
 1. Read \`TODOS.md\` (if it exists). Read PR description (\`gh pr view --json body --jq .body 2>/dev/null || true\`).
    Read commit messages (\`git log origin/<base>..HEAD --oneline\`).
-   **If no PR exists:** rely on commit messages and TODOS.md for stated intent — this is the common case since /skill:review runs before /skill:ship creates the PR.
+   **If no PR exists:** rely on commit messages and TODOS.md for stated intent — this is the common case since /review runs before /ship creates the PR.
 2. Identify the **stated intent** — what was this branch supposed to accomplish?
 3. Run \`git diff origin/<base>...HEAD --stat\` and compare the files changed against the stated intent.
 
@@ -939,9 +939,9 @@ curl -s -o /dev/null -w '%{http_code}' http://localhost:5173 2>/dev/null || \\
 curl -s -o /dev/null -w '%{http_code}' http://localhost:4000 2>/dev/null || echo "NO_SERVER"
 \`\`\`
 
-**If NO_SERVER:** Skip with "No dev server detected — skipping plan verification. Run /skill:qa separately after deploying."
+**If NO_SERVER:** Skip with "No dev server detected — skipping plan verification. Run /qa separately after deploying."
 
-### 3. Invoke /skill:qa-only inline
+### 3. Invoke /qa-only inline
 
 Read the \`/qa-only\` skill from disk:
 
@@ -949,13 +949,13 @@ Read the \`/qa-only\` skill from disk:
 cat \${CLAUDE_SKILL_DIR}/../qa-only/SKILL.md
 \`\`\`
 
-**If unreadable:** Skip with "Could not load /skill:qa-only — skipping plan verification."
+**If unreadable:** Skip with "Could not load /qa-only — skipping plan verification."
 
-Follow the /skill:qa-only workflow with these modifications:
-- **Skip the preamble** (already handled by /skill:ship)
+Follow the /qa-only workflow with these modifications:
+- **Skip the preamble** (already handled by /ship)
 - **Use the plan's verification section as the primary test input** — treat each verification item as a test case
 - **Use the detected dev server URL** as the base URL
-- **Skip the fix loop** — this is report-only verification during /skill:ship
+- **Skip the fix loop** — this is report-only verification during /ship
 - **Cap at the verification items from the plan** — do not expand into general site QA
 
 ### 4. Gate logic

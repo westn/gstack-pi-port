@@ -1248,7 +1248,7 @@ describe('server /welcome endpoint', () => {
   test('/welcome serves HTML content type', () => {
     const welcomeSection = serverSrc.slice(
       serverSrc.indexOf("url.pathname === '/welcome'"),
-      serverSrc.indexOf("url.pathname === '/skill:health'"),
+      serverSrc.indexOf("url.pathname === '/health'"),
     );
     expect(welcomeSection).toContain("'Content-Type': 'text/html");
   });
@@ -1256,7 +1256,7 @@ describe('server /welcome endpoint', () => {
   test('/welcome serves fallback HTML if no welcome file found', () => {
     const welcomeSection = serverSrc.slice(
       serverSrc.indexOf("url.pathname === '/welcome'"),
-      serverSrc.indexOf("url.pathname === '/skill:health'"),
+      serverSrc.indexOf("url.pathname === '/health'"),
     );
     // Changed from 302 redirect to about:blank (ERR_UNSAFE_REDIRECT on Windows)
     // to inline HTML fallback page (PR #822)
@@ -1478,7 +1478,7 @@ describe('BROWSE_NO_AUTOSTART (sidebar headless prevention)', () => {
   });
 
   test('cli.ts shows actionable error message when BROWSE_NO_AUTOSTART blocks', () => {
-    expect(cliSrc).toContain('/skill:open-gstack-browser');
+    expect(cliSrc).toContain('/open-gstack-browser');
     expect(cliSrc).toContain('BROWSE_NO_AUTOSTART is set');
   });
 

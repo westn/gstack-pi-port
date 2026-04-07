@@ -115,7 +115,7 @@ export const E2E_TOUCHFILES: Record<string, string[]> = {
   // Document-release
   'document-release': ['document-release/**'],
 
-  // Codex (Claude E2E — tests /skill:codex skill via Claude)
+  // Codex (Claude E2E — tests /codex skill via Claude)
   'codex-review': ['codex/**'],
 
   // Codex E2E (tests skills via Codex CLI + worktree)

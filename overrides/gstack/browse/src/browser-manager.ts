@@ -15,19 +15,18 @@
  *   restores state. Falls back to clean slate on any failure.
  */
 
-type Browser = any;
-type BrowserContext = any;
-type BrowserContextOptions = any;
-type Page = any;
-type Locator = any;
-type Cookie = any;
-type FrameLike = any;
+type Browser = import('playwright').Browser;
+type BrowserContext = import('playwright').BrowserContext;
+type BrowserContextOptions = import('playwright').BrowserContextOptions;
+type Page = import('playwright').Page;
+type Locator = import('playwright').Locator;
+type Cookie = import('playwright').Cookie;
 
 import { addConsoleEntry, addNetworkEntry, addDialogEntry, networkBuffer, type DialogEntry } from './buffers';
 import { validateNavigationUrl } from './url-validation';
 
 function getChromium() {
-  return require('playwright').chromium;
+  return require('playwright').chromium as typeof import('playwright').chromium;
 }
 
 export interface RefEntry {
@@ -799,13 +798,13 @@ export class BrowserManager {
   }
 
   // ─── Frame context ─────────────────────────────────
-  private activeFrame: FrameLike | null = null;
+  private activeFrame: import('playwright').Frame | null = null;
 
-  setFrame(frame: FrameLike | null): void {
+  setFrame(frame: import('playwright').Frame | null): void {
     this.activeFrame = frame;
   }
 
-  getFrame(): FrameLike | null {
+  getFrame(): import('playwright').Frame | null {
     return this.activeFrame;
   }
 
@@ -813,7 +812,7 @@ export class BrowserManager {
    * Returns the active frame if set, otherwise the current page.
    * Use this for operations that work on both Page and Frame (locator, evaluate, etc.).
    */
-  getActiveFrameOrPage(): Page | FrameLike {
+  getActiveFrameOrPage(): import('playwright').Page | import('playwright').Frame {
     // Auto-recover from detached frames (iframe removed/navigated)
     if (this.activeFrame?.isDetached()) {
       this.activeFrame = null;

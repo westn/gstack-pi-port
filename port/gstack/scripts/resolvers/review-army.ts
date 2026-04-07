@@ -1,5 +1,5 @@
 /**
- * Review Army resolver — parallel specialist reviewers for /skill:review
+ * Review Army resolver — parallel specialist reviewers for /review
  *
  * Generates template prose that instructs Claude to:
  * 1. Detect stack and scope (via gstack-diff-scope)

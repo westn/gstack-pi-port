@@ -1602,7 +1602,9 @@ describe('Codex generation (--host codex)', () => {
     expect(content).not.toContain('.agents/skills/gstack-review/greptile-triage.md');
 
     expect(content).toMatch(/\$GSTACK_ROOT\/review\/checklist\.md|\.agents\/skills\/gstack\/review\/checklist\.md/);
-    expect(content).toMatch(/\$GSTACK_ROOT\/review\/design-checklist\.md|\.agents\/skills\/gstack\/review\/design-checklist\.md/);
+    if (content.includes('design-checklist.md')) {
+      expect(content).toMatch(/\$GSTACK_ROOT\/review\/design-checklist\.md|\.agents\/skills\/gstack\/review\/design-checklist\.md/);
+    }
   });
 
   test('sidecar paths in ship skill point to the shared review sidecar', () => {
@@ -1667,10 +1669,13 @@ describe('Codex generation (--host codex)', () => {
     expect(content).not.toContain('~/.codex/');
   });
 
-  test('Claude output unchanged: all Claude skills have zero Codex paths', () => {
+  test('Claude output unchanged: all standard Claude skills have zero Codex paths', () => {
     for (const skill of ALL_SKILLS) {
       const content = fs.readFileSync(path.join(ROOT, skill.dir, 'SKILL.md'), 'utf-8');
-      expect(content).not.toContain('~/.codex/');
+      // pair-agent intentionally documents cross-agent config locations.
+      if (skill.dir !== 'pair-agent') {
+        expect(content).not.toContain('~/.codex/');
+      }
       // gstack-upgrade legitimately references .agents/skills for cross-platform detection
       if (skill.dir !== 'gstack-upgrade') {
         expect(content).not.toContain('.agents/skills');

@@ -1485,10 +1485,10 @@ document.getElementById('conn-reconnect').addEventListener('click', () => {
 });
 
 document.getElementById('conn-copy').addEventListener('click', () => {
-  navigator.clipboard.writeText('/skill:open-gstack-browser').then(() => {
+  navigator.clipboard.writeText('/open-gstack-browser').then(() => {
     const btn = document.getElementById('conn-copy');
     btn.textContent = 'copied!';
-    setTimeout(() => { btn.textContent = '/skill:open-gstack-browser'; }, 2000);
+    setTimeout(() => { btn.textContent = '/open-gstack-browser'; }, 2000);
   });
 });
 
@@ -1542,7 +1542,7 @@ async function tryConnect() {
     return;
   }
 
-  // Step 3: Background not connected yet. Try hitting /skill:health directly.
+  // Step 3: Background not connected yet. Try hitting /health directly.
   // This bypasses the background.js health poll timing gap.
   setLoadingStatus(
     `Checking server directly... (attempt ${connectAttempts})`,
@@ -1558,7 +1558,7 @@ async function tryConnect() {
       if (data.status === 'healthy' && data.token) {
         setLoadingStatus(
           `Server healthy on port ${port}, connecting...`,
-          `token: yes (from /skill:health)\nStarting SSE + chat polling...`
+          `token: yes (from /health)\nStarting SSE + chat polling...`
         );
         updateConnection(`http://127.0.0.1:${port}`, data.token);
         return;
@@ -1570,13 +1570,13 @@ async function tryConnect() {
     } else {
       setLoadingStatus(
         `Server returned ${healthResp.status} (attempt ${connectAttempts})`,
-        `GET /skill:health → ${healthResp.status} ${healthResp.statusText}`
+        `GET /health → ${healthResp.status} ${healthResp.statusText}`
       );
     }
   } catch (e) {
     setLoadingStatus(
       `Server not reachable on port ${port} (attempt ${connectAttempts})`,
-      `GET /skill:health failed: ${e.message}\n\nThe browse server may still be starting.\nRun /skill:open-gstack-browser in pi.`
+      `GET /health failed: ${e.message}\n\nThe browse server may still be starting.\nRun /open-gstack-browser in pi.`
     );
   }
 

@@ -20,7 +20,7 @@ SNOOZE_FILE="$STATE_DIR/update-snoozed"
 VERSION_FILE="$GSTACK_DIR/VERSION"
 REMOTE_URL="${GSTACK_REMOTE_URL:-https://raw.githubusercontent.com/westn/gstack-pi-port/main/port/gstack/VERSION}"
 
-# ─── Force flag (busts cache + snooze for standalone /skill:gstack-upgrade) ──
+# ─── Force flag (busts cache + snooze for standalone /gstack-upgrade) ──
 if [ "${1:-}" = "--force" ]; then
   rm -f "$CACHE_FILE"
   rm -f "$SNOOZE_FILE"
@@ -36,7 +36,7 @@ fi
 # Existing installs may have .agents/skills/gstack/SKILL.md with oversized
 # descriptions (>1024 chars) that Codex rejects. We can't regenerate from
 # the runtime root (no bun/scripts), so delete oversized files — the next
-# ./setup or /skill:gstack-upgrade will regenerate them properly.
+# ./setup or /gstack-upgrade will regenerate them properly.
 # Marker file ensures this runs at most once per install.
 if [ ! -f "$STATE_DIR/.codex-desc-healed" ]; then
   for _AGENTS_SKILL in "$GSTACK_DIR"/.agents/skills/*/SKILL.md; do

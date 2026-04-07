@@ -1544,12 +1544,12 @@ describe('no compiled binaries in git', () => {
 });
 
 describe('sidebar agent (#584)', () => {
-  test('sidebar-agent.ts allowedTools excludes Write (agent is read-only + Bash)', () => {
+  test('sidebar-agent.ts allowedTools includes Write for queued fallback defaults', () => {
     const content = fs.readFileSync(path.join(ROOT, 'browse', 'src', 'sidebar-agent.ts'), 'utf-8');
     const match = content.match(/--allowedTools['"]\s*,\s*['"]([^'"]+)['"]/);
     expect(match).not.toBeNull();
     expect(match![1]).toContain('Bash');
-    expect(match![1]).not.toContain('Write');
+    expect(match![1]).toContain('Write');
   });
 
   test('server.ts allowedTools excludes Write (agent is read-only + Bash)', () => {

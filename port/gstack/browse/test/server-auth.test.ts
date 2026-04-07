@@ -22,18 +22,18 @@ function sliceBetween(source: string, startMarker: string, endMarker: string): s
 }
 
 describe('Server auth security', () => {
-  // Test 1: /skill:health serves token conditionally (headed mode or chrome extension only)
-  test('/skill:health serves token only in headed mode or to chrome extensions', () => {
-    const healthBlock = sliceBetween(SERVER_SRC, "url.pathname === '/skill:health'", "url.pathname === '/connect'");
+  // Test 1: /health serves token conditionally (headed mode or chrome extension only)
+  test('/health serves token only in headed mode or to chrome extensions', () => {
+    const healthBlock = sliceBetween(SERVER_SRC, "url.pathname === '/health'", "url.pathname === '/connect'");
     // Token must be conditional, not unconditional
     expect(healthBlock).toContain('AUTH_TOKEN');
     expect(healthBlock).toContain('headed');
     expect(healthBlock).toContain('chrome-extension://');
   });
 
-  // Test 1b: /skill:health does not expose sensitive browsing state
-  test('/skill:health does not expose currentUrl or currentMessage', () => {
-    const healthBlock = sliceBetween(SERVER_SRC, "url.pathname === '/skill:health'", "url.pathname === '/connect'");
+  // Test 1b: /health does not expose sensitive browsing state
+  test('/health does not expose currentUrl or currentMessage', () => {
+    const healthBlock = sliceBetween(SERVER_SRC, "url.pathname === '/health'", "url.pathname === '/connect'");
     expect(healthBlock).not.toContain('currentUrl');
     expect(healthBlock).not.toContain('currentMessage');
   });

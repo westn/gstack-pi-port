@@ -214,7 +214,7 @@ export function createToken(opts: CreateTokenOptions): TokenInfo {
 }
 
 /**
- * Create a one-time setup key for the /skill:pair-agent ceremony.
+ * Create a one-time setup key for the /pair-agent ceremony.
  * Setup keys expire in 5 minutes and can only be exchanged once.
  */
 export function createSetupKey(opts: Omit<CreateTokenOptions, 'clientId'> & { clientId?: string }): TokenInfo {

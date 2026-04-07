@@ -1112,7 +1112,7 @@ align cleanly. Never truncate project names.
 ║
 ║  [N] commits across [M] projects
 ║  +[X]k LOC added · [Y]k LOC deleted · [Z]k net
-║  [N] AI coding sessions (CC: X, Codex: Y, Gemini: Z)
+║  [N] AI coding sessions (pi: X, Codex: Y, Gemini: Z)
 ║  [N]-day shipping streak 🔥
 ║
 ║  PROJECTS
@@ -1166,7 +1166,7 @@ This is the "deep dive" that follows the shareable card.
 | Projects active | N |
 | Total commits (all repos, all contributors) | N |
 | Total LOC | +N / -N |
-| AI coding sessions | N (CC: X, Codex: Y, Gemini: Z) |
+| AI coding sessions | N (pi: X, Codex: Y, Gemini: Z) |
 | Active days | N |
 | Global shipping streak (any contributor, any repo) | N consecutive days |
 | Context switches/day | N avg (max: M) |
@@ -1264,7 +1264,7 @@ Use the Write tool to save JSON to `~/.gstack/retros/global-${today}-${next}.jso
       "commits": 47,
       "insertions": 3200,
       "deletions": 800,
-      "sessions": { "claude_code": 15, "codex": 3, "gemini": 0 }
+      "sessions": { "pi_code": 15, "codex": 3, "gemini": 0 }
     }
   ],
   "totals": {
@@ -1273,11 +1273,11 @@ Use the Write tool to save JSON to `~/.gstack/retros/global-${today}-${next}.jso
     "deletions": 4200,
     "projects": 5,
     "active_days": 6,
-    "sessions": { "claude_code": 48, "codex": 8, "gemini": 3 },
+    "sessions": { "pi_code": 48, "codex": 8, "gemini": 3 },
     "global_streak_days": 52,
     "avg_context_switches_per_day": 2.1
   },
-  "tweetable": "Week of Mar 14: 5 projects, 182 commits, 15.3k LOC | CC: 48, Codex: 8, Gemini: 3 | Focus: gstack (58%) | Streak: 52d"
+  "tweetable": "Week of Mar 14: 5 projects, 182 commits, 15.3k LOC | pi: 48, Codex: 8, Gemini: 3 | Focus: gstack (58%) | Streak: 52d"
 }
 ```
 

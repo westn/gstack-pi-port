@@ -336,7 +336,7 @@ async function ensureServer(): Promise<ServerState> {
   // fail fast with a clear error instead of silently starting a new one.
   if (process.env.BROWSE_NO_AUTOSTART === '1') {
     console.error('[browse] Server not available and BROWSE_NO_AUTOSTART is set.');
-    console.error('[browse] The headed browser may have been closed. Run /skill:open-gstack-browser to restart.');
+    console.error('[browse] The headed browser may have been closed. Run /open-gstack-browser to restart.');
     process.exit(1);
   }
 
@@ -345,7 +345,7 @@ async function ensureServer(): Promise<ServerState> {
   // Silently replacing it would be confusing — tell the user to reconnect.
   if (state && state.mode === 'headed' && isProcessAlive(state.pid)) {
     console.error(`[browse] Headed server running (PID ${state.pid}) but not responding.`);
-    console.error(`[browse] Run '/skill:open-gstack-browser' to restart.`);
+    console.error(`[browse] Run '/open-gstack-browser' to restart.`);
     process.exit(1);
   }
 
@@ -571,7 +571,7 @@ TOKEN: Expires ${expiresAt}. Revoke: ask the user to run
   $B tunnel revoke <your-name>
 
 ERRORS:
-  401 → Token expired/revoked. Ask user to run /skill:pair-agent again.
+  401 → Token expired/revoked. Ask user to run /pair-agent again.
   403 → Command out of scope, or tab not yours. Run newtab first.
   429 → Rate limited (>10 req/s). Wait for Retry-After header.
 

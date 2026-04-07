@@ -345,7 +345,7 @@ ${section}`);
     const result = await callJudge<{ would_browse: boolean; fallback_behavior: string; confidence: number; reasoning: string }>(`You are evaluating whether a QA testing skill document would cause an AI agent to USE THE BROWSER or REFUSE to use the browser in a specific scenario.
 
 SCENARIO:
-A user runs /skill:qa (a browser-based QA testing skill). The branch diff shows ONLY prompt template files and config file changes — no routes, views, controllers, components, or CSS were changed. The changes are "purely backend" with no obvious UI surface.
+A user runs /qa (a browser-based QA testing skill). The branch diff shows ONLY prompt template files and config file changes — no routes, views, controllers, components, or CSS were changed. The changes are "purely backend" with no obvious UI surface.
 
 QUESTION: Based on the document excerpts below, would the agent open the browser and test the application, or would it decline/refuse to browse and suggest running evals or unit tests instead?
 
@@ -414,9 +414,9 @@ describeIfSelected('Cross-skill consistency evals', ['cross-skill greptile consi
 
 INTENDED ARCHITECTURE:
 - greptile-history has TWO paths: per-project (~/.gstack/projects/{slug}/greptile-history.md) and global (~/.gstack/greptile-history.md)
-- /skill:review and /skill:ship WRITE to BOTH paths (per-project for suppressions, global for retro aggregation)
-- /skill:review and /skill:ship delegate write mechanics to greptile-triage.md
-- /skill:retro READS from the GLOBAL path only (it aggregates across all projects)
+- /review and /ship WRITE to BOTH paths (per-project for suppressions, global for retro aggregation)
+- /review and /ship delegate write mechanics to greptile-triage.md
+- /retro READS from the GLOBAL path only (it aggregates across all projects)
 - REMOTE_SLUG derivation should be consistent across files that use it
 
 Below are greptile-related lines extracted from each skill file:

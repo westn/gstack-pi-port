@@ -36,12 +36,12 @@ CONFIG_HEADER='# gstack configuration — edit freely, changes take effect on ne
 #
 # ─── Skill naming ────────────────────────────────────────────────────
 # skill_prefix: false       # true = namespace skills as /gstack-qa, /gstack-ship
-#                           # false = short names /skill:qa, /skill:ship
+#                           # false = short names /qa, /ship
 #
 # ─── Advanced ────────────────────────────────────────────────────────
-# codex_reviews: enabled    # disabled = skip Codex adversarial reviews in /skill:ship
+# codex_reviews: enabled    # disabled = skip Codex adversarial reviews in /ship
 # gstack_contributor: false # true = file field reports when gstack misbehaves
-# skip_eng_review: false    # true = skip eng review gate in /skill:ship (not recommended)
+# skip_eng_review: false    # true = skip eng review gate in /ship (not recommended)
 #
 '
 

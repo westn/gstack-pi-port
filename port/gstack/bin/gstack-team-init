@@ -62,8 +62,8 @@ git clone --depth 1 https://github.com/garrytan/gstack.git ~/.pi/agent/skills/gs
 cd ~/.pi/agent/skills/gstack && ./setup --team
 ```
 
-Skills like /skill:qa, /skill:ship, /skill:review, /skill:investigate, and /skill:browse become available after install.
-Use /skill:browse for all web browsing. Use ~/.pi/agent/skills/gstack/... for gstack file paths.'
+Skills like /qa, /ship, /review, /investigate, and /browse become available after install.
+Use /browse for all web browsing. Use ~/.pi/agent/skills/gstack/... for gstack file paths.'
 else
   SNIPPET='## gstack (REQUIRED — global install)
 
@@ -85,8 +85,8 @@ If GSTACK_MISSING: STOP. Do not proceed. Tell the user:
 
 Do not skip skills, ignore gstack errors, or work around missing gstack.
 
-Using gstack skills: After install, skills like /skill:qa, /skill:ship, /skill:review, /skill:investigate,
-and /skill:browse are available. Use /skill:browse for all web browsing.
+Using gstack skills: After install, skills like /qa, /ship, /review, /investigate,
+and /browse are available. Use /browse for all web browsing.
 Use ~/.pi/agent/skills/gstack/... for gstack file paths (the global path).'
 fi
 

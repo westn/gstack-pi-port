@@ -147,7 +147,7 @@ describeIfSelected('Session Intelligence E2E', [
     });
     fs.writeFileSync(path.join(projectDir, 'timeline.jsonl'), timelineEntry + '\n');
 
-    // Copy the /skill:learn skill (lightweight, tier-2 skill that runs context recovery)
+    // Copy the /learn skill (lightweight, tier-2 skill that runs context recovery)
     copyDirSync(path.join(ROOT, 'learn'), path.join(workDir, 'learn'));
 
     const result = await runSkillTest({
@@ -195,16 +195,16 @@ IMPORTANT:
   }, 180_000);
 
   // --- Test 3: Checkpoint save and resume ---
-  // Run /skill:checkpoint save via pi --mode json -p, verify file created. Then run /skill:checkpoint resume
+  // Run /checkpoint save via pi --mode json -p, verify file created. Then run /checkpoint resume
   // and verify it reads the checkpoint back.
   testConcurrentIfSelected('checkpoint-save-resume', async () => {
     const projectDir = path.join(gstackHome, 'projects', slug);
     fs.mkdirSync(path.join(projectDir, 'checkpoints'), { recursive: true });
 
-    // Copy the /skill:checkpoint skill
+    // Copy the /checkpoint skill
     copyDirSync(path.join(ROOT, 'checkpoint'), path.join(workDir, 'checkpoint'));
 
-    // Add a staged change so /skill:checkpoint has something to capture
+    // Add a staged change so /checkpoint has something to capture
     fs.writeFileSync(path.join(workDir, 'feature.ts'), 'export function newFeature() { return true; }\n');
     spawnSync('git', ['add', 'feature.ts'], { cwd: workDir, stdio: 'pipe', timeout: 5000 });
 
@@ -215,7 +215,7 @@ IMPORTANT:
     const saveSection = full.slice(saveStart, resumeStart > saveStart ? resumeStart : undefined);
 
     const result = await runSkillTest({
-      prompt: `You are testing the /skill:checkpoint skill. Follow these instructions to save a checkpoint.
+      prompt: `You are testing the /checkpoint skill. Follow these instructions to save a checkpoint.
 
 ${saveSection.slice(0, 2000)}
 

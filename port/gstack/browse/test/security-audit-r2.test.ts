@@ -350,15 +350,15 @@ describe('Round-2 finding 3: isValidQueueEntry checks stateFile for path travers
   });
 });
 
-// ─── Task 5: /skill:health endpoint must not expose sensitive fields ───────────────
+// ─── Task 5: /health endpoint must not expose sensitive fields ───────────────
 
-describe('/skill:health endpoint security', () => {
+describe('/health endpoint security', () => {
   it('must not expose currentMessage', () => {
-    const block = sliceBetween(SERVER_SRC, "url.pathname === '/skill:health'", "url.pathname === '/refs'");
+    const block = sliceBetween(SERVER_SRC, "url.pathname === '/health'", "url.pathname === '/refs'");
     expect(block).not.toContain('currentMessage');
   });
   it('must not expose currentUrl', () => {
-    const block = sliceBetween(SERVER_SRC, "url.pathname === '/skill:health'", "url.pathname === '/refs'");
+    const block = sliceBetween(SERVER_SRC, "url.pathname === '/health'", "url.pathname === '/refs'");
     expect(block).not.toContain('currentUrl');
   });
 });
