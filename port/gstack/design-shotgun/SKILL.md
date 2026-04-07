@@ -397,7 +397,7 @@ visual brainstorming, not a review process.
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 D=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/design/dist/design" ] && D="$_ROOT/.pi/skills/gstack/design/dist/design"
-[ -z "$D" ] && D=undefined/design
+[ -z "$D" ] && D=~/.pi/agent/skills/gstack/design/dist/design
 if [ -x "$D" ]; then
   echo "DESIGN_READY: $D"
 else

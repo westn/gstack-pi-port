@@ -65,7 +65,7 @@ Discovery endpoint listing active workspaces.
 ```
 
 The Chrome extension auto-selects a workspace by matching the browse server's git repo
-(from `/health` response) to a workspace's directory or name.
+(from `/skill:health` response) to a workspace's directory or name.
 
 ## Security
 

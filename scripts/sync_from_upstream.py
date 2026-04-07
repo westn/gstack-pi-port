@@ -66,6 +66,7 @@ PATH_REPLACEMENTS = [
 PHRASE_REPLACEMENTS = [
     ("AskUserQuestion", "ask the user in chat"),
     ("Claude Code", "pi"),
+    ("claude -p", "pi --mode json -p"),
     ("Claude:", "Agent:"),
     ("docs.anthropic.com/en/docs/claude-code", "www.npmjs.com/package/@mariozechner/pi-coding-agent"),
     (
@@ -188,6 +189,10 @@ PHRASE_REPLACEMENTS = [
     ),
     (
         'echo "ping" | claude -p --max-turns 1 --output-format stream-json --verbose --dangerously-skip-permissions',
+        'echo "ping" | pi --no-session --no-tools --mode text -p',
+    ),
+    (
+        'echo "ping" | pi --mode json -p --max-turns 1 --output-format stream-json --verbose --dangerously-skip-permissions',
         'echo "ping" | pi --no-session --no-tools --mode text -p',
     ),
     (
@@ -832,6 +837,11 @@ def verify_port_quality() -> None:
         "Spawn real Claude session",
     ]
 
+    allowed_stale_phrases_by_path = {
+        # Research doc quoting Slate's literal CLI flag names.
+        "docs/designs/SLATE_HOST.md": {"--output-format stream-json"},
+    }
+
     findings: list[str] = []
     bare_command_findings: list[str] = []
 
@@ -845,7 +855,10 @@ def verify_port_quality() -> None:
 
         content = path.read_text(encoding="utf-8")
 
+        allowed_for_path = allowed_stale_phrases_by_path.get(rel, set())
         for phrase in stale_phrases:
+            if phrase in allowed_for_path:
+                continue
             if phrase in content:
                 findings.append(f"{rel}: contains stale phrase '{phrase}'")
 

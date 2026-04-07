@@ -450,7 +450,7 @@ If `fly.toml` detected:
 3. If installed, verify: `fly status --app {app} 2>/dev/null`
 4. Infer URL: `https://{app}.fly.dev`
 5. Set deploy status command: `fly status --app {app}`
-6. Set health check: `https://{app}.fly.dev` (or `/health` if the app has one)
+6. Set health check: `https://{app}.fly.dev` (or `/skill:health` if the app has one)
 
 Ask the user to confirm the production URL. Some Fly apps use custom domains.
 
@@ -509,7 +509,7 @@ Use ask the user in chat to gather the information:
 2. **What's the production URL?** (Free text — the URL where the app runs)
 
 3. **How can gstack check if a deploy succeeded?**
-   - A) HTTP health check at a specific URL (e.g., /health, /api/status)
+   - A) HTTP health check at a specific URL (e.g., /skill:health, /api/status)
    - B) CLI command (e.g., `fly status`, `kubectl rollout status`)
    - C) Check the GitHub Actions workflow status
    - D) No automated way — just check the URL loads

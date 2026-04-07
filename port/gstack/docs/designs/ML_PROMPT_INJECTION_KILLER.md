@@ -277,8 +277,8 @@ Add to sidebar header:
 - Yellow shield: degraded (model not loaded, regex-only)
 - Red shield: inactive (security module error)
 
-Implementation: add security state to existing `/health` endpoint (don't create a
-new `/security-status` endpoint). Sidepanel polls `/health` and reads the security field.
+Implementation: add security state to existing `/skill:health` endpoint (don't create a
+new `/security-status` endpoint). Sidepanel polls `/skill:health` and reads the security field.
 
 ## BrowseSafe-Bench Red Team Harness
 
@@ -427,7 +427,7 @@ apply to this ML classifier PR:
 - [ ] Add canary checking to sidebar-agent.ts output stream
 - [ ] Add shield icon to sidepanel.js
 - [ ] Add blocking message UI to sidepanel.js
-- [ ] Add security state to /health endpoint
+- [ ] Add security state to /skill:health endpoint
 - [ ] Implement special telemetry (ask the user in chat on detection)
 - [ ] Create browse/test/security.test.ts (unit + adversarial)
 - [ ] Create browse/test/security-bench.test.ts (BrowseSafe-Bench harness)

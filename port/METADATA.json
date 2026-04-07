@@ -2,12 +2,12 @@
   "upstream": {
     "repo": "https://github.com/garrytan/gstack.git",
     "branch": "main",
-    "commit": "a1a933614cda44839f8f3f94f3a30fdb864cb134",
-    "version": "0.14.2.0"
+    "commit": "6cc094cd4190e3fac65b69fb29e0c3cae7e0f214",
+    "version": "0.15.15.1"
   },
-  "generatedAt": "2026-03-30T20:07:30.490515+00:00",
+  "generatedAt": "2026-04-07T04:56:54.442445+00:00",
   "portDir": "port/gstack",
-  "changedFiles": 245,
+  "changedFiles": 341,
   "transformRules": {
     "pathReplacements": [
       [
@@ -89,6 +89,10 @@
       [
         "Claude Code",
         "pi"
+      ],
+      [
+        "claude -p",
+        "pi --mode json -p"
       ],
       [
         "Claude:",
@@ -252,6 +256,10 @@
       ],
       [
         "echo \"ping\" | claude -p --max-turns 1 --output-format stream-json --verbose --dangerously-skip-permissions",
+        "echo \"ping\" | pi --no-session --no-tools --mode text -p"
+      ],
+      [
+        "echo \"ping\" | pi --mode json -p --max-turns 1 --output-format stream-json --verbose --dangerously-skip-permissions",
         "echo \"ping\" | pi --no-session --no-tools --mode text -p"
       ],
       [
@@ -421,17 +429,23 @@
       "benchmark",
       "canary",
       "careful",
+      "checkpoint",
       "codex",
       "connect-chrome",
       "cso",
       "design-html",
       "design-shotgun",
+      "devex-review",
       "freeze",
       "guard",
+      "health",
       "investigate",
       "land-and-deploy",
       "learn",
       "office-hours",
+      "open-gstack-browser",
+      "pair-agent",
+      "plan-devex-review",
       "setup-deploy",
       "unfreeze"
     ],
