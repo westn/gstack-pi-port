@@ -42,6 +42,10 @@ DEFAULT_SKILL_COMMANDS = [
     "document-release",
 ]
 
+DEPRECATED_SKILL_ALIASES = {
+    "connect-chrome": "open-gstack-browser",
+}
+
 # Filled dynamically from upstream skill folders in main().
 SKILL_COMMANDS: list[str] = list(DEFAULT_SKILL_COMMANDS)
 
@@ -423,14 +427,18 @@ def discover_skill_commands() -> list[str]:
     """Discover slash-command skills from upstream folders.
 
     This keeps command normalization resilient when upstream adds new skills.
+    Deprecated aliases are intentionally excluded from the Pi port.
     """
     commands = set(DEFAULT_SKILL_COMMANDS)
 
     for marker in ("SKILL.md", "SKILL.md.tmpl"):
         for path in UPSTREAM_DIR.glob(f"*/{marker}"):
             name = path.parent.name
-            if name and name != "node_modules":
-                commands.add(name)
+            if not name or name == "node_modules":
+                continue
+            if name in DEPRECATED_SKILL_ALIASES:
+                continue
+            commands.add(name)
 
     preferred = [cmd for cmd in DEFAULT_SKILL_COMMANDS if cmd in commands]
     extras = sorted(cmd for cmd in commands if cmd not in DEFAULT_SKILL_COMMANDS)
@@ -465,6 +473,14 @@ def normalize_pi_wording(text: str) -> str:
 
     for old, new in wording_replacements:
         updated = updated.replace(old, new)
+
+    for deprecated, replacement in DEPRECATED_SKILL_ALIASES.items():
+        updated = updated.replace(f"/skill:{deprecated}", f"/skill:{replacement}")
+        updated = updated.replace(f"/{deprecated}", f"/skill:{replacement}")
+        updated = updated.replace(
+            f"├── {deprecated}/  # symlink → {replacement} (backwards compat)\n",
+            "",
+        )
 
     return updated
 
@@ -629,6 +645,27 @@ def copy_upstream() -> None:
         return ignored
 
     shutil.copytree(UPSTREAM_DIR, PORT_DIR, ignore=ignore)
+
+
+def remove_deprecated_skill_dirs() -> int:
+    removed = 0
+
+    for deprecated, replacement in DEPRECATED_SKILL_ALIASES.items():
+        paths = [
+            PORT_DIR / deprecated,
+            PORT_DIR / ".agents" / "skills" / f"gstack-{deprecated}",
+        ]
+        for path in paths:
+            if not path.exists():
+                continue
+            if path.is_dir() and not path.is_symlink():
+                shutil.rmtree(path)
+            else:
+                path.unlink()
+            removed += 1
+            print(f"Pruned deprecated skill artifact: {path.relative_to(REPO_ROOT)} -> {replacement}")
+
+    return removed
 
 
 def transform_port_tree() -> int:
@@ -834,6 +871,9 @@ def verify_port_quality() -> None:
         "call ask the user in chat",
         "/{skill-name}",
         "/{skill}",
+        "/skill:connect-chrome",
+        "/connect-chrome",
+        "gstack-connect-chrome",
         # Contributor/eval harness should stay pi-native and model-agnostic.
         "claude -p",
         "Anthropic API",
@@ -852,6 +892,17 @@ def verify_port_quality() -> None:
 
     findings: list[str] = []
     bare_command_findings: list[str] = []
+
+    for deprecated in DEPRECATED_SKILL_ALIASES:
+        deprecated_paths = [
+            PORT_DIR / deprecated,
+            PORT_DIR / ".agents" / "skills" / f"gstack-{deprecated}",
+        ]
+        for deprecated_path in deprecated_paths:
+            if deprecated_path.exists():
+                findings.append(
+                    f"{deprecated_path.relative_to(PORT_DIR).as_posix()}: deprecated skill artifact should not exist"
+                )
 
     for path in PORT_DIR.rglob("*"):
         if not path.is_file() or not is_probably_text(path):
@@ -937,7 +988,8 @@ def main() -> None:
     SKILL_COMMANDS = discover_skill_commands()
 
     copy_upstream()
-    changed_files = transform_port_tree()
+    changed_files = remove_deprecated_skill_dirs()
+    changed_files += transform_port_tree()
 
     override_count = apply_overrides()
     changed_files += override_count

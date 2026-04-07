@@ -822,11 +822,11 @@ The Chrome sidebar agent used to navigate to the wrong page when you asked it to
 
 - **Sidebar uses the real tab URL.** The Chrome extension now captures the actual page URL via `chrome.tabs.query()` and sends it to the server. Previously the sidebar agent used Playwright's stale `page.url()`, which didn't update when you navigated manually in headed mode.
 - **URL sanitization.** The extension-provided URL is validated (http/https only, control characters stripped, 2048 char limit) before being used in the Claude system prompt. Prevents prompt injection via crafted URLs.
-- **Stale sidebar agents killed on reconnect.** Each `/skill:connect-chrome` now kills leftover sidebar-agent processes before starting a new one. Old agents had stale auth tokens and would silently fail, causing the sidebar to freeze.
+- **Stale sidebar agents killed on reconnect.** Each `/skill:open-gstack-browser` now kills leftover sidebar-agent processes before starting a new one. Old agents had stale auth tokens and would silently fail, causing the sidebar to freeze.
 
 ### Added
 
-- **Pre-flight cleanup for `/skill:connect-chrome`.** Kills stale browse servers and cleans Chromium profile locks before connecting. Prevents "already connected" false positives after crashes.
+- **Pre-flight cleanup for `/skill:open-gstack-browser`.** Kills stale browse servers and cleans Chromium profile locks before connecting. Prevents "already connected" false positives after crashes.
 - **Sidebar agent test suite (36 tests).** Four layers: unit tests for URL sanitization, integration tests for server HTTP endpoints, mock-Claude round-trip tests, and E2E tests with real Claude. All free except layer 4.
 
 ## [0.12.5.1] - 2026-03-27 — Eng Review Now Tells You What to Parallelize
@@ -929,7 +929,7 @@ You can now watch Claude work in a real Chrome window and direct it from a sideb
 
 - **Chrome extension.** Toolbar badge (green=connected, gray=not), Side Panel with activity feed + chat + refs tab, @ref overlays on the page, and a connection pill showing which window gstack controls. Auto-loads when you run `$B connect`.
 
-- **`/skill:connect-chrome` skill.** Guided setup: launches Chrome, verifies the extension, demos the activity feed, and introduces the sidebar chat.
+- **`/skill:open-gstack-browser` skill.** Guided setup: launches Chrome, verifies the extension, demos the activity feed, and introduces the sidebar chat.
 
 ### Changed
 

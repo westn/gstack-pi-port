@@ -47,4 +47,19 @@ describe('pi host port integration', () => {
     expect(installScript).toContain('skill_frontmatter_name');
     expect(installScript).toContain('Skipped alias sub-skills for pi discovery');
   });
+
+  test('deprecated connect-chrome skill is removed from the pi port', () => {
+    expect(fs.existsSync(path.join(ROOT, 'connect-chrome'))).toBe(false);
+
+    const readme = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf-8');
+    const agents = fs.readFileSync(path.join(ROOT, 'AGENTS.md'), 'utf-8');
+    const claude = fs.readFileSync(path.join(ROOT, 'CLAUDE.md'), 'utf-8');
+    const changelog = fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf-8');
+
+    expect(readme).not.toContain('/skill:connect-chrome');
+    expect(agents).not.toContain('connect-chrome/');
+    expect(claude).not.toContain('connect-chrome/');
+    expect(changelog).not.toContain('/skill:connect-chrome');
+    expect(readme).toContain('/skill:open-gstack-browser');
+  });
 });

@@ -103,7 +103,6 @@ gstack/
 ├── design-consultation/ # /skill:design-consultation skill (design system from scratch)
 ├── design-shotgun/  # /skill:design-shotgun skill (visual design exploration)
 ├── open-gstack-browser/  # /skill:open-gstack-browser skill (launch GStack Browser)
-├── connect-chrome/  # symlink → open-gstack-browser (backwards compat)
 ├── design/          # Design binary CLI (GPT Image API)
 │   ├── src/         # CLI + commands (generate, variants, compare, serve, etc.)
 │   ├── test/        # Integration tests
