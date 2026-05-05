@@ -112,7 +112,11 @@ python3 "$ROOT_DIR/scripts/sync_from_upstream.py"
 
 echo "[2/4] Verifying local update tooling..."
 python3 -m py_compile "$ROOT_DIR/scripts/sync_from_upstream.py"
+python3 -m py_compile "$ROOT_DIR/scripts/port_health.py"
 bash -n "$ROOT_DIR/scripts/install.sh"
+
+echo "      Running Pi port health checks..."
+python3 "$ROOT_DIR/scripts/port_health.py"
 
 if [[ "$RUN_TESTS" -eq 1 ]]; then
   if command -v bun >/dev/null 2>&1; then

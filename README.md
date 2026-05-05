@@ -127,6 +127,17 @@ Common variants:
 ./scripts/update.sh --skip-pi-mono-check    # bypass pi-mono freshness gate
 ```
 
+Quick health/status check:
+
+```bash
+./scripts/port_health.py                    # local snapshot + install freshness
+./scripts/port_health.py --check-upstream   # also query upstream main
+```
+
+The health check is intentionally static and repeatable: it verifies upstream/version
+parity, metadata, critical skill coverage, Pi-native skill text, host registry shape,
+and whether the global Pi install matches the checked-out port.
+
 When a new `badlogic/pi-mono` release lands, review it and advance the tracked baseline:
 
 ```bash
