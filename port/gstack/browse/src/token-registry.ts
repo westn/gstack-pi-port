@@ -40,23 +40,29 @@ export const SCOPE_READ = new Set([
   'snapshot', 'text', 'html', 'links', 'forms', 'accessibility',
   'console', 'network', 'perf', 'dialog', 'is', 'inspect',
   'url', 'tabs', 'status', 'screenshot', 'pdf', 'css', 'attrs',
+  'media', 'data',
 ]);
 
 /** Commands that modify page state or navigate */
 export const SCOPE_WRITE = new Set([
   'goto', 'back', 'forward', 'reload',
+  'load-html',
   'click', 'fill', 'select', 'hover', 'type', 'press', 'scroll', 'wait',
   'upload', 'viewport', 'newtab', 'closetab',
   'dialog-accept', 'dialog-dismiss',
+  'download', 'scrape', 'archive',
 ]);
 
-/** Dangerous commands — JS execution, credential access, browser-wide mutations */
+/** Page-level power tools — JS execution, credential access, page mutations */
 export const SCOPE_ADMIN = new Set([
   'eval', 'js', 'cookies', 'storage',
   'cookie', 'cookie-import', 'cookie-import-browser',
   'header', 'useragent',
   'style', 'cleanup', 'prettyscreenshot',
-  // Browser-wide destructive commands (from Codex adversarial finding):
+]);
+
+/** Browser-wide destructive commands — can kill the server, disconnect headed mode */
+export const SCOPE_CONTROL = new Set([
   'state', 'handoff', 'resume', 'stop', 'restart', 'connect', 'disconnect',
 ]);
 
@@ -66,12 +72,13 @@ export const SCOPE_META = new Set([
   'watch', 'inbox', 'focus',
 ]);
 
-export type ScopeCategory = 'read' | 'write' | 'admin' | 'meta';
+export type ScopeCategory = 'read' | 'write' | 'admin' | 'meta' | 'control';
 
 const SCOPE_MAP: Record<ScopeCategory, Set<string>> = {
   read: SCOPE_READ,
   write: SCOPE_WRITE,
   admin: SCOPE_ADMIN,
+  control: SCOPE_CONTROL,
   meta: SCOPE_META,
 };
 
@@ -170,7 +177,7 @@ export function createToken(opts: CreateTokenOptions): TokenInfo {
   } = opts;
 
   // Validate inputs
-  const validScopes: ScopeCategory[] = ['read', 'write', 'admin', 'meta'];
+  const validScopes: ScopeCategory[] = ['read', 'write', 'admin', 'meta', 'control'];
   for (const s of scopes) {
     if (!validScopes.includes(s as ScopeCategory)) {
       throw new Error(`Invalid scope: ${s}. Valid: ${validScopes.join(', ')}`);
@@ -297,7 +304,7 @@ export function validateToken(token: string): TokenInfo | null {
       token: rootToken,
       clientId: 'root',
       type: 'session',
-      scopes: ['read', 'write', 'admin', 'meta'],
+      scopes: ['read', 'write', 'admin', 'meta', 'control'],
       tabPolicy: 'shared',
       rateLimit: 0, // unlimited
       expiresAt: null,
@@ -466,10 +473,18 @@ export function restoreRegistry(state: TokenRegistryState): void {
   }
 }
 
-// ─── Connect endpoint rate limiter (brute-force protection) ─────
+// ─── Connect endpoint rate limiter (flood protection) ─────
+//
+// Global-only cap. Setup keys are 24 random bytes (unbruteforceable), so
+// rate limiting here is not about preventing key guessing. It caps
+// bandwidth, CPU, and log-flood damage from someone who discovered the
+// ngrok URL. A legitimate pair-agent session hits /connect once, so
+// 300/min is 60x that pattern and never hit accidentally. Per-IP tracking
+// was considered and rejected: adds a bounded Map + LRU for defense
+// already adequate at the global layer.
 
 let connectAttempts: { ts: number }[] = [];
-const CONNECT_RATE_LIMIT = 3; // attempts per minute
+const CONNECT_RATE_LIMIT = 300; // attempts per minute (~5/sec average)
 const CONNECT_WINDOW_MS = 60000;
 
 export function checkConnectRateLimit(): boolean {
@@ -478,4 +493,9 @@ export function checkConnectRateLimit(): boolean {
   if (connectAttempts.length >= CONNECT_RATE_LIMIT) return false;
   connectAttempts.push({ ts: now });
   return true;
+}
+
+// Test-only reset.
+export function __resetConnectRateLimit(): void {
+  connectAttempts = [];
 }

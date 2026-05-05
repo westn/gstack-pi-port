@@ -9,6 +9,10 @@ description: |
   "open chrome", "real browser", "launch chrome", "side panel", or "control my browser".
 voice-triggers:
   - "show me the browser"
+triggers:
+  - open gstack browser
+  - launch chromium
+  - show me the browser
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -414,7 +418,7 @@ anti-bot stealth, and custom branding. You see every action in real time.
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.pi/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.pi/agent/skills/gstack/browse/dist/browse
+[ -z "$B" ] && B="$HOME/.pi/agent/skills/gstack/browse/dist/browse"
 if [ -x "$B" ]; then
   echo "READY: $B"
 else

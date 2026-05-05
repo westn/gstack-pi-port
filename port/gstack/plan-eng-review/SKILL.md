@@ -1,6 +1,7 @@
 ---
 name: plan-eng-review
 preamble-tier: 3
+interactive: true
 version: 1.0.0
 description: |
   Eng manager-mode plan review. Lock in the execution plan — architecture,
@@ -14,6 +15,10 @@ voice-triggers:
   - "technical review"
   - "plan engineering review"
 benefits-from: [office-hours]
+triggers:
+  - review architecture
+  - eng plan review
+  - check the implementation plan
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -408,6 +413,22 @@ Then write a `## GSTACK REVIEW REPORT` section to the end of the plan file:
 file you are allowed to edit in plan mode. The plan file review report is part of the
 plan's living status.
 
+## Brain Context Load
+
+Before starting this skill, search your brain for relevant context:
+
+1. Extract 2-4 keywords from the user's request (nouns, error names, file paths, technical terms).
+   Search GBrain: `gbrain search "keyword1 keyword2"`
+   Example: for "the login page is broken after deploy", search `gbrain search "login broken deploy"`
+   Search returns lines like: `[slug] Title (score: 0.85) - first line of content...`
+2. If few results, broaden to the single most specific keyword and search again.
+3. For each result page, read it: `gbrain get_page "<page_slug>"`
+   Read the top 3 pages for context.
+4. Use this brain context to inform your analysis.
+
+If GBrain is not available or returns no results, proceed without brain context.
+Any non-zero exit code from gbrain commands should be treated as a transient failure.
+
 # Plan Review Mode
 
 Review this plan thoroughly before making any code changes. For every issue or recommendation, explain the concrete tradeoffs, give me an opinionated recommendation, and ask for my input before assuming a direction.
@@ -421,7 +442,7 @@ If the user asks you to compress or the system triggers context compaction: Step
 * I want code that's "engineered enough" — not under-engineered (fragile, hacky) and not over-engineered (premature abstraction, unnecessary complexity).
 * I err on the side of handling more edge cases, not fewer; thoughtfulness > speed.
 * Bias toward explicit over clever.
-* Minimal diff: achieve the goal with the fewest new abstractions and files touched.
+* Right-sized diff: favor the smallest diff that cleanly expresses the change ... but don't compress a necessary rewrite into a minimal patch. If the existing foundation is broken, say "scrap it and do this instead."
 
 ## Cognitive Patterns — How Great Eng Managers Think
 
@@ -543,7 +564,11 @@ Before reviewing anything, answer these questions:
    - How will users download or install it (GitHub Releases, package manager, container registry)?
    If the plan defers distribution, flag it explicitly in the "NOT in scope" section — don't let it silently drop.
 
-If the complexity check triggers (8+ files or 2+ new classes/services), proactively recommend scope reduction via ask the user in chat — explain what's overbuilt, propose a minimal version that achieves the core goal, and ask whether to reduce or proceed as-is. If the complexity check does not trigger, present your Step 0 findings and proceed directly to Section 1.
+If the complexity check triggers (8+ files or 2+ new classes/services), STOP before any review-section work. Call ask the user in chat: name what's overbuilt, propose a minimal version that achieves the core goal, ask whether to reduce or proceed as-is. The ask the user in chat call is a tool_use, not prose — call the tool directly. If no ask the user in chat variant is callable, follow the preamble's "Tool resolution" fallback: in plan mode, write `## Decisions to confirm` into the plan file and ExitPlanMode; outside plan mode, output the decision brief as prose and stop. Never silently auto-decide.
+
+**STOP.** Do NOT proceed to Section 1 (Architecture review), edit the plan file with a proposed scope reduction, or call ExitPlanMode until the user responds. Naming the 80% solution in chat prose and continuing — or loading the ask the user in chat schema via ToolSearch and then never invoking it — is the failure mode this gate exists to prevent.
+
+If the complexity check does not trigger, present your Step 0 findings and proceed directly to Section 1.
 
 Always work through the full interactive review: one section at a time (Architecture → Code Quality → Tests → Performance) with at most 8 top issues per section.
 
@@ -602,7 +627,9 @@ Evaluate:
 * For each new codepath or integration point, describe one realistic production failure scenario and whether the plan accounts for it.
 * **Distribution architecture:** If this introduces a new artifact (binary, package, container), how does it get built, published, and updated? Is the CI/CD pipeline part of the plan or deferred?
 
-**STOP.** For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Only proceed to the next section after ALL issues in this section are resolved.
+For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Use the preamble's ask the user in chat Format section. The ask the user in chat call is a tool_use, not prose — call the tool directly. If no ask the user in chat variant is callable in this session, follow the preamble's "Tool resolution" fallback: in plan mode, write `## Decisions to confirm` into the plan file and ExitPlanMode; outside plan mode, output the decision brief as prose and stop. Never silently auto-decide.
+
+**STOP.** Do NOT proceed to the next review section, edit the plan file with the proposed fix, or call ExitPlanMode until the user responds. An issue with an "obvious fix" is still an issue and still needs explicit user approval before it lands in the plan. Loading the ask the user in chat schema via ToolSearch and then writing the recommendation as chat prose is the failure mode this gate exists to prevent.
 
 ## Confidence Calibration
 
@@ -638,7 +665,9 @@ Evaluate:
 * Areas that are over-engineered or under-engineered relative to my preferences.
 * Existing ASCII diagrams in touched files — are they still accurate after this change?
 
-**STOP.** For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Only proceed to the next section after ALL issues in this section are resolved.
+For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Use the preamble's ask the user in chat Format section. The ask the user in chat call is a tool_use, not prose — call the tool directly. If no ask the user in chat variant is callable in this session, follow the preamble's "Tool resolution" fallback: in plan mode, write `## Decisions to confirm` into the plan file and ExitPlanMode; outside plan mode, output the decision brief as prose and stop. Never silently auto-decide.
+
+**STOP.** Do NOT proceed to the next review section, edit the plan file with the proposed fix, or call ExitPlanMode until the user responds. An issue with an "obvious fix" is still an issue and still needs explicit user approval before it lands in the plan. Loading the ask the user in chat schema via ToolSearch and then writing the recommendation as chat prose is the failure mode this gate exists to prevent.
 
 ### 3. Test review
 
@@ -842,7 +871,9 @@ This file is consumed by `/skill:qa` and `/skill:qa-only` as primary test input.
 
 For LLM/prompt changes: check the "Prompt/LLM changes" file patterns listed in AGENTS.md. If this plan touches ANY of those patterns, state which eval suites must be run, which cases should be added, and what baselines to compare against. Then ask the user to confirm the eval scope.
 
-**STOP.** For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Only proceed to the next section after ALL issues in this section are resolved.
+For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Use the preamble's ask the user in chat Format section. The ask the user in chat call is a tool_use, not prose — call the tool directly. If no ask the user in chat variant is callable in this session, follow the preamble's "Tool resolution" fallback: in plan mode, write `## Decisions to confirm` into the plan file and ExitPlanMode; outside plan mode, output the decision brief as prose and stop. Never silently auto-decide.
+
+**STOP.** Do NOT proceed to the next review section, edit the plan file with the proposed fix, or call ExitPlanMode until the user responds. An issue with an "obvious fix" is still an issue and still needs explicit user approval before it lands in the plan. Loading the ask the user in chat schema via ToolSearch and then writing the recommendation as chat prose is the failure mode this gate exists to prevent.
 
 ### 4. Performance review
 Evaluate:
@@ -851,7 +882,9 @@ Evaluate:
 * Caching opportunities.
 * Slow or high-complexity code paths.
 
-**STOP.** For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Only proceed to the next section after ALL issues in this section are resolved.
+For each issue found in this section, ask the user in chat individually. One issue per call. Present options, state your recommendation, explain WHY. Do NOT batch multiple issues into one user question in chat. Use the preamble's ask the user in chat Format section. The ask the user in chat call is a tool_use, not prose — call the tool directly. If no ask the user in chat variant is callable in this session, follow the preamble's "Tool resolution" fallback: in plan mode, write `## Decisions to confirm` into the plan file and ExitPlanMode; outside plan mode, output the decision brief as prose and stop. Never silently auto-decide.
+
+**STOP.** Do NOT proceed to the next review section, edit the plan file with the proposed fix, or call ExitPlanMode until the user responds. An issue with an "obvious fix" is still an issue and still needs explicit user approval before it lands in the plan. Loading the ask the user in chat schema via ToolSearch and then writing the recommendation as chat prose is the failure mode this gate exists to prevent.
 
 ## Outside Voice — Independent Plan Challenge (optional, recommended)
 
@@ -907,7 +940,7 @@ THE PLAN:
 ```bash
 TMPERR_PV=$(mktemp /tmp/codex-planreview-XXXXXXXX)
 _REPO_ROOT=$(git rev-parse --show-toplevel) || { echo "ERROR: not in a git repo" >&2; exit 1; }
-codex exec "<prompt>" -C "$_REPO_ROOT" -s read-only -c 'model_reasoning_effort="high"' --enable web_search_cached 2>"$TMPERR_PV"
+codex exec "<prompt>" -C "$_REPO_ROOT" -s read-only -c 'model_reasoning_effort="high"' --enable web_search_cached < /dev/null 2>"$TMPERR_PV"
 ```
 
 Use a 5-minute timeout (`timeout: 300000`). After the command completes, read stderr:
@@ -1005,7 +1038,8 @@ Follow the ask the user in chat format from the Preamble above. Additional rules
 * For each option, specify in one line: effort (human: ~X / CC: ~Y), risk, and maintenance burden. If the complete option is only marginally more effort than the shortcut with CC, recommend the complete option.
 * **Map the reasoning to my engineering preferences above.** One sentence connecting your recommendation to a specific preference (DRY, explicit > clever, minimal diff, etc.).
 * Label with issue NUMBER + option LETTER (e.g., "3A", "3B").
-* **Escape hatch:** If a section has no issues, say so and move on. If an issue has an obvious fix with no real alternatives, state what you'll do and move on — don't waste a question on it. Only ask the user in chat when there is a genuine decision with meaningful tradeoffs.
+* **Coverage vs kind:** for every per-issue ask the user in chat you raise in this review, decide whether the options differ in coverage or in kind. If coverage (e.g., more tests vs fewer, complete error handling vs happy-path-only, full edge-case coverage vs shortcut), include `Completeness: N/10` on each option. If kind (e.g., architectural choice between two different systems, posture-over-posture, A/B/C where each is a different kind of thing), skip the score and add one line: `Note: options differ in kind, not coverage — no completeness score.` Do NOT fabricate scores on kind-differentiated questions — filler scores are worse than no score.
+* **Escape hatch (tightened):** If a section has zero findings, state "No issues, moving on" and proceed. If it has findings, ask the user in chat for each — a finding with an "obvious fix" is still a finding and still needs user approval before any change lands in the plan. Only skip ask the user in chat when the decision is genuinely trivial (e.g., a typo fix) AND there are no meaningful alternatives. When in doubt, ask.
 
 ## Required outputs
 
@@ -1262,6 +1296,29 @@ staleness detection: if those files are later deleted, the learning can be flagg
 
 **Only log genuine discoveries.** Don't log obvious things. Don't log things the user
 already knows. A good test: would this insight save time in a future session? If yes, log it.
+
+## Save Results to Brain
+
+After completing this skill, persist the results to your brain for future reference:
+
+Save the architecture decisions as a brain page:
+```bash
+gbrain put_page --title "Eng Review: <feature name>" --tags "eng-review,<feature-slug>" <<'EOF'
+<review findings and decisions in markdown>
+EOF
+```
+
+After saving the page, extract and enrich mentioned entities: for each actual person name or company/organization name found in the output, `gbrain search "<entity name>"` to check if a page exists. If not, create a stub page:
+```bash
+gbrain put_page --title "<Person or Company Name>" --tags "entity,person" --content "Stub page. Mentioned in <skill name> output."
+```
+Only extract actual person names and company/organization names. Skip product names, section headings, technical terms, and file paths.
+
+Throttle errors appear as: exit code 1 with stderr containing "throttle", "rate limit", "capacity", or "busy". If GBrain returns a throttle or rate-limit error on any save operation, defer the save and move on. The brain is busy — the content is not lost, just not persisted this run. Any other non-zero exit code should also be treated as a transient failure.
+
+Add backlinks to related brain pages if they exist. If GBrain is not available, skip this step.
+
+After brain operations complete, note in your completion output: how many pages were found in the initial search, how many entities were enriched, and whether any operations were throttled. This helps the user see brain utilization over time.
 
 ## Next Steps — Review Chaining
 

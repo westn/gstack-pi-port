@@ -10,6 +10,10 @@ description: |
   Use when asked to "audit the design", "visual QA", "check if it looks good", or "design polish".
   Proactively suggest when the user mentions visual inconsistencies or
   wants to polish the look of a live site. (gstack)
+triggers:
+  - visual design audit
+  - design qa
+  - fix design issues
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -404,6 +408,22 @@ Then write a `## GSTACK REVIEW REPORT` section to the end of the plan file:
 file you are allowed to edit in plan mode. The plan file review report is part of the
 plan's living status.
 
+## Brain Context Load
+
+Before starting this skill, search your brain for relevant context:
+
+1. Extract 2-4 keywords from the user's request (nouns, error names, file paths, technical terms).
+   Search GBrain: `gbrain search "keyword1 keyword2"`
+   Example: for "the login page is broken after deploy", search `gbrain search "login broken deploy"`
+   Search returns lines like: `[slug] Title (score: 0.85) - first line of content...`
+2. If few results, broaden to the single most specific keyword and search again.
+3. For each result page, read it: `gbrain get_page "<page_slug>"`
+   Read the top 3 pages for context.
+4. Use this brain context to inform your analysis.
+
+If GBrain is not available or returns no results, proceed without brain context.
+Any non-zero exit code from gbrain commands should be treated as a transient failure.
+
 # /skill:design-review: Design Audit → Fix → Verify
 
 You are a senior product designer AND a frontend engineer. Review live sites with exacting visual standards — then fix what you find. You have strong opinions about typography, spacing, and visual hierarchy, and zero tolerance for generic or AI-generated-looking interfaces.
@@ -459,7 +479,7 @@ After the user chooses, execute their choice (commit or stash), then continue wi
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.pi/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.pi/agent/skills/gstack/browse/dist/browse
+[ -z "$B" ] && B="$HOME/.pi/agent/skills/gstack/browse/dist/browse"
 if [ -x "$B" ]; then
   echo "READY: $B"
 else
@@ -653,7 +673,7 @@ Only commit if there are changes. Stage all bootstrap files (config, test direct
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 D=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/design/dist/design" ] && D="$_ROOT/.pi/skills/gstack/design/dist/design"
-[ -z "$D" ] && D=~/.pi/agent/skills/gstack/design/dist/design
+[ -z "$D" ] && D="$HOME/.pi/agent/skills/gstack/design/dist/design"
 if [ -x "$D" ]; then
   echo "DESIGN_READY: $D"
 else
@@ -661,7 +681,7 @@ else
 fi
 B=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.pi/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.pi/agent/skills/gstack/browse/dist/browse
+[ -z "$B" ] && B="$HOME/.pi/agent/skills/gstack/browse/dist/browse"
 if [ -x "$B" ]; then
   echo "BROWSE_READY: $B"
 else
@@ -698,7 +718,7 @@ If `DESIGN_NOT_AVAILABLE`: skip mockup generation — the fix loop works without
 
 ```bash
 eval "$(~/.pi/agent/skills/gstack/bin/gstack-slug 2>/dev/null)"
-REPORT_DIR=~/.gstack/projects/$SLUG/designs/design-audit-$(date +%Y%m%d)
+REPORT_DIR="$HOME/.gstack/projects/$SLUG/designs/design-audit-$(date +%Y%m%d)"
 mkdir -p "$REPORT_DIR/screenshots"
 echo "REPORT_DIR: $REPORT_DIR"
 ```
@@ -743,6 +763,91 @@ matches a past learning, display:
 This makes the compounding visible. The user should see that gstack is getting
 smarter on their codebase over time.
 
+## UX Principles: How Users Actually Behave
+
+These principles govern how real humans interact with interfaces. They are observed
+behavior, not preferences. Apply them before, during, and after every design decision.
+
+### The Three Laws of Usability
+
+1. **Don't make me think.** Every page should be self-evident. If a user stops
+   to think "What do I click?" or "What does this mean?", the design has failed.
+   Self-evident > self-explanatory > requires explanation.
+
+2. **Clicks don't matter, thinking does.** Three mindless, unambiguous clicks
+   beat one click that requires thought. Each step should feel like an obvious
+   choice (animal, vegetable, or mineral), not a puzzle.
+
+3. **Omit, then omit again.** Get rid of half the words on each page, then get
+   rid of half of what's left. Happy talk (self-congratulatory text) must die.
+   Instructions must die. If they need reading, the design has failed.
+
+### How Users Actually Behave
+
+- **Users scan, they don't read.** Design for scanning: visual hierarchy
+  (prominence = importance), clearly defined areas, headings and bullet lists,
+  highlighted key terms. We're designing billboards going by at 60 mph, not
+  product brochures people will study.
+- **Users satisfice.** They pick the first reasonable option, not the best.
+  Make the right choice the most visible choice.
+- **Users muddle through.** They don't figure out how things work. They wing
+  it. If they accomplish their goal by accident, they won't seek the "right" way.
+  Once they find something that works, no matter how badly, they stick to it.
+- **Users don't read instructions.** They dive in. Guidance must be brief,
+  timely, and unavoidable, or it won't be seen.
+
+### Billboard Design for Interfaces
+
+- **Use conventions.** Logo top-left, nav top/left, search = magnifying glass.
+  Don't innovate on navigation to be clever. Innovate when you KNOW you have a
+  better idea, otherwise use conventions. Even across languages and cultures,
+  web conventions let people identify the logo, nav, search, and main content.
+- **Visual hierarchy is everything.** Related things are visually grouped. Nested
+  things are visually contained. More important = more prominent. If everything
+  shouts, nothing is heard. Start with the assumption everything is visual noise,
+  guilty until proven innocent.
+- **Make clickable things obviously clickable.** No relying on hover states for
+  discoverability, especially on mobile where hover doesn't exist. Shape, location,
+  and formatting (color, underlining) must signal clickability without interaction.
+- **Eliminate noise.** Three sources: too many things shouting for attention
+  (shouting), things not organized logically (disorganization), and too much stuff
+  (clutter). Fix noise by removal, not addition.
+- **Clarity trumps consistency.** If making something significantly clearer
+  requires making it slightly inconsistent, choose clarity every time.
+
+### Navigation as Wayfinding
+
+Users on the web have no sense of scale, direction, or location. Navigation
+must always answer: What site is this? What page am I on? What are the major
+sections? What are my options at this level? Where am I? How can I search?
+
+Persistent navigation on every page. Breadcrumbs for deep hierarchies.
+Current section visually indicated. The "trunk test": cover everything except
+the navigation. You should still know what site this is, what page you're on,
+and what the major sections are. If not, the navigation has failed.
+
+### The Goodwill Reservoir
+
+Users start with a reservoir of goodwill. Every friction point depletes it.
+
+**Deplete faster:** Hiding info users want (pricing, contact, shipping). Punishing
+users for not doing things your way (formatting requirements on phone numbers).
+Asking for unnecessary information. Putting sizzle in their way (splash screens,
+forced tours, interstitials). Unprofessional or sloppy appearance.
+
+**Replenish:** Know what users want to do and make it obvious. Tell them what they
+want to know upfront. Save them steps wherever possible. Make it easy to recover
+from errors. When in doubt, apologize.
+
+### Mobile: Same Rules, Higher Stakes
+
+All the above applies on mobile, just more so. Real estate is scarce, but never
+sacrifice usability for space savings. Affordances must be VISIBLE: no cursor
+means no hover-to-discover. Touch targets must be big enough (44px minimum).
+Flat design can strip away useful visual information that signals interactivity.
+Prioritize ruthlessly: things needed in a hurry go close at hand, everything
+else a few taps away with an obvious path to get there.
+
 ## Phases 1-6: Design Audit Baseline
 
 ## Modes
@@ -777,8 +882,12 @@ The most uniquely designer-like output. Form a gut reaction before analyzing any
 3. Write the **First Impression** using this structured critique format:
    - "The site communicates **[what]**." (what it says at a glance — competence? playfulness? confusion?)
    - "I notice **[observation]**." (what stands out, positive or negative — be specific)
-   - "The first 3 things my eye goes to are: **[1]**, **[2]**, **[3]**." (hierarchy check — are these intentional?)
+   - "The first 3 things my eye goes to are: **[1]**, **[2]**, **[3]**." (hierarchy check — are these the 3 things the designer intended? If not, the visual hierarchy is lying.)
    - "If I had to describe this in one word: **[word]**." (gut verdict)
+
+**Narration mode:** Write this section in first person, as if you are a user scanning the page for the first time. "I'm looking at this page... my eye goes to the logo, then a wall of text I skip entirely, then... wait, is that a button?" Name the specific element, its position, its visual weight. If you can't name it specifically, you're not actually scanning, you're generating platitudes.
+
+**Page Area Test:** Point at each clearly defined area of the page. Can you instantly name its purpose? ("Things I can buy," "Today's deals," "How to search.") Areas you can't name in 2 seconds are poorly defined. List them.
 
 This is the section users read first. Be opinionated. A designer doesn't hedge — they react.
 
@@ -834,6 +943,19 @@ After the first navigation, check if the URL changed to a login-like path:
 $B url
 ```
 If URL contains `/login`, `/signin`, `/auth`, or `/sso`: the site requires authentication. ask the user in chat: "This site requires authentication. Want to import cookies from your browser? Run `/skill:setup-browser-cookies` first if needed."
+
+### Trunk Test (run on every page)
+
+Imagine being dropped on this page with no context. Can you immediately answer:
+1. What site is this? (Site ID visible and identifiable)
+2. What page am I on? (Page name prominent, matches what I clicked)
+3. What are the major sections? (Primary nav visible and clear)
+4. What are my options at this level? (Local nav or content choices obvious)
+5. Where am I in the scheme of things? ("You are here" indicator, breadcrumbs)
+6. How can I search? (Search box findable without hunting)
+
+Score: PASS (all 6 clear) / PARTIAL (4-5 clear) / FAIL (3 or fewer clear).
+A FAIL on the trunk test is a HIGH-impact finding regardless of how polished the visual design is.
 
 ### Design Audit Checklist (10 categories, ~80 items)
 
@@ -903,6 +1025,7 @@ Apply these at each page. Each finding gets an impact rating (high/medium/polish
 - Success: confirmation animation or color, auto-dismiss
 - Touch targets >= 44px on all interactive elements
 - `cursor: pointer` on all clickable elements
+- Mindless choice audit: every decision point (button, link, dropdown, modal choice) is a mindless click (obvious what happens). If a click requires thought about whether it's the right choice, flag as HIGH.
 
 **6. Responsive Design** (8 items)
 - Mobile layout makes *design* sense (not just stacked desktop columns)
@@ -931,6 +1054,9 @@ Apply these at each page. Each finding gets an impact rating (high/medium/polish
 - Active voice ("Install the CLI" not "The CLI will be installed")
 - Loading states end with `…` ("Saving…" not "Saving...")
 - Destructive actions have confirmation modal or undo window
+- Happy talk detection: scan for introductory paragraphs that start with "Welcome to..." or tell users how great the site is. If you can hear "blah blah blah", it's happy talk. Flag for removal.
+- Instructions detection: any visible instructions longer than one sentence. If users need to read instructions, the design has failed. Flag the instructions AND the interaction they're compensating for.
+- Happy talk word count: count total visible words on the page. Classify each text block as "useful content" vs "happy talk" (welcome paragraphs, self-congratulatory text, instructions nobody reads). Report: "This page has X words. Y (Z%) are happy talk."
 
 **9. AI Slop Detection** (10 anti-patterns — the blacklist)
 
@@ -946,6 +1072,7 @@ The test: would a human designer at a respected studio ever ship this?
 - Colored left-border on cards (`border-left: 3px solid <accent>`)
 - Generic hero copy ("Welcome to [X]", "Unlock the power of...", "Your all-in-one solution for...")
 - Cookie-cutter section rhythm (hero → 3 features → testimonials → pricing → CTA, every section same height)
+- system-ui or `-apple-system` as the PRIMARY display/body font — the "I gave up on typography" signal. Pick a real typeface.
 
 **10. Performance as Design** (6 items)
 - LCP < 2.0s (web apps), < 1.5s (informational sites)
@@ -972,6 +1099,43 @@ Evaluate:
 - **Transition quality:** Are transitions intentional or generic/absent?
 - **Feedback clarity:** Did the action clearly succeed or fail? Is the feedback immediate?
 - **Form polish:** Focus states visible? Validation timing correct? Errors near the source?
+
+**Narration mode:** Narrate the flow in first person. "I click 'Sign Up'... spinner appears... 3 seconds pass... still spinning... I'm getting nervous. Finally the dashboard loads, but where am I? The nav doesn't highlight anything." Name the specific element, its position, its visual weight. If you can't name it specifically, you're not actually experiencing the flow, you're generating platitudes.
+
+### Goodwill Reservoir (track across the flow)
+
+As you walk the user flow, maintain a mental goodwill meter (starts at 70/100).
+These scores are heuristic, not measured. The value is in identifying specific
+drains and fills, not in the final number.
+
+Subtract points for:
+- Hidden information the user would want (pricing, contact, shipping): subtract 15
+- Format punishment (rejecting valid input like dashes in phone numbers): subtract 10
+- Unnecessary information requests: subtract 10
+- Interstitials, splash screens, forced tours blocking the task: subtract 15
+- Sloppy or unprofessional appearance: subtract 10
+- Ambiguous choices that require thinking: subtract 5 each
+
+Add points for:
+- Top user tasks are obvious and prominent: add 10
+- Upfront about costs and limitations: add 5
+- Saves steps (direct links, smart defaults, autofill): add 5 each
+- Graceful error recovery with specific fix instructions: add 10
+- Apologizes when things go wrong: add 5
+
+Report the final goodwill score with a visual dashboard:
+
+```
+Goodwill: 70 ████████████████████░░░░░░░░░░
+  Step 1: Login page        70 → 75  (+5 obvious primary action)
+  Step 2: Dashboard          75 → 60  (-15 interstitial tour popup)
+  Step 3: Settings           60 → 50  (-10 format punishment on phone)
+  Step 4: Billing            50 → 35  (-15 hidden pricing info)
+  FINAL: 35/100 ⚠️ CRITICAL UX DEBT
+```
+
+Below 30 = critical UX debt. 30-60 = needs work. Above 60 = healthy.
+Include the biggest drains and fills as specific findings.
 
 ---
 
@@ -1130,6 +1294,10 @@ Tie everything to user goals and product objectives. Always suggest specific imp
 - One job per section
 - "If deleting 30% of the copy improves it, keep deleting"
 - Cards earn their existence — no decorative card grids
+- NEVER use small, low-contrast type (body text < 16px or contrast ratio < 4.5:1 on body text)
+- NEVER put labels inside form fields as the only label (placeholder-as-label pattern — labels must be visible when the field has content)
+- ALWAYS preserve visited vs unvisited link distinction (visited links must have a different color)
+- NEVER float headings between paragraphs (heading must be visually closer to the section it introduces than to the preceding section)
 
 **AI Slop blacklist** (the 10 patterns that scream "AI-generated"):
 1. Purple/violet/indigo gradient backgrounds or blue-to-purple color schemes
@@ -1142,6 +1310,7 @@ Tie everything to user goals and product objectives. Always suggest specific imp
 8. Colored left-border on cards (`border-left: 3px solid <accent>`)
 9. Generic hero copy ("Welcome to [X]", "Unlock the power of...", "Your all-in-one solution for...")
 10. Cookie-cutter section rhythm (hero → 3 features → testimonials → pricing → CTA, every section same height)
+11. system-ui or `-apple-system` as the PRIMARY display/body font — the "I gave up on typography" signal. Pick a real typeface.
 
 Source: [OpenAI "Designing Delightful Frontends with GPT-5.4"](https://developers.openai.com/blog/designing-delightful-frontends-with-gpt-5-4) (Mar 2026) + gstack design methodology.
 
@@ -1213,7 +1382,7 @@ HARD REJECTION — flag if ANY apply:
 6. Carousel with no narrative purpose
 7. App UI made of stacked cards instead of layout
 
-Be specific. Reference file:line for every finding." -C "$_REPO_ROOT" -s read-only -c 'model_reasoning_effort="high"' --enable web_search_cached 2>"$TMPERR_DESIGN"
+Be specific. Reference file:line for every finding." -C "$_REPO_ROOT" -s read-only -c 'model_reasoning_effort="high"' --enable web_search_cached < /dev/null 2>"$TMPERR_DESIGN"
 ```
 Use a 5-minute timeout (`timeout: 300000`). After the command completes, read stderr:
 ```bash
@@ -1433,6 +1602,29 @@ staleness detection: if those files are later deleted, the learning can be flagg
 
 **Only log genuine discoveries.** Don't log obvious things. Don't log things the user
 already knows. A good test: would this insight save time in a future session? If yes, log it.
+
+## Save Results to Brain
+
+After completing this skill, persist the results to your brain for future reference:
+
+Save the skill output as a brain page if the results are worth preserving:
+```bash
+gbrain put_page --title "<descriptive title>" --tags "<relevant,tags>" <<'EOF'
+<content in markdown>
+EOF
+```
+
+After saving the page, extract and enrich mentioned entities: for each actual person name or company/organization name found in the output, `gbrain search "<entity name>"` to check if a page exists. If not, create a stub page:
+```bash
+gbrain put_page --title "<Person or Company Name>" --tags "entity,person" --content "Stub page. Mentioned in <skill name> output."
+```
+Only extract actual person names and company/organization names. Skip product names, section headings, technical terms, and file paths.
+
+Throttle errors appear as: exit code 1 with stderr containing "throttle", "rate limit", "capacity", or "busy". If GBrain returns a throttle or rate-limit error on any save operation, defer the save and move on. The brain is busy — the content is not lost, just not persisted this run. Any other non-zero exit code should also be treated as a transient failure.
+
+Add backlinks to related brain pages if they exist. If GBrain is not available, skip this step.
+
+After brain operations complete, note in your completion output: how many pages were found in the initial search, how many entities were enriched, and whether any operations were throttled. This helps the user see brain utilization over time.
 
 ## Additional Rules (design-review specific)
 

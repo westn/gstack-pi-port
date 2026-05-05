@@ -13,6 +13,10 @@ voice-triggers:
   - "connect agent"
   - "share my browser"
   - "remote browser access"
+triggers:
+  - pair with agent
+  - connect remote agent
+  - share my browser
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -436,7 +440,7 @@ The skill will tell you if one is needed and how to set it up.
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.pi/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.pi/agent/skills/gstack/browse/dist/browse
+[ -z "$B" ] && B="$HOME/.pi/agent/skills/gstack/browse/dist/browse"
 if [ -x "$B" ]; then
   echo "READY: $B"
 else

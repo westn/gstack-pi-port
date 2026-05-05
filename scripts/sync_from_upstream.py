@@ -135,6 +135,7 @@ PHRASE_REPLACEMENTS = [
         "Want to brainstorm first with `/brainstorm`?",
         "Want to brainstorm first with `/skill:plan-ceo-review`?",
     ),
+    ("/brainstorming", "brainstorming"),
     # Keep commit trailer examples model-agnostic for pi's multi-provider support.
     (
         "Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>",
@@ -291,6 +292,10 @@ Respond with ONLY valid JSON:
 
 Scores are 1-5 overall quality.`);
 """,
+    ),
+    (
+        "Run Anthropic SDK judge on outputs for quality score\n *                                (requires ANTHROPIC_API_KEY; adds ~$0.05 per call)",
+        "Run pi-based judge on outputs for quality score\n *                                (uses configured pi provider/model; cost varies)",
     ),
     ("CLAUDE.md", "AGENTS.md"),
 ]
@@ -888,6 +893,19 @@ def verify_port_quality() -> None:
     allowed_stale_phrases_by_path = {
         # Research doc quoting Slate's literal CLI flag names.
         "docs/designs/SLATE_HOST.md": {"--output-format stream-json"},
+        # These files intentionally exercise Claude-specific provider/model support
+        # in the multi-agent upstream surface. The Pi port keeps them isolated from
+        # Pi-native docs and eval defaults.
+        "scripts/preflight-agent-sdk.ts": {"ANTHROPIC_API_KEY"},
+        "test/agent-sdk-runner.test.ts": {"ANTHROPIC_API_KEY"},
+        "test/benchmark-runner.test.ts": {"claude-sonnet-4-6"},
+        "test/fixtures/overlay-nudges.ts": {"claude-sonnet-4-6"},
+        "test/helpers/pricing.ts": {"claude-sonnet-4-6"},
+        "test/helpers/providers/claude.ts": {"ANTHROPIC_API_KEY"},
+        "test/skill-e2e-brain-privacy-gate.test.ts": {"ANTHROPIC_API_KEY"},
+        "test/skill-e2e-office-hours.test.ts": {"claude-sonnet-4-6"},
+        "test/skill-e2e-opus-47.test.ts": {"Anthropic API"},
+        "test/skill-e2e-overlay-harness.test.ts": {"ANTHROPIC_API_KEY"},
     }
 
     findings: list[str] = []

@@ -10,6 +10,12 @@ description: |
   Proactively invoke this skill (do NOT debug directly) when the user reports
   errors, 500 errors, stack traces, unexpected behavior, "it was working
   yesterday", or is troubleshooting why something stopped working. (gstack)
+triggers:
+  - debug this
+  - fix this bug
+  - why is this broken
+  - root cause analysis
+  - investigate this error
 hooks:
   PreToolUse:
     - matcher: "Edit"
@@ -22,6 +28,28 @@ hooks:
         - type: command
           command: "bash ${CLAUDE_SKILL_DIR}/../freeze/bin/check-freeze.sh"
           statusMessage: "Checking debug scope boundary..."
+gbrain:
+  schema: 1
+  context_queries:
+    - id: prior-investigations
+      kind: list
+      filter:
+        type: timeline
+        tags_contains: "repo:{repo_slug}"
+        content_contains: "investigate"
+      sort: updated_at_desc
+      limit: 5
+      render_as: "## Prior investigations in this repo"
+    - id: project-learnings
+      kind: filesystem
+      glob: "~/.gstack/projects/{repo_slug}/learnings.jsonl"
+      tail: 10
+      render_as: "## Recent learnings (patterns + pitfalls)"
+    - id: recent-eureka
+      kind: filesystem
+      glob: "~/.gstack/analytics/eureka.jsonl"
+      tail: 5
+      render_as: "## Recent eureka moments (cross-project)"
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -408,6 +436,24 @@ Fixing symptoms creates whack-a-mole debugging. Every fix that doesn't address r
 
 ---
 
+## Brain Context Load
+
+Before starting this skill, search your brain for relevant context:
+
+1. Extract 2-4 keywords from the user's request (nouns, error names, file paths, technical terms).
+   Search GBrain: `gbrain search "keyword1 keyword2"`
+   Example: for "the login page is broken after deploy", search `gbrain search "login broken deploy"`
+   Search returns lines like: `[slug] Title (score: 0.85) - first line of content...`
+2. If few results, broaden to the single most specific keyword and search again.
+3. For each result page, read it: `gbrain get_page "<page_slug>"`
+   Read the top 3 pages for context.
+4. Use this brain context to inform your analysis.
+
+If GBrain is not available or returns no results, proceed without brain context.
+Any non-zero exit code from gbrain commands should be treated as a transient failure.
+
+If the user's request is about tracking, extracting, or researching structured data (e.g., "track this data", "extract from emails", "build a tracker"), route to GBrain's data-research skill instead: `gbrain call data-research`. This skill has a 7-phase pipeline optimized for structured data extraction.
+
 ## Phase 1: Root Cause Investigation
 
 Gather context before forming any hypothesis.
@@ -423,6 +469,8 @@ Gather context before forming any hypothesis.
    Was this working before? What changed? A regression means the root cause is in the diff.
 
 4. **Reproduce:** Can you trigger the bug deterministically? If not, gather more evidence before proceeding.
+
+5. **Check investigation history:** Search prior learnings for investigations on the same files. Recurring bugs in the same area are an architectural smell. If prior investigations exist, note patterns and check if the root cause was structural.
 
 ## Prior Learnings
 
@@ -477,7 +525,8 @@ After forming your root cause hypothesis, lock edits to the affected module to p
 **If FREEZE_AVAILABLE:** Identify the narrowest directory containing the affected files. Write it to the freeze state file:
 
 ```bash
-STATE_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.gstack}"
+eval "$(~/.pi/agent/skills/gstack/bin/gstack-paths)"
+STATE_DIR="$GSTACK_STATE_ROOT"
 mkdir -p "$STATE_DIR"
 echo "<detected-directory>/" > "$STATE_DIR/freeze-dir.txt"
 echo "Debug scope locked to: <detected-directory>/"
@@ -585,6 +634,12 @@ Status:          DONE | DONE_WITH_CONCERNS | BLOCKED
 ════════════════════════════════════════
 ```
 
+Log the investigation as a learning for future sessions. Use `type: "investigation"` and include the affected files so future investigations on the same area can find this:
+
+```bash
+~/.pi/agent/skills/gstack/bin/gstack-learnings-log '{"skill":"investigate","type":"investigation","key":"ROOT_CAUSE_KEY","insight":"ROOT_CAUSE_SUMMARY","confidence":9,"source":"observed","files":["affected/file1.ts","affected/file2.ts"]}'
+```
+
 ## Capture Learnings
 
 If you discovered a non-obvious pattern, pitfall, or architectural insight during
@@ -609,6 +664,29 @@ staleness detection: if those files are later deleted, the learning can be flagg
 
 **Only log genuine discoveries.** Don't log obvious things. Don't log things the user
 already knows. A good test: would this insight save time in a future session? If yes, log it.
+
+## Save Results to Brain
+
+After completing this skill, persist the results to your brain for future reference:
+
+Save the root cause analysis as a brain page:
+```bash
+gbrain put_page --title "Investigation: <issue summary>" --tags "investigation,<affected-files>" <<'EOF'
+<investigation findings in markdown>
+EOF
+```
+
+After saving the page, extract and enrich mentioned entities: for each actual person name or company/organization name found in the output, `gbrain search "<entity name>"` to check if a page exists. If not, create a stub page:
+```bash
+gbrain put_page --title "<Person or Company Name>" --tags "entity,person" --content "Stub page. Mentioned in <skill name> output."
+```
+Only extract actual person names and company/organization names. Skip product names, section headings, technical terms, and file paths.
+
+Throttle errors appear as: exit code 1 with stderr containing "throttle", "rate limit", "capacity", or "busy". If GBrain returns a throttle or rate-limit error on any save operation, defer the save and move on. The brain is busy — the content is not lost, just not persisted this run. Any other non-zero exit code should also be treated as a transient failure.
+
+Add backlinks to related brain pages if they exist. If GBrain is not available, skip this step.
+
+After brain operations complete, note in your completion output: how many pages were found in the initial search, how many entities were enriched, and whether any operations were throttled. This helps the user see brain utilization over time.
 
 ---
 

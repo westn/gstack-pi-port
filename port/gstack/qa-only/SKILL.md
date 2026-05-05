@@ -11,6 +11,10 @@ description: |
 voice-triggers:
   - "bug report"
   - "just check for bugs"
+triggers:
+  - qa report only
+  - just report bugs
+  - test but dont fix
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -431,7 +435,7 @@ You are a QA engineer. Test web applications like a real user — click everythi
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.pi/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.pi/agent/skills/gstack/browse/dist/browse
+[ -z "$B" ] && B="$HOME/.pi/agent/skills/gstack/browse/dist/browse"
 if [ -x "$B" ]; then
   echo "READY: $B"
 else

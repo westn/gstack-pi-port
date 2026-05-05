@@ -30,7 +30,7 @@ describe('pi host port integration', () => {
   test('setup defaults to pi while preserving legacy claude alias', () => {
     const setupContent = fs.readFileSync(path.join(ROOT, 'setup'), 'utf-8');
     expect(setupContent).toContain('HOST="pi"');
-    expect(setupContent).toContain('pi|claude|codex|kiro|auto');
+    expect(setupContent).toContain('pi|claude|codex|kiro|factory|opencode|auto');
     expect(setupContent).toContain('gstack ready (pi).');
   });
 
@@ -42,8 +42,8 @@ describe('pi host port integration', () => {
   test('pi install skips alias skill dirs that would collide in discovery', () => {
     const setupContent = fs.readFileSync(path.join(ROOT, 'setup'), 'utf-8');
     const installScript = fs.readFileSync(path.join(REPO_ROOT, 'scripts', 'install.sh'), 'utf-8');
-    expect(setupContent).toContain('skill_frontmatter_name');
-    expect(setupContent).toContain('skipped alias skills for pi discovery');
+    expect(setupContent).toContain('gstack-patch-names');
+    expect(setupContent).toContain('gstack-relink');
     expect(installScript).toContain('skill_frontmatter_name');
     expect(installScript).toContain('Skipped alias sub-skills for pi discovery');
   });
@@ -56,10 +56,11 @@ describe('pi host port integration', () => {
     const claude = fs.readFileSync(path.join(ROOT, 'CLAUDE.md'), 'utf-8');
     const changelog = fs.readFileSync(path.join(ROOT, 'CHANGELOG.md'), 'utf-8');
 
-    expect(readme).not.toContain('/skill:connect-chrome');
-    expect(agents).not.toContain('connect-chrome/');
-    expect(claude).not.toContain('connect-chrome/');
-    expect(changelog).not.toContain('/skill:connect-chrome');
+    const deprecatedSkillInvocation = '/skill:' + 'connect-chrome';
+    expect(readme).not.toContain(deprecatedSkillInvocation);
+    expect(agents).not.toContain('connect-' + 'chrome/');
+    expect(claude).not.toContain('connect-' + 'chrome/');
+    expect(changelog).not.toContain(deprecatedSkillInvocation);
     expect(readme).toContain('/skill:open-gstack-browser');
   });
 });

@@ -7,6 +7,11 @@ description: |
   elements, verify state, diff before/after, take annotated screenshots, test responsive
   layouts, forms, uploads, dialogs, and capture bug evidence. Use when asked to open or
   test a site, verify a deployment, dogfood a user flow, or file a bug with screenshots. (gstack)
+triggers:
+  - browse this page
+  - take a screenshot
+  - navigate to url
+  - inspect the page
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -328,27 +333,45 @@ Use the Skill tool to invoke it. The skill has specialized workflows, checklists
 quality gates that produce better results than answering inline.
 
 **Routing rules — when you see these patterns, INVOKE the skill via the Skill tool:**
-- User describes a new idea, asks "is this worth building", wants to brainstorm → invoke `/skill:office-hours`
-- User asks about strategy, scope, ambition, "think bigger" → invoke `/skill:plan-ceo-review`
-- User asks to review architecture, lock in the plan → invoke `/skill:plan-eng-review`
-- User asks about design system, brand, visual identity → invoke `/skill:design-consultation`
+- User describes a new idea, asks "is this worth building", brainstorms, pitches a concept → invoke `/skill:office-hours`
+- User asks about strategy, scope, ambition, "think bigger", "what should we build" → invoke `/skill:plan-ceo-review`
+- User asks to review architecture, lock in the plan, "does this design make sense" → invoke `/skill:plan-eng-review`
+- User asks about design system, brand, visual identity, "how should this look" → invoke `/skill:design-consultation`
 - User asks to review design of a plan → invoke `/skill:plan-design-review`
-- User wants all reviews done automatically → invoke `/skill:autoplan`
-- User reports a bug, error, broken behavior, asks "why is this broken" → invoke `/skill:investigate`
-- User asks to test the site, find bugs, QA → invoke `/skill:qa`
-- User asks to review code, check the diff, pre-landing review → invoke `/skill:review`
-- User asks about visual polish, design audit of a live site → invoke `/skill:design-review`
-- User asks to ship, deploy, push, create a PR → invoke `/skill:ship`
+- User asks about developer experience of a plan, API/CLI/SDK design → invoke `/skill:plan-devex-review`
+- User wants all reviews done automatically, "review everything" → invoke `/skill:autoplan`
+- User reports a bug, error, broken behavior, "why is this broken", "this doesn't work", "wtf", "something's wrong" → invoke `/skill:investigate`
+- User asks to test the site, find bugs, QA, "does this work", "check the deploy" → invoke `/skill:qa`
+- User asks to just report bugs without fixing → invoke `/skill:qa-only`
+- User asks to review code, check the diff, pre-landing review, "look at my changes" → invoke `/skill:review`
+- User asks about visual polish, design audit of a live site, "this looks off" → invoke `/skill:design-review`
+- User asks to audit the live developer experience, time-to-hello-world → invoke `/skill:devex-review`
+- User asks to ship, deploy, push, create a PR, "let's land this", "send it" → invoke `/skill:ship`
+- User asks to merge + deploy + verify as one flow → invoke `/skill:land-and-deploy`
+- User asks to configure deployment for the project → invoke `/skill:setup-deploy`
+- User asks to monitor prod after shipping, post-deploy checks → invoke `/skill:canary`
 - User asks to update docs after shipping → invoke `/skill:document-release`
-- User asks for a weekly retro, what did we ship → invoke `/skill:retro`
+- User asks for a weekly retro, what did we ship, "how'd we do" → invoke `/skill:retro`
 - User asks for a second opinion, codex review → invoke `/skill:codex`
 - User asks for safety mode, careful mode → invoke `/skill:careful` or `/skill:guard`
 - User asks to restrict edits to a directory → invoke `/skill:freeze` or `/skill:unfreeze`
 - User asks to upgrade gstack → invoke `/skill:gstack-upgrade`
+- User asks to save progress, checkpoint, "save my work" → invoke `/skill:context-save`
+- User asks to resume, restore, "where was I" → invoke `/skill:context-restore`
+- User asks about security, OWASP, vulnerabilities, "is this secure" → invoke `/skill:cso`
+- User asks to make a PDF, document, publication → invoke `/skill:make-pdf`
+- User asks to launch a real browser for QA, "open the browser" → invoke `/skill:open-gstack-browser`
+- User asks to import cookies for authenticated testing → invoke `/skill:setup-browser-cookies`
+- User asks about page speed, performance regression, benchmarks → invoke `/skill:benchmark`
+- User asks what gstack has learned, "show learnings" → invoke `/skill:learn`
+- User asks to tune question sensitivity, "stop asking me that" → invoke `/skill:plan-tune`
+- User asks for code quality dashboard, "health check" → invoke `/skill:health`
 
-**Do NOT answer the user's question directly when a matching skill exists.** The skill
-provides a structured, multi-step workflow that is always better than an ad-hoc answer.
-Invoke the skill first. If no skill matches, answer directly as usual.
+**When in doubt, invoke the skill.** A false positive (invoking a skill that wasn't
+needed) is cheaper than a false negative (answering ad-hoc when a structured workflow
+exists). The skill provides multi-step workflows, checklists, and quality gates that
+always produce better results than an ad-hoc answer. If no skill matches, answer
+directly as usual.
 
 If the user opts out of suggestions, run `gstack-config set proactive false`.
 If they opt back in, run `gstack-config set proactive true`.
@@ -364,7 +387,7 @@ Auto-shuts down after 30 min idle. State persists between calls (cookies, tabs, 
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.pi/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.pi/agent/skills/gstack/browse/dist/browse
+[ -z "$B" ] && B="$HOME/.pi/agent/skills/gstack/browse/dist/browse"
 if [ -x "$B" ]; then
   echo "READY: $B"
 else
@@ -654,7 +677,8 @@ Refs are invalidated on navigation — run `snapshot` again after `goto`.
 |---------|-------------|
 | `back` | History back |
 | `forward` | History forward |
-| `goto <url>` | Navigate to URL |
+| `goto <url>` | Navigate to URL (http://, https://, or file:// scoped to cwd/TEMP_DIR) |
+| `load-html <file> [--wait-until load|domcontentloaded|networkidle] [--tab-id <N>]  |  load-html --from-file <payload.json> [--tab-id <N>]` | Load HTML via setContent. Accepts a file path under safe-dirs (validated), OR --from-file <payload.json> with {"html":"...","waitUntil":"..."} for large inline HTML (Windows argv safe). |
 | `reload` | Reload page |
 | `url` | Print current URL |
 
@@ -671,10 +695,19 @@ Refs are invalidated on navigation — run `snapshot` again after `goto`.
 | Command | Description |
 |---------|-------------|
 | `accessibility` | Full ARIA tree |
+| `data [--jsonld|--og|--meta|--twitter]` | Structured data: JSON-LD, Open Graph, Twitter Cards, meta tags |
 | `forms` | Form fields as JSON |
 | `html [selector]` | innerHTML of selector (throws if not found), or full page HTML if no selector given |
 | `links` | All links as "text → href" |
+| `media [--images|--videos|--audio] [selector]` | All media elements (images, videos, audio) with URLs, dimensions, types |
 | `text` | Cleaned page text |
+
+### Extraction
+| Command | Description |
+|---------|-------------|
+| `archive [path]` | Save complete page as MHTML via CDP |
+| `download <url|@ref> [path] [--base64]` | Download URL or media element to disk using browser cookies |
+| `scrape <images|videos|media> [--selector sel] [--dir path] [--limit N]` | Bulk download all media from page. Writes manifest.json |
 
 ### Interaction
 | Command | Description |
@@ -689,40 +722,42 @@ Refs are invalidated on navigation — run `snapshot` again after `goto`.
 | `fill <sel> <val>` | Fill input |
 | `header <name>:<value>` | Set custom request header (colon-separated, sensitive values auto-redacted) |
 | `hover <sel>` | Hover element |
-| `press <key>` | Press key — Enter, Tab, Escape, ArrowUp/Down/Left/Right, Backspace, Delete, Home, End, PageUp, PageDown, or modifiers like Shift+Enter |
-| `scroll [sel]` | Scroll element into view, or scroll to page bottom if no selector |
+| `press <key>` | Press a Playwright keyboard key against the focused element. Names are case-sensitive: Enter, Tab, Escape, ArrowUp/Down/Left/Right, Backspace, Delete, Home, End, PageUp, PageDown. Modifiers combine with +: Shift+Enter, Control+A, Meta+K. Single printable chars (a, A, 1) work too. Full key list: https://playwright.dev/docs/api/class-keyboard#keyboard-press |
+| `scroll [sel|@ref]` | With a selector, smooth-scrolls the element into view. Without a selector, jumps to page bottom. No --by/--to amount option; for pixel-precise scrolling use `js window.scrollTo(0, N)`. |
 | `select <sel> <val>` | Select dropdown option by value, label, or visible text |
 | `style <sel> <prop> <value> | style --undo [N]` | Modify CSS property on element (with undo support) |
 | `type <text>` | Type into focused element |
 | `upload <sel> <file> [file2...]` | Upload file(s) |
 | `useragent <string>` | Set user agent |
-| `viewport <WxH>` | Set viewport size |
+| `viewport [<WxH>] [--scale <n>]` | Set viewport size and optional deviceScaleFactor (1-3, for retina screenshots). --scale requires a context rebuild. |
 | `wait <sel|--networkidle|--load>` | Wait for element, network idle, or page load (timeout: 15s) |
 
 ### Inspection
 | Command | Description |
 |---------|-------------|
 | `attrs <sel|@ref>` | Element attributes as JSON |
+| `cdp <Domain.method> [json-params]` | Raw Chrome DevTools Protocol method dispatch. Deny-default: only methods enumerated in `browse/src/cdp-allowlist.ts` (CDP_ALLOWLIST const) are reachable; any other method 403s. Each allowlist entry declares scope (tab vs browser) and output (trusted vs untrusted) — untrusted methods (data-exfil-shaped, e.g. Network.getResponseBody) get UNTRUSTED-envelope wrapped output. To discover allowed methods: read `browse/src/cdp-allowlist.ts`. Example: `$B cdp Page.getLayoutMetrics`. |
 | `console [--clear|--errors]` | Console messages (--errors filters to error/warning) |
 | `cookies` | All cookies as JSON |
 | `css <sel> <prop>` | Computed CSS value |
 | `dialog [--clear]` | Dialog messages |
-| `eval <file>` | Run JavaScript from file and return result as string (path must be under /tmp or cwd) |
+| `eval <file>` | Run JavaScript from a file in the page context and return result as string. Path must resolve under /tmp or cwd (no traversal). Use eval for multi-line scripts; use js for one-liners. |
 | `inspect [selector] [--all] [--history]` | Deep CSS inspection via CDP — full rule cascade, box model, computed styles |
-| `is <prop> <sel>` | State check (visible/hidden/enabled/disabled/checked/editable/focused) |
-| `js <expr>` | Run JavaScript expression and return result as string |
+| `is <prop> <sel|@ref>` | State check on element. Valid <prop> values: visible, hidden, enabled, disabled, checked, editable, focused (case-sensitive). <sel> accepts a CSS selector OR an @ref token from a prior snapshot (e.g. @e3, @c1) — refs are interchangeable with selectors anywhere a selector is expected. |
+| `js <expr>` | Run inline JavaScript expression in the page context and return result as string. Same JS sandbox as eval; the only difference is js takes an inline expr while eval reads from a file. |
 | `network [--clear]` | Network requests |
 | `perf` | Page load timings |
-| `storage [set k v]` | Read all localStorage + sessionStorage as JSON, or set <key> <value> to write localStorage |
+| `storage  |  storage set <key> <value>` | Read both localStorage and sessionStorage as JSON. With "set <key> <value>", write to localStorage only (sessionStorage is read-only via this command — set it with `js sessionStorage.setItem(...)`). |
+| `ux-audit` | Extract page structure for UX behavioral analysis — site ID, nav, headings, text blocks, interactive elements. Returns JSON for agent interpretation. |
 
 ### Visual
 | Command | Description |
 |---------|-------------|
 | `diff <url1> <url2>` | Text diff between pages |
-| `pdf [path]` | Save as PDF |
+| `pdf [path] [--format letter|a4|legal] [--width <dim> --height <dim>] [--margins <dim>] [--margin-top <dim> --margin-right <dim> --margin-bottom <dim> --margin-left <dim>] [--header-template <html>] [--footer-template <html>] [--page-numbers] [--tagged] [--outline] [--print-background] [--prefer-css-page-size] [--toc] [--tab-id <N>]  |  pdf --from-file <payload.json> [--tab-id <N>]` | Save the current page as PDF. Supports page layout (--format, --width, --height, --margins, --margin-*), structure (--toc waits for Paged.js), branding (--header-template, --footer-template, --page-numbers), accessibility (--tagged, --outline), and --from-file <payload.json> for large payloads. Use --tab-id <N> to target a specific tab. |
 | `prettyscreenshot [--scroll-to sel|text] [--cleanup] [--hide sel...] [--width px] [path]` | Clean screenshot with optional cleanup, scroll positioning, and element hiding |
 | `responsive [prefix]` | Screenshots at mobile (375x812), tablet (768x1024), desktop (1280x720). Saves as {prefix}-mobile.png etc. |
-| `screenshot [--viewport] [--clip x,y,w,h] [selector|@ref] [path]` | Save screenshot (supports element crop via CSS/@ref, --clip region, --viewport) |
+| `screenshot [--selector <css>] [--viewport] [--clip x,y,w,h] [--base64] [selector|@ref] [path]` | Save screenshot. --selector targets a specific element (explicit flag form). Positional selectors starting with ./#/@/[ still work. |
 
 ### Snapshot
 | Command | Description |
@@ -732,17 +767,20 @@ Refs are invalidated on navigation — run `snapshot` again after `goto`.
 ### Meta
 | Command | Description |
 |---------|-------------|
-| `chain` | Run commands from JSON stdin. Format: [["cmd","arg1",...],...] |
+| `chain  (JSON via stdin)` | Run a sequence of commands from JSON on stdin. One JSON array of arrays, each inner array is [cmd, ...args]. Output is one JSON result per command. Pipe a JSON array (e.g. `[["goto","https://example.com"],["text","h1"]]`) to `$B chain` and it runs the goto then the text command in order. Stops at the first error. |
+| `domain-skill save|list|show|edit|promote-to-global|rollback|rm <host?>` | Per-site notes the agent writes for itself. Host is derived from the active tab. Lifecycle: `save` adds a quarantined note → after N=3 successful uses without the prompt-injection classifier flagging it, the note auto-promotes to "active" → `promote-to-global` lifts it to the global tier (machine-wide, all projects). The classifier flag is set automatically by the L4 prompt-injection scan; agents do not set it manually. Use `list` / `show` to inspect, `edit` to revise, `rollback` to demote, `rm` to tombstone. |
 | `frame <sel|@ref|--name n|--url pattern|main>` | Switch to iframe context (or main to return) |
 | `inbox [--clear]` | List messages from sidebar scout inbox |
+| `skill list|show|run|test|rm <name?> [--arg k=v]... [--timeout=Ns]` | Run a browser-skill: deterministic Playwright script that drives the daemon over loopback HTTP. 3-tier lookup (project > global > bundled). Spawned scripts get a per-spawn scoped token (read+write only) — never the daemon root token. |
 | `watch [stop]` | Passive observation — periodic snapshots while user browses |
 
 ### Tabs
 | Command | Description |
 |---------|-------------|
 | `closetab [id]` | Close tab |
-| `newtab [url]` | Open new tab |
+| `newtab [url] [--json]` | Open new tab. With --json, returns {"tabId":N,"url":...} for programmatic use (make-pdf). |
 | `tab <id>` | Switch to tab |
+| `tab-each <command> [args...]` | Run a command on every open tab. Returns JSON with per-tab results. |
 | `tabs` | List open tabs |
 
 ### Server

@@ -58,7 +58,7 @@ gstack has four distinct persistence layers. They share storage patterns
 |--------|------|---------------|------------|---------|
 | **Learnings** | `learnings.jsonl` | Institutional knowledge (pitfalls, patterns, preferences) | All skills | All skills (preamble) |
 | **Timeline** | `timeline.jsonl` | Event history (skill start/complete, branch, outcome) | Preamble (automatic) | /skill:retro, preamble context recovery |
-| **Checkpoints** | `checkpoints/*.md` | Working state snapshots (decisions, remaining work, files) | /skill:checkpoint, /skill:ship, /skill:investigate | Preamble context recovery, /skill:checkpoint resume |
+| **Checkpoints** | `checkpoints/*.md` | Working state snapshots (decisions, remaining work, files) | /checkpoint, /skill:ship, /skill:investigate | Preamble context recovery, /checkpoint resume |
 | **Health** | `health-history.jsonl` | Code quality scores over time (per-tool, composite) | /skill:health | /skill:retro, /skill:ship (gate), /skill:health (trends) |
 
 These are not overlapping. Learnings = what you know. Timeline = what happened.
@@ -153,13 +153,13 @@ What shipped:
 - Predictive skill suggestion: if your last 3 sessions follow a pattern
   (review, ship, review), gstack suggests what you probably want next.
 - "Welcome back" synthesized context message on session start.
-- `/skill:checkpoint` skill: save/resume/list working state snapshots. Cross-branch
+- `/checkpoint` skill: save/resume/list working state snapshots. Cross-branch
   listing for Conductor workspace handoff between agents.
 - `/skill:health` skill: code quality scorekeeper wrapping project tools (tsc, biome,
   knip, shellcheck, tests). Composite 0-10 score, trend tracking, improvement
   suggestions when scores drop.
 - Timeline binaries: `bin/gstack-timeline-log` and `bin/gstack-timeline-read`.
-- Routing rules: /skill:checkpoint and /skill:health added to preamble skill routing.
+- Routing rules: /checkpoint and /skill:health added to preamble skill routing.
 
 Design doc: `docs/designs/SESSION_INTELLIGENCE.md`
 
@@ -224,7 +224,7 @@ recover gracefully.
                     └────┬─────┘
                          │
               ┌──────────▼──────────┐
-              │       BUILD         │ ◄── /skill:checkpoint auto-save
+              │       BUILD         │ ◄── /checkpoint auto-save
               └──────────┬──────────┘
                          │
               ┌──────────▼──────────┐
@@ -245,7 +245,7 @@ recover gracefully.
               └──────────┬──────────┘
                          │
               ┌──────────▼──────────┐
-              │ /skill:checkpoint archive │ ◄── preserve, don't destroy
+              │ /checkpoint archive │ ◄── preserve, don't destroy
               └─────────────────────┘
 ```
 
@@ -269,7 +269,7 @@ R3 (session intelligence for persistence), R4 (adaptive ceremony for speed).
 
 What ships:
 - Swarm orchestration: multi-worktree parallel builds. Builds on Conductor
-  workspace handoff from /skill:checkpoint (R3). An orchestrator skill dispatches
+  workspace handoff from /checkpoint (R3). An orchestrator skill dispatches
   independent workstreams to parallel agents, each with its own worktree.
 - Codex build delegation: auto-detect when to delegate implementation to Codex
   CLI based on task type (boilerplate, test generation, mechanical refactors).

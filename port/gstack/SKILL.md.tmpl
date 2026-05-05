@@ -11,6 +11,11 @@ allowed-tools:
   - Bash
   - Read
   - ask the user in chat
+triggers:
+  - browse this page
+  - take a screenshot
+  - navigate to url
+  - inspect the page
 
 ---
 
@@ -26,27 +31,45 @@ Use the Skill tool to invoke it. The skill has specialized workflows, checklists
 quality gates that produce better results than answering inline.
 
 **Routing rules — when you see these patterns, INVOKE the skill via the Skill tool:**
-- User describes a new idea, asks "is this worth building", wants to brainstorm → invoke `/skill:office-hours`
-- User asks about strategy, scope, ambition, "think bigger" → invoke `/skill:plan-ceo-review`
-- User asks to review architecture, lock in the plan → invoke `/skill:plan-eng-review`
-- User asks about design system, brand, visual identity → invoke `/skill:design-consultation`
+- User describes a new idea, asks "is this worth building", brainstorms, pitches a concept → invoke `/skill:office-hours`
+- User asks about strategy, scope, ambition, "think bigger", "what should we build" → invoke `/skill:plan-ceo-review`
+- User asks to review architecture, lock in the plan, "does this design make sense" → invoke `/skill:plan-eng-review`
+- User asks about design system, brand, visual identity, "how should this look" → invoke `/skill:design-consultation`
 - User asks to review design of a plan → invoke `/skill:plan-design-review`
-- User wants all reviews done automatically → invoke `/skill:autoplan`
-- User reports a bug, error, broken behavior, asks "why is this broken" → invoke `/skill:investigate`
-- User asks to test the site, find bugs, QA → invoke `/skill:qa`
-- User asks to review code, check the diff, pre-landing review → invoke `/skill:review`
-- User asks about visual polish, design audit of a live site → invoke `/skill:design-review`
-- User asks to ship, deploy, push, create a PR → invoke `/skill:ship`
+- User asks about developer experience of a plan, API/CLI/SDK design → invoke `/skill:plan-devex-review`
+- User wants all reviews done automatically, "review everything" → invoke `/skill:autoplan`
+- User reports a bug, error, broken behavior, "why is this broken", "this doesn't work", "wtf", "something's wrong" → invoke `/skill:investigate`
+- User asks to test the site, find bugs, QA, "does this work", "check the deploy" → invoke `/skill:qa`
+- User asks to just report bugs without fixing → invoke `/skill:qa-only`
+- User asks to review code, check the diff, pre-landing review, "look at my changes" → invoke `/skill:review`
+- User asks about visual polish, design audit of a live site, "this looks off" → invoke `/skill:design-review`
+- User asks to audit the live developer experience, time-to-hello-world → invoke `/skill:devex-review`
+- User asks to ship, deploy, push, create a PR, "let's land this", "send it" → invoke `/skill:ship`
+- User asks to merge + deploy + verify as one flow → invoke `/skill:land-and-deploy`
+- User asks to configure deployment for the project → invoke `/skill:setup-deploy`
+- User asks to monitor prod after shipping, post-deploy checks → invoke `/skill:canary`
 - User asks to update docs after shipping → invoke `/skill:document-release`
-- User asks for a weekly retro, what did we ship → invoke `/skill:retro`
+- User asks for a weekly retro, what did we ship, "how'd we do" → invoke `/skill:retro`
 - User asks for a second opinion, codex review → invoke `/skill:codex`
 - User asks for safety mode, careful mode → invoke `/skill:careful` or `/skill:guard`
 - User asks to restrict edits to a directory → invoke `/skill:freeze` or `/skill:unfreeze`
 - User asks to upgrade gstack → invoke `/skill:gstack-upgrade`
+- User asks to save progress, checkpoint, "save my work" → invoke `/skill:context-save`
+- User asks to resume, restore, "where was I" → invoke `/skill:context-restore`
+- User asks about security, OWASP, vulnerabilities, "is this secure" → invoke `/skill:cso`
+- User asks to make a PDF, document, publication → invoke `/skill:make-pdf`
+- User asks to launch a real browser for QA, "open the browser" → invoke `/skill:open-gstack-browser`
+- User asks to import cookies for authenticated testing → invoke `/skill:setup-browser-cookies`
+- User asks about page speed, performance regression, benchmarks → invoke `/skill:benchmark`
+- User asks what gstack has learned, "show learnings" → invoke `/skill:learn`
+- User asks to tune question sensitivity, "stop asking me that" → invoke `/skill:plan-tune`
+- User asks for code quality dashboard, "health check" → invoke `/skill:health`
 
-**Do NOT answer the user's question directly when a matching skill exists.** The skill
-provides a structured, multi-step workflow that is always better than an ad-hoc answer.
-Invoke the skill first. If no skill matches, answer directly as usual.
+**When in doubt, invoke the skill.** A false positive (invoking a skill that wasn't
+needed) is cheaper than a false negative (answering ad-hoc when a structured workflow
+exists). The skill provides multi-step workflows, checklists, and quality gates that
+always produce better results than an ad-hoc answer. If no skill matches, answer
+directly as usual.
 
 If the user opts out of suggestions, run `gstack-config set proactive false`.
 If they opt back in, run `gstack-config set proactive true`.

@@ -52,7 +52,7 @@ After compaction, re-read them."
                    │  ceo-plans/         ← /skill:plan-ceo-review
                    │  eng-reviews/       ← /skill:plan-eng-review
                    │  design-reviews/    ← /skill:plan-design-review
-                   │  checkpoints/       ← /skill:checkpoint (new)
+                   │  checkpoints/       ← /checkpoint (new)
                    │  timeline.jsonl     ← every skill (new)
                    │  learnings.jsonl    ← /skill:learn
                    └─────────────────────────────────────┘
@@ -90,7 +90,7 @@ Plan: ~/.gstack/projects/$SLUG/checkpoints/latest.md"
 
 The agent knows where you left off before reading any files.
 
-### Layer 4: /skill:checkpoint (opt-in skill)
+### Layer 4: /checkpoint (opt-in skill)
 Manual snapshot of working state: what's being done, files being edited,
 decisions made, what's remaining. Useful before stepping away, before
 complex operations, for workspace handoffs, or coming back after days.
@@ -107,7 +107,7 @@ that compounds:
 
 Session 1: /skill:plan-ceo-review produces a plan. Saved to disk.
 Session 2: Agent reads the plan after preamble. Doesn't re-ask decisions.
-Session 3: /skill:checkpoint saves progress. Timeline shows 2 /skill:review, 1 /skill:ship.
+Session 3: /checkpoint saves progress. Timeline shows 2 /skill:review, 1 /skill:ship.
 Session 4: Compaction fires mid-refactor. Agent re-reads the checkpoint.
            Recovers key decisions, types, remaining work. Continues.
 Session 5: /skill:retro rolls up the week. Health trend: 6/10 → 8/10.

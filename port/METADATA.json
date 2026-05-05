@@ -2,12 +2,12 @@
   "upstream": {
     "repo": "https://github.com/garrytan/gstack.git",
     "branch": "main",
-    "commit": "6cc094cd4190e3fac65b69fb29e0c3cae7e0f214",
-    "version": "0.15.15.1"
+    "commit": "db9447c3339950bb0506c547e5b3225f5def3854",
+    "version": "1.26.3.0"
   },
-  "generatedAt": "2026-04-07T05:51:19.007245+00:00",
+  "generatedAt": "2026-05-05T19:47:44.585148+00:00",
   "portDir": "port/gstack",
-  "changedFiles": 349,
+  "changedFiles": 506,
   "transformRules": {
     "pathReplacements": [
       [
@@ -183,6 +183,10 @@
         "Want to brainstorm first with `/skill:plan-ceo-review`?"
       ],
       [
+        "/brainstorming",
+        "brainstorming"
+      ],
+      [
         "Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>",
         "Co-Authored-By: AI Assistant <noreply@ai-assistant.local>"
       ],
@@ -315,6 +319,10 @@
         "const result = await callJudge<{ winner: 'A' | 'B' | 'tie'; reasoning: string; a_score: number; b_score: number }>(`You are comparing two versions of CLI documentation for an AI coding agent.\n\nVERSION A (baseline \u2014 hand-maintained):\n${baseline}\n\nVERSION B (auto-generated from source):\n${genSection}\n\nWhich version is better for an AI agent trying to use these commands? Consider:\n- Completeness (more commands documented? all args shown?)\n- Clarity (descriptions helpful?)\n- Coverage (missing commands in either version?)\n\nRespond with ONLY valid JSON:\n{\"winner\": \"A\" or \"B\" or \"tie\", \"reasoning\": \"brief explanation\", \"a_score\": N, \"b_score\": N}\n\nScores are 1-5 overall quality.`);\n"
       ],
       [
+        "Run Anthropic SDK judge on outputs for quality score\n *                                (requires ANTHROPIC_API_KEY; adds ~$0.05 per call)",
+        "Run pi-based judge on outputs for quality score\n *                                (uses configured pi provider/model; cost varies)"
+      ],
+      [
         "CLAUDE.md",
         "AGENTS.md"
       ]
@@ -427,11 +435,13 @@
       "document-release",
       "autoplan",
       "benchmark",
+      "benchmark-models",
       "canary",
       "careful",
-      "checkpoint",
+      "claude",
       "codex",
-      "connect-chrome",
+      "context-restore",
+      "context-save",
       "cso",
       "design-html",
       "design-shotgun",
@@ -441,12 +451,19 @@
       "health",
       "investigate",
       "land-and-deploy",
+      "landing-report",
       "learn",
+      "make-pdf",
       "office-hours",
       "open-gstack-browser",
       "pair-agent",
       "plan-devex-review",
+      "plan-tune",
+      "scrape",
       "setup-deploy",
+      "setup-gbrain",
+      "skillify",
+      "sync-gbrain",
       "unfreeze"
     ],
     "removeAllowedTools": true,

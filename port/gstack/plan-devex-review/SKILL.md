@@ -1,6 +1,7 @@
 ---
 name: plan-devex-review
 preamble-tier: 3
+interactive: true
 version: 2.0.0
 description: |
   Interactive developer experience plan review. Explores developer personas,
@@ -19,6 +20,10 @@ voice-triggers:
   - "API design review"
   - "onboarding review"
 benefits-from: [office-hours]
+triggers:
+  - developer experience review
+  - dx plan review
+  - check developer onboarding
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -1273,7 +1278,7 @@ THE PLAN:
 ```bash
 TMPERR_PV=$(mktemp /tmp/codex-planreview-XXXXXXXX)
 _REPO_ROOT=$(git rev-parse --show-toplevel) || { echo "ERROR: not in a git repo" >&2; exit 1; }
-codex exec "<prompt>" -C "$_REPO_ROOT" -s read-only -c 'model_reasoning_effort="high"' --enable web_search_cached 2>"$TMPERR_PV"
+codex exec "<prompt>" -C "$_REPO_ROOT" -s read-only -c 'model_reasoning_effort="high"' --enable web_search_cached < /dev/null 2>"$TMPERR_PV"
 ```
 
 Use a 5-minute timeout (`timeout: 300000`). After the command completes, read stderr:
@@ -1374,8 +1379,11 @@ DX reviews:
 * **Map to DX First Principles above.** One sentence connecting your recommendation
   to a specific principle (e.g., "This violates 'zero friction at T0' because
   [persona] needs 3 extra config steps before their first API call").
-* **Escape hatch:** If a section has no issues, say so and move on. If a gap has an
-  obvious fix, state what you'll add and move on, don't waste a question.
+* **Escape hatch (tightened):** If a section has zero findings, state "No issues,
+  moving on" and proceed. If it has findings, ask the user in chat for each — a
+  gap with an "obvious fix" is still a gap and still needs user approval before
+  any change lands in the plan. Only skip ask the user in chat when the fix is
+  genuinely trivial AND there are no meaningful DX alternatives. When in doubt, ask.
 * Assume the user hasn't looked at this window in 20 minutes. Re-ground every question.
 
 ## Required Outputs

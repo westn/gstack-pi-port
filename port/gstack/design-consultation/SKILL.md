@@ -10,6 +10,33 @@ description: |
   Use when asked to "design system", "brand guidelines", or "create DESIGN.md".
   Proactively suggest when starting a new project's UI with no existing
   design system or DESIGN.md. (gstack)
+triggers:
+  - design system
+  - create a brand
+  - design from scratch
+gbrain:
+  schema: 1
+  context_queries:
+    - id: existing-design-md
+      kind: filesystem
+      glob: "DESIGN.md"
+      tail: 1
+      render_as: "## Existing DESIGN.md (if any)"
+    - id: prior-design-decisions
+      kind: filesystem
+      glob: "~/.gstack/projects/{repo_slug}/*-design-*.md"
+      sort: mtime_desc
+      limit: 3
+      render_as: "## Prior design decisions for this project"
+    - id: brand-guidelines
+      kind: list
+      filter:
+        type: ceo-plan
+        tags_contains: "repo:{repo_slug}"
+        content_contains: "brand"
+      sort: updated_at_desc
+      limit: 3
+      render_as: "## Brand-related notes from CEO plans"
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -452,7 +479,7 @@ If the codebase is empty and purpose is unclear, say: *"I don't have a clear pic
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.pi/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.pi/agent/skills/gstack/browse/dist/browse
+[ -z "$B" ] && B="$HOME/.pi/agent/skills/gstack/browse/dist/browse"
 if [ -x "$B" ]; then
   echo "READY: $B"
 else
@@ -492,7 +519,7 @@ If browse is not available, that's fine — visual research is optional. The ski
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 D=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/design/dist/design" ] && D="$_ROOT/.pi/skills/gstack/design/dist/design"
-[ -z "$D" ] && D=~/.pi/agent/skills/gstack/design/dist/design
+[ -z "$D" ] && D="$HOME/.pi/agent/skills/gstack/design/dist/design"
 if [ -x "$D" ]; then
   echo "DESIGN_READY: $D"
 else
@@ -500,7 +527,7 @@ else
 fi
 B=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.pi/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.pi/agent/skills/gstack/browse/dist/browse
+[ -z "$B" ] && B="$HOME/.pi/agent/skills/gstack/browse/dist/browse"
 if [ -x "$B" ]; then
   echo "BROWSE_READY: $B"
 else
@@ -534,6 +561,22 @@ If `DESIGN_READY`: Phase 5 will generate AI mockups of your proposed design syst
 If `DESIGN_NOT_AVAILABLE`: Phase 5 falls back to the HTML preview page (still good).
 
 ---
+
+## Brain Context Load
+
+Before starting this skill, search your brain for relevant context:
+
+1. Extract 2-4 keywords from the user's request (nouns, error names, file paths, technical terms).
+   Search GBrain: `gbrain search "keyword1 keyword2"`
+   Example: for "the login page is broken after deploy", search `gbrain search "login broken deploy"`
+   Search returns lines like: `[slug] Title (score: 0.85) - first line of content...`
+2. If few results, broaden to the single most specific keyword and search again.
+3. For each result page, read it: `gbrain get_page "<page_slug>"`
+   Read the top 3 pages for context.
+4. Use this brain context to inform your analysis.
+
+If GBrain is not available or returns no results, proceed without brain context.
+Any non-zero exit code from gbrain commands should be treated as a transient failure.
 
 ## Prior Learnings
 
@@ -584,6 +627,63 @@ Ask the user a single question that covers everything you need to know. Pre-fill
 4. **Explicitly say:** "At any point you can just drop into chat and we'll talk through anything — this isn't a rigid form, it's a conversation."
 
 If the README or office-hours output gives you enough context, pre-fill and confirm: *"From what I can see, this is [X] for [Y] in the [Z] space. Sound right? And would you like me to research what's out there in this space, or should I work from what I know?"*
+
+**Memorable-thing forcing question.** Before moving on, ask the user: *"What's the one
+thing you want someone to remember after they see this product for the first time?"*
+
+One sentence answer. Could be a feeling ("this is serious software for serious work"),
+a visual ("the blue that's almost black"), a claim ("faster than anything else"), or
+a posture ("for builders, not managers"). Write it down. Every subsequent design
+decision should serve this memorable thing. Design that tries to be memorable for
+everything is memorable for nothing.
+
+### Taste profile (if this user has prior sessions)
+
+Read the persistent taste profile if it exists:
+
+```bash
+_TASTE_PROFILE=~/.gstack/projects/$SLUG/taste-profile.json
+if [ -f "$_TASTE_PROFILE" ]; then
+  # Schema v1: { dimensions: { fonts, colors, layouts, aesthetics }, sessions: [] }
+  # Each dimension has approved[] and rejected[] entries with
+  # { value, confidence, approved_count, rejected_count, last_seen }
+  # Confidence decays 5% per week of inactivity — computed at read time.
+  cat "$_TASTE_PROFILE" 2>/dev/null | head -200
+  echo "TASTE_PROFILE_FOUND"
+else
+  echo "NO_TASTE_PROFILE"
+fi
+```
+
+**If TASTE_PROFILE_FOUND:** Summarize the strongest signals (top 3 approved entries
+per dimension by confidence * approved_count). Include them in the design brief:
+
+"Based on \${SESSION_COUNT} prior sessions, this user's taste leans toward:
+fonts [top-3], colors [top-3], layouts [top-3], aesthetics [top-3]. Bias
+generation toward these unless the user explicitly requests a different direction.
+Also avoid their strong rejections: [top-3 rejected per dimension]."
+
+**If NO_TASTE_PROFILE:** Fall through to per-session approved.json files (legacy).
+
+**Conflict handling:** If the current user request contradicts a strong persistent
+signal (e.g., "make it playful" when taste profile strongly prefers minimal), flag
+it: "Note: your taste profile strongly prefers minimal. You're asking for playful
+this time — I'll proceed, but want me to update the taste profile, or treat this
+as a one-off?"
+
+**Decay:** Confidence scores decay 5% per week. A font approved 6 months ago with
+10 approvals has less weight than one approved last week. The decay calculation
+happens at read time, not write time, so the file only grows on change.
+
+**Schema migration:** If the file has no `version` field or `version: 0`, it's
+the legacy approved.json aggregate — `~/.pi/agent/skills/gstack/bin/gstack-taste-update`
+will migrate it to schema v1 on the next write.
+
+If a taste profile exists for this project, factor it into your Phase 3 proposal.
+The profile reflects what the user has actually approved in prior sessions — treat
+it as a demonstrated preference, not a constraint. You may still deliberately
+depart from it if the product direction demands something different; when you do,
+say so explicitly and connect the departure to the memorable-thing answer above.
 
 ---
 
@@ -664,7 +764,7 @@ codex exec "Given this product context, propose a complete design direction:
 - Differentiation: 2 deliberate departures from category norms
 - Anti-slop: no purple gradients, no 3-column icon grids, no centered everything, no decorative blobs
 
-Be opinionated. Be specific. Do not hedge. This is YOUR design direction — own it." -C "$_REPO_ROOT" -s read-only -c 'model_reasoning_effort="medium"' --enable web_search_cached 2>"$TMPERR_DESIGN"
+Be opinionated. Be specific. Do not hedge. This is YOUR design direction — own it." -C "$_REPO_ROOT" -s read-only -c 'model_reasoning_effort="medium"' --enable web_search_cached < /dev/null 2>"$TMPERR_DESIGN"
 ```
 Use a 5-minute timeout (`timeout: 300000`). After the command completes, read stderr:
 ```bash
@@ -768,7 +868,17 @@ The SAFE/RISK breakdown is critical. Design coherence is table stakes — every 
 Papyrus, Comic Sans, Lobster, Impact, Jokerman, Bleeding Cowboys, Permanent Marker, Bradley Hand, Brush Script, Hobo, Trajan, Raleway, Clash Display, Courier New (for body)
 
 **Overused fonts** (never recommend as primary — use only if user specifically requests):
-Inter, Roboto, Arial, Helvetica, Open Sans, Lato, Montserrat, Poppins
+Inter, Roboto, Arial, Helvetica, Open Sans, Lato, Montserrat, Poppins, Space Grotesk.
+
+Space Grotesk is on the list specifically because every AI design tool converges on it
+as "the safe alternative to Inter." That's the convergence trap. Treat it the same as
+Inter: only use if the user asks for it by name.
+
+**Anti-convergence directive:** Across multiple generations in the same project, VARY
+light/dark, fonts, and aesthetic directions. Never propose the same choices twice
+without explicit justification. If the user's prior session used Geist + dark + editorial,
+propose something different this time (or explicitly acknowledge you're doubling down
+because it fits the brief). Convergence across generations is slop.
 
 **AI slop anti-patterns** (never include in your recommendations):
 - Purple/violet gradients as default accent
@@ -777,6 +887,7 @@ Inter, Roboto, Arial, Helvetica, Open Sans, Lato, Montserrat, Poppins
 - Uniform bubbly border-radius on all elements
 - Gradient buttons as the primary CTA pattern
 - Generic stock-photo-style hero sections
+- system-ui / -apple-system as the primary display or body font (the "I gave up on typography" signal)
 - "Built for X" / "Designed for Y" marketing copy patterns
 
 ### Coherence Validation
@@ -813,7 +924,7 @@ Generate AI-rendered mockups showing the proposed design system applied to reali
 
 ```bash
 eval "$(~/.pi/agent/skills/gstack/bin/gstack-slug 2>/dev/null)"
-_DESIGN_DIR=~/.gstack/projects/$SLUG/designs/design-system-$(date +%Y%m%d)
+_DESIGN_DIR="$HOME/.gstack/projects/$SLUG/designs/design-system-$(date +%Y%m%d)"
 mkdir -p "$_DESIGN_DIR"
 echo "DESIGN_DIR: $_DESIGN_DIR"
 ```
@@ -831,6 +942,13 @@ $D check --image "$_DESIGN_DIR/variant-A.png" --brief "<the original brief>"
 ```
 
 Show each variant inline (Read tool on each PNG) for instant preview.
+
+**Before presenting to the user, self-gate:** For each variant, ask yourself: *"Would
+a human designer be embarrassed to put their name on this?"* If yes, discard the
+variant and regenerate. This is a hard gate. A mediocre AI mockup is worse than no
+mockup. Embarrassment triggers include: purple gradient hero, 3-column SaaS grid,
+centered-everything, Inter body text, generic stock-photo vibe, system-ui font,
+gradient CTA button, bubble-radius everything. Any of those = reject and regenerate.
 
 Tell the user: "I've generated 3 visual directions applying your design system to a realistic [product type] screen. Pick your favorite in the comparison board that just opened in your browser. You can also remix elements across variants."
 
@@ -1101,6 +1219,29 @@ staleness detection: if those files are later deleted, the learning can be flagg
 
 **Only log genuine discoveries.** Don't log obvious things. Don't log things the user
 already knows. A good test: would this insight save time in a future session? If yes, log it.
+
+## Save Results to Brain
+
+After completing this skill, persist the results to your brain for future reference:
+
+Save the design system as a brain page:
+```bash
+gbrain put_page --title "Design System: <project name>" --tags "design-system,<project-slug>" <<'EOF'
+<design decisions in markdown>
+EOF
+```
+
+After saving the page, extract and enrich mentioned entities: for each actual person name or company/organization name found in the output, `gbrain search "<entity name>"` to check if a page exists. If not, create a stub page:
+```bash
+gbrain put_page --title "<Person or Company Name>" --tags "entity,person" --content "Stub page. Mentioned in <skill name> output."
+```
+Only extract actual person names and company/organization names. Skip product names, section headings, technical terms, and file paths.
+
+Throttle errors appear as: exit code 1 with stderr containing "throttle", "rate limit", "capacity", or "busy". If GBrain returns a throttle or rate-limit error on any save operation, defer the save and move on. The brain is busy — the content is not lost, just not persisted this run. Any other non-zero exit code should also be treated as a transient failure.
+
+Add backlinks to related brain pages if they exist. If GBrain is not available, skip this step.
+
+After brain operations complete, note in your completion output: how many pages were found in the initial search, how many entities were enriched, and whether any operations were throttled. This helps the user see brain utilization over time.
 
 ## Important Rules
 

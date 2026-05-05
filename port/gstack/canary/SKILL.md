@@ -8,6 +8,10 @@ description: |
   periodic screenshots, compares against pre-deploy baselines, and alerts
   on anomalies. Use when: "monitor deploy", "canary", "post-deploy check",
   "watch production", "verify deploy". (gstack)
+triggers:
+  - monitor after deploy
+  - canary check
+  - watch for errors post-deploy
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -390,7 +394,7 @@ plan's living status.
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.pi/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.pi/agent/skills/gstack/browse/dist/browse
+[ -z "$B" ] && B="$HOME/.pi/agent/skills/gstack/browse/dist/browse"
 if [ -x "$B" ]; then
   echo "READY: $B"
 else

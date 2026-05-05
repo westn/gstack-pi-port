@@ -15,6 +15,10 @@ voice-triggers:
   - "test the developer experience"
   - "try the onboarding"
   - "developer experience test"
+triggers:
+  - live dx audit
+  - test developer experience
+  - measure onboarding time
 ---
 
 <!-- AUTO-GENERATED from SKILL.md.tmpl — do not edit directly -->
@@ -454,7 +458,7 @@ branch name wherever the instructions say "the base branch" or `<default>`.
 _ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 B=""
 [ -n "$_ROOT" ] && [ -x "$_ROOT/.pi/skills/gstack/browse/dist/browse" ] && B="$_ROOT/.pi/skills/gstack/browse/dist/browse"
-[ -z "$B" ] && B=~/.pi/agent/skills/gstack/browse/dist/browse
+[ -z "$B" ] && B="$HOME/.pi/agent/skills/gstack/browse/dist/browse"
 if [ -x "$B" ]; then
   echo "READY: $B"
 else
