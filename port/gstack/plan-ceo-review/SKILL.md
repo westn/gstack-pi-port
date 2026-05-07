@@ -697,12 +697,12 @@ Report findings before proceeding to Step 0.
 
 ### Landscape Check
 
-Read ETHOS.md for the Search Before Building framework (the preamble's Search Before Building section has the path). Before challenging scope, understand the landscape. WebSearch for:
+Read ETHOS.md for the Search Before Building framework (the preamble's Search Before Building section has the path). Before challenging scope, understand the landscape. If an external search extension is installed, search for:
 - "[product category] landscape {current year}"
 - "[key feature] alternatives"
 - "why [incumbent/conventional approach] [succeeds/fails]"
 
-If WebSearch is unavailable, skip this check and note: "Search unavailable — proceeding with in-distribution knowledge only."
+If no external search extension is installed, skip this check and note: "Search unavailable — proceeding with in-distribution knowledge only."
 
 Run the three-layer synthesis:
 - **[Layer 1]** What's the tried-and-true approach in this space?
@@ -910,34 +910,29 @@ After writing the CEO plan, run the spec review loop on it:
 
 Before presenting the document to the user for approval, run an adversarial review.
 
-**Step 1: Dispatch reviewer subagent**
+**Step 1: Run the reviewer pass inline**
 
-Use the Agent tool to dispatch an independent reviewer. The reviewer has fresh context
-and cannot see the brainstorming conversation — only the document. This ensures genuine
-adversarial independence.
+Pi does not ship an Agent/subagent tool by default. Do NOT call `spec-review`,
+`Agent`, or any subagent tool unless an installed extension explicitly provides one.
+Instead, re-read the document from disk in this same session and review it from a cold
+adversarial posture.
 
-Prompt the subagent with:
-- The file path of the document just written
-- "Read this document and review it on 5 dimensions. For each dimension, note PASS or
-  list specific issues with suggested fixes. At the end, output a quality score (1-10)
-  across all dimensions."
-
-**Dimensions:**
+Review the document on these dimensions:
 1. **Completeness** — Are all requirements addressed? Missing edge cases?
 2. **Consistency** — Do parts of the document agree with each other? Contradictions?
 3. **Clarity** — Could an engineer implement this without asking questions? Ambiguous language?
 4. **Scope** — Does the document creep beyond the original problem? YAGNI violations?
 5. **Feasibility** — Can this actually be built with the stated approach? Hidden complexity?
 
-The subagent should return:
+Return:
 - A quality score (1-10)
 - PASS if no issues, or a numbered list of issues with dimension, description, and fix
 
-**Step 2: Fix and re-dispatch**
+**Step 2: Fix and re-review inline**
 
-If the reviewer returns issues:
+If the reviewer pass returns issues:
 1. Fix each issue in the document on disk (use Edit tool)
-2. Re-dispatch the reviewer subagent with the updated document
+2. Re-read the updated document and run the same reviewer pass again inline
 3. Maximum 3 iterations total
 
 **Convergence guard:** If the reviewer returns the same issues on consecutive iterations
@@ -945,7 +940,7 @@ If the reviewer returns issues:
 and persist those issues as "Reviewer Concerns" in the document rather than looping
 further.
 
-If the subagent fails, times out, or is unavailable — skip the review loop entirely.
+If the reviewer pass fails, times out, or is unavailable — skip the review loop entirely.
 Tell the user: "Spec review unavailable — presenting unreviewed doc." The document is
 already written to disk; the review is a quality bonus, not a gate.
 
@@ -1341,7 +1336,7 @@ On any Codex error, fall back to the Claude adversarial subagent.
 
 **If CODEX_NOT_AVAILABLE (or Codex errored):**
 
-Dispatch via the Agent tool. The subagent has fresh context — genuine independence.
+Run this pass inline. The subagent has fresh context — genuine independence.
 
 Subagent prompt: same plan review prompt as above.
 

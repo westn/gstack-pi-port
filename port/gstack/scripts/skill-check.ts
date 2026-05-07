@@ -132,8 +132,24 @@ for (const hostConfig of getExternalHosts()) {
 
 import { ALL_HOST_CONFIGS } from '../hosts/index';
 
+function shouldCheckFreshness(hostConfig: (typeof ALL_HOST_CONFIGS)[number]): boolean {
+  // The pi port's committed/generated surface is pi + Codex. Other host configs are
+  // install-time targets; their output dirs may not exist in this repo checkout.
+  // Treat absent optional host dirs as skipped, not stale. Otherwise skill:check
+  // fails in normal pi-only development because Factory/Kiro/OpenCode/etc. have no
+  // checked-in generated artifacts.
+  if (hostConfig.name === 'pi' || hostConfig.name === 'codex') return true;
+  return fs.existsSync(path.join(ROOT, hostConfig.hostSubdir, 'skills'));
+}
+
 for (const hostConfig of ALL_HOST_CONFIGS) {
-  const hostFlag = hostConfig.name === 'claude' ? '' : ` --host ${hostConfig.name}`;
+  if (!shouldCheckFreshness(hostConfig)) {
+    console.log(`\n  Freshness (${hostConfig.displayName}):`);
+    console.log(`  -  skipped (no ${hostConfig.hostSubdir}/skills/ generated artifacts in this checkout)`);
+    continue;
+  }
+
+  const hostFlag = hostConfig.name === 'pi' ? ' --host pi' : ` --host ${hostConfig.name}`;
   console.log(`\n  Freshness (${hostConfig.displayName}):`);
   try {
     execSync(`bun run scripts/gen-skill-docs.ts${hostFlag} --dry-run`, { cwd: ROOT, stdio: 'pipe' });

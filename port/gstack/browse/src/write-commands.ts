@@ -8,7 +8,6 @@
 import type { TabSession } from './tab-session';
 import type { BrowserManager } from './browser-manager';
 import { findInstalledBrowsers, importCookies, importCookiesViaCdp, hasV20Cookies, listSupportedBrowserNames } from './cookie-import-browser';
-import { generatePickerCode } from './cookie-picker-routes';
 import { validateNavigationUrl } from './url-validation';
 import { validateOutputPath, validateReadPath } from './path-security';
 import * as fs from 'fs';
@@ -746,8 +745,7 @@ export async function handleWriteCommand(
         throw new Error(`No Chromium browsers found. Supported: ${listSupportedBrowserNames().join(', ')}`);
       }
 
-      const code = generatePickerCode();
-      const pickerUrl = `http://127.0.0.1:${port}/cookie-picker?code=${code}`;
+      const pickerUrl = `http://127.0.0.1:${port}/cookie-picker`;
       try {
         Bun.spawn(['open', pickerUrl], { stdout: 'ignore', stderr: 'ignore' });
       } catch (err: any) {

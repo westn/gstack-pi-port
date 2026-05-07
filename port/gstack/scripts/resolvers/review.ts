@@ -145,11 +145,32 @@ plan's living status.
 }
 
 export function generateSpecReviewLoop(_ctx: TemplateContext): string {
-  return `## Spec Review Loop
+  const reviewMethod = _ctx.host === 'pi'
+    ? `**Step 1: Run the reviewer pass inline**
 
-Before presenting the document to the user for approval, run an adversarial review.
+Pi does not ship an Agent/subagent tool by default. Do NOT call \`spec-review\`,
+\`Agent\`, or any subagent tool unless an installed extension explicitly provides one.
+Instead, re-read the document from disk in this same session and review it from a cold
+adversarial posture.
 
-**Step 1: Dispatch reviewer subagent**
+Review the document on these dimensions:
+1. **Completeness** — Are all requirements addressed? Missing edge cases?
+2. **Consistency** — Do parts of the document agree with each other? Contradictions?
+3. **Clarity** — Could an engineer implement this without asking questions? Ambiguous language?
+4. **Scope** — Does the document creep beyond the original problem? YAGNI violations?
+5. **Feasibility** — Can this actually be built with the stated approach? Hidden complexity?
+
+Return:
+- A quality score (1-10)
+- PASS if no issues, or a numbered list of issues with dimension, description, and fix
+
+**Step 2: Fix and re-review inline**
+
+If the reviewer pass returns issues:
+1. Fix each issue in the document on disk (use Edit tool)
+2. Re-read the updated document and run the same reviewer pass again inline
+3. Maximum 3 iterations total`
+    : `**Step 1: Dispatch reviewer subagent**
 
 Use the Agent tool to dispatch an independent reviewer. The reviewer has fresh context
 and cannot see the brainstorming conversation — only the document. This ensures genuine
@@ -177,14 +198,20 @@ The subagent should return:
 If the reviewer returns issues:
 1. Fix each issue in the document on disk (use Edit tool)
 2. Re-dispatch the reviewer subagent with the updated document
-3. Maximum 3 iterations total
+3. Maximum 3 iterations total`;
+
+  return `## Spec Review Loop
+
+Before presenting the document to the user for approval, run an adversarial review.
+
+${reviewMethod}
 
 **Convergence guard:** If the reviewer returns the same issues on consecutive iterations
 (the fix didn't resolve them or the reviewer disagrees with the fix), stop the loop
 and persist those issues as "Reviewer Concerns" in the document rather than looping
 further.
 
-If the subagent fails, times out, or is unavailable — skip the review loop entirely.
+If the reviewer pass fails, times out, or is unavailable — skip the review loop entirely.
 Tell the user: "Spec review unavailable — presenting unreviewed doc." The document is
 already written to disk; the review is a quality bonus, not a gate.
 

@@ -742,7 +742,7 @@ Replace `<screen-name>` with a descriptive kebab-case name (e.g., `homepage-vari
 
 **Generate mockups ONE AT A TIME in this skill.** The inline review flow generates
 fewer variants and benefits from sequential control. Note: /skill:design-shotgun uses
-parallel Agent subagents for variant generation, which works at Tier 2+ (15+ RPM).
+parallel optional Agent subagents for variant generation, which works at Tier 2+ (15+ RPM).
 The sequential constraint here is specific to plan-design-review's inline pattern.
 
 For each UI screen/section in scope, construct a design brief from the plan's description (and DESIGN.md if present) and generate variants:

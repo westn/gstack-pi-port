@@ -757,7 +757,7 @@ it and feel what the developer feels.
 
 ### 0C. Competitive DX Benchmarking
 
-Before scoring anything, understand how comparable tools handle DX. Use WebSearch to
+Before scoring anything, understand how comparable tools handle DX. If an external search extension is installed, use it to
 find real TTHW data and onboarding approaches.
 
 Run three searches:
@@ -765,7 +765,7 @@ Run three searches:
 2. "[closest competitor] developer onboarding time"
 3. "[product category] SDK CLI developer experience best practices {current year}"
 
-If WebSearch is unavailable: "Search unavailable. Using reference benchmarks: Stripe
+If no external search extension is installed: "Search unavailable. Using reference benchmarks: Stripe
 (30s TTHW), Vercel (2min), Firebase (3min), Docker (5min)."
 
 Produce a competitive benchmark table:
@@ -1304,7 +1304,7 @@ On any Codex error, fall back to the Claude adversarial subagent.
 
 **If CODEX_NOT_AVAILABLE (or Codex errored):**
 
-Dispatch via the Agent tool. The subagent has fresh context — genuine independence.
+Run this pass inline. The subagent has fresh context — genuine independence.
 
 Subagent prompt: same plan review prompt as above.
 

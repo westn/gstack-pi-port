@@ -744,7 +744,7 @@ Also apply the remaining INFORMATIONAL categories that are still in the checklis
 - Check if a built-in solution exists in newer versions before recommending a workaround
 - Verify API signatures against current docs (APIs change between versions)
 
-Takes seconds, prevents recommending outdated patterns. If WebSearch is unavailable, note it and proceed with in-distribution knowledge.
+Takes seconds, prevents recommending outdated patterns. If no external search extension is installed, note it and proceed with in-distribution knowledge.
 
 Follow the output format specified in the checklist. Respect the suppressions — do NOT flag items listed in the "DO NOT flag" section.
 
@@ -843,9 +843,8 @@ Note which specialists were selected, gated, and skipped. Print the selection:
 
 ### Dispatch specialists in parallel
 
-For each selected specialist, launch an independent subagent via the Agent tool.
-**Launch ALL selected specialists in a single message** (multiple Agent tool calls)
-so they run in parallel. Each subagent has fresh context — no prior review bias.
+Run each selected specialist review inline, one after another.
+**Run selected specialist checks sequentially inline.** Keep each specialist lens separate in your notes so the findings do not collapse into one generic review.
 
 **Each specialist subagent prompt:**
 
@@ -886,7 +885,7 @@ CHECKLIST:
 {checklist content}"
 
 **Subagent configuration:**
-- Use `subagent_type: "general-purpose"`
+- Use `subagent_type: "general-purpose"` (do not use in stock pi)
 - Do NOT use `run_in_background` — all specialists must complete before merge
 - If any specialist subagent fails or times out, log the failure and continue with results from successful specialists. Specialists are additive — partial results are better than no results.
 
@@ -958,7 +957,7 @@ Remember these stats — you will need them for the review-log entry in Step 5.8
 
 **Activation:** Only if DIFF_LINES > 200 OR any specialist produced a CRITICAL finding.
 
-If activated, dispatch one more subagent via the Agent tool (foreground, not background).
+If activated, run one more inline adversarial pass (foreground, not background).
 
 The Red Team subagent receives:
 1. The red-team checklist from `~/.pi/agent/skills/gstack/review/specialists/red-team.md`
@@ -1348,7 +1347,7 @@ If `OLD_CFG` is `disabled`: skip Codex passes only. Claude adversarial subagent 
 
 ### Claude adversarial subagent (always runs)
 
-Dispatch via the Agent tool. The subagent has fresh context — no checklist bias from the structured review. This genuine independence catches things the primary reviewer is blind to.
+Run this pass inline. The subagent has fresh context — no checklist bias from the structured review. This genuine independence catches things the primary reviewer is blind to.
 
 Subagent prompt:
 "Read the diff for this branch with `git diff origin/<base>`. Think like an attacker and a chaos engineer. Your job is to find ways this code will fail in production. Look for: edge cases, race conditions, security holes, resource leaks, failure modes, silent data corruption, logic errors that produce wrong results silently, error handling that swallows failures, and trust boundary violations. Be adversarial. Be thorough. No compliments — just the problems. For each finding, classify as FIXABLE (you know how to fix it) or INVESTIGATE (needs human judgment). After listing findings, end your output with ONE line in the canonical format `Recommendation: <action> because <one-line reason naming the most exploitable finding>` — examples: `Recommendation: Fix the unbounded retry at queue.ts:78 because it'll DoS the worker pool under sustained 429s` or `Recommendation: Ship as-is because the strongest finding is a theoretical race that requires conditions we can't trigger in production`. The reason must point to a specific finding (or no-fix rationale). Generic reasons like 'because it's safer' do not qualify."

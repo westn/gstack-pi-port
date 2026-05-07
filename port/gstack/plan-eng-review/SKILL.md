@@ -551,7 +551,7 @@ Before reviewing anything, answer these questions:
    - Is the chosen approach current best practice? Search: "{pattern} best practice {current year}"
    - Are there known footguns? Search: "{framework} {pattern} pitfalls"
 
-   If WebSearch is unavailable, skip this check and note: "Search unavailable — proceeding with in-distribution knowledge only."
+   If no external search extension is installed, skip this check and note: "Search unavailable — proceeding with in-distribution knowledge only."
 
    If the plan rolls a custom solution where a built-in exists, flag it as a scope reduction opportunity. Annotate recommendations with **[Layer 1]**, **[Layer 2]**, **[Layer 3]**, or **[EUREKA]** (see preamble's Search Before Building section). If you find a eureka moment — a reason the standard approach is wrong for this case — present it as an architectural insight.
 5. **TODOS cross-reference:** Read `TODOS.md` if it exists. Are any deferred items blocking this plan? Can any deferred items be bundled into this PR without expanding scope? Does this plan create new work that should be captured as a TODO?
@@ -966,7 +966,7 @@ On any Codex error, fall back to the Claude adversarial subagent.
 
 **If CODEX_NOT_AVAILABLE (or Codex errored):**
 
-Dispatch via the Agent tool. The subagent has fresh context — genuine independence.
+Run this pass inline. The subagent has fresh context — genuine independence.
 
 Subagent prompt: same plan review prompt as above.
 

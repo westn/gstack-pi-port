@@ -1071,7 +1071,7 @@ Log: "Phase 3.5 skipped — no developer-facing scope detected."
 **Override rules:**
 - Mode selection: DX POLISH
 - Persona: infer from README/docs, pick the most common developer type (P6)
-- Competitive benchmark: run searches if WebSearch available, use reference benchmarks otherwise (P1)
+- Competitive benchmark: run searches if external web search (optional, only if a search extension is installed) available, use reference benchmarks otherwise (P1)
 - Magical moment: pick the lowest-effort delivery vehicle that achieves the competitive tier (P5)
 - Getting started friction: always optimize toward fewer steps (P5, simpler over clever)
 - Error message quality: always require problem + cause + fix (P1, completeness)

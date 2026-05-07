@@ -509,7 +509,7 @@ If `NEEDS_SETUP`:
    fi
    ```
 
-If browse is not available, that's fine — visual research is optional. The skill works without it using WebSearch and your built-in design knowledge.
+If browse is not available, that's fine — visual research is optional. The skill works without it using external web search (optional, only if a search extension is installed) and your built-in design knowledge.
 
 **Find the gstack designer (optional — enables AI mockup generation):**
 
@@ -691,9 +691,9 @@ say so explicitly and connect the departure to the memorable-thing answer above.
 
 If the user wants competitive research:
 
-**Step 1: Identify what's out there via WebSearch**
+**Step 1: Identify what's out there via external web search (optional, only if a search extension is installed)**
 
-Use WebSearch to find 5-10 products in their space. Search for:
+If an external search extension is installed, use it to find 5-10 products in their space. Search for:
 - "[product category] website design"
 - "[product category] best websites 2025"
 - "best [industry] web apps"
@@ -712,7 +712,7 @@ For each site, analyze: fonts actually used, color palette, layout approach, spa
 
 If a site blocks the headless browser or requires login, skip it and note why.
 
-If browse is not available, rely on WebSearch results and your built-in design knowledge — this is fine.
+If browse is not available, rely on external web search (optional, only if a search extension is installed) results and your built-in design knowledge — this is fine.
 
 **Step 3: Synthesize findings**
 
@@ -727,9 +727,9 @@ Summarize conversationally:
 > "I looked at what's out there. Here's the landscape: they converge on [patterns]. Most of them feel [observation — e.g., interchangeable, polished but generic, etc.]. The opportunity to stand out is [gap]. Here's where I'd play it safe and where I'd take a risk..."
 
 **Graceful degradation:**
-- Browse available → screenshots + snapshots + WebSearch (richest research)
-- Browse unavailable → WebSearch only (still good)
-- WebSearch also unavailable → agent's built-in design knowledge (always works)
+- Browse available → screenshots + snapshots + external web search (optional, only if a search extension is installed) (richest research)
+- Browse unavailable → external web search (optional, only if a search extension is installed) only (still good)
+- external web search (optional, only if a search extension is installed) also unavailable → agent's built-in design knowledge (always works)
 
 If the user said no research, skip entirely and proceed to Phase 3 using your built-in design knowledge.
 

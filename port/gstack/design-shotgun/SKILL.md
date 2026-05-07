@@ -759,42 +759,44 @@ first:
 $B screenshot "$_DESIGN_DIR/current.png"
 ```
 
-**Launch N Agent subagents in a single message** (parallel execution). Use the Agent
-tool with `subagent_type: "general-purpose"` for each variant. Each agent is independent
-and handles its own generation, quality check, verification, and retry.
+Generate each variant with direct Bash commands. Pi does not ship an Agent/subagent
+tool by default, so do NOT call `Agent`, `subagent_type`, or a parallel subagent unless
+an installed extension explicitly provides one. Sequential generation is fine. Correct
+beats clever.
 
-**Important: $D path propagation.** The `$D` variable from DESIGN SETUP is a shell
-variable that agents do NOT inherit. Substitute the resolved absolute path (from the
-`DESIGN_READY: /path/to/design` output in Step 0) into each agent prompt.
+**Important: $D path propagation.** Use the resolved absolute path from the
+`DESIGN_READY: /path/to/design` output in Step 0. If Step 0 printed
+`DESIGN_NOT_AVAILABLE`, do not stop. Use the DESIGN_SKETCH HTML fallback instead.
 
-**Agent prompt template** (one per variant, substitute all `{...}` values):
+**Command template** (run once per variant, substitute all `{...}` values):
 
+```bash
+_TMP="/tmp/variant-{letter}.png"
+_OUT="{_DESIGN_DIR absolute path}/variant-{letter}.png"
+_BRIEF='{the full variant-specific brief for this direction}'
+
+for _attempt in 1 2 3; do
+  {absolute path to $D binary} generate --brief "$_BRIEF" --output "$_TMP" && break
+  _status=$?
+  if [ "$_attempt" -lt 3 ]; then
+    sleep 5
+  else
+    echo "VARIANT_{letter}_FAILED: generate exited $_status"
+  fi
+done
+
+if [ -s "$_TMP" ]; then
+  cp "$_TMP" "$_OUT"
+  {absolute path to $D binary} check --image "$_OUT" --brief "$_BRIEF" || true
+  ls -lh "$_OUT" && echo "VARIANT_{letter}_DONE: $(wc -c < "$_OUT") bytes"
+else
+  echo "VARIANT_{letter}_FAILED: missing output file"
+fi
 ```
-Generate a design variant and save it.
 
-Design binary: {absolute path to $D binary}
-Brief: {the full variant-specific brief for this direction}
-Output: /tmp/variant-{letter}.png
-Final location: {_DESIGN_DIR absolute path}/variant-{letter}.png
-
-Steps:
-1. Run: {$D path} generate --brief "{brief}" --output /tmp/variant-{letter}.png
-2. If the command fails with a rate limit error (429 or "rate limit"), wait 5 seconds
-   and retry. Up to 3 retries.
-3. If the output file is missing or empty after the command succeeds, retry once.
-4. Copy: cp /tmp/variant-{letter}.png {_DESIGN_DIR}/variant-{letter}.png
-5. Quality check: {$D path} check --image {_DESIGN_DIR}/variant-{letter}.png --brief "{brief}"
-   If quality check fails, retry generation once.
-6. Verify: ls -lh {_DESIGN_DIR}/variant-{letter}.png
-7. Report exactly one of:
-   VARIANT_{letter}_DONE: {file size}
-   VARIANT_{letter}_FAILED: {error description}
-   VARIANT_{letter}_RATE_LIMITED: exhausted retries
-```
-
-For the evolve path, replace step 1 with:
-```
-{$D path} evolve --screenshot {_DESIGN_DIR}/current.png --brief "{brief}" --output /tmp/variant-{letter}.png
+For the evolve path, replace the `generate` command with:
+```bash
+{absolute path to $D binary} evolve --screenshot "{_DESIGN_DIR}/current.png" --brief "$_BRIEF" --output "$_TMP"
 ```
 
 **Why /tmp/ then cp?** In observed sessions, `$D generate --output ~/.gstack/...`

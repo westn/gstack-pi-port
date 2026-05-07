@@ -1049,13 +1049,14 @@ describe('Test Bootstrap ({{TEST_BOOTSTRAP}}) integration', () => {
     expect(content).toContain('100% test coverage');
   });
 
-  test('WebSearch is in allowed-tools for qa, ship, design-review', () => {
+  test('pi skills do not name unavailable WebSearch tool', () => {
     const qa = fs.readFileSync(path.join(ROOT, 'qa', 'SKILL.md'), 'utf-8');
     const ship = fs.readFileSync(path.join(ROOT, 'ship', 'SKILL.md'), 'utf-8');
     const qaDesign = fs.readFileSync(path.join(ROOT, 'design-review', 'SKILL.md'), 'utf-8');
-    expect(qa).toContain('WebSearch');
-    expect(ship).toContain('WebSearch');
-    expect(qaDesign).toContain('WebSearch');
+    expect(qa).not.toContain('WebSearch');
+    expect(ship).not.toContain('WebSearch');
+    expect(qaDesign).not.toContain('WebSearch');
+    expect(qa).toContain('external search extension');
   });
 });
 

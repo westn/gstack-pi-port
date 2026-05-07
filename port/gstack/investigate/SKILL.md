@@ -557,11 +557,11 @@ Also check:
 - `TODOS.md` for related known issues
 - `git log` for prior fixes in the same area — **recurring bugs in the same files are an architectural smell**, not a coincidence
 
-**External pattern search:** If the bug doesn't match a known pattern above, WebSearch for:
+**External pattern search:** If the bug doesn't match a known pattern above, If an external search extension is installed, search for:
 - "{framework} {generic error type}" — **sanitize first:** strip hostnames, IPs, file paths, SQL, customer data. Search the error category, not the raw message.
 - "{library} {component} known issues"
 
-If WebSearch is unavailable, skip this search and proceed with hypothesis testing. If a documented solution or known dependency bug surfaces, present it as a candidate hypothesis in Phase 3.
+If no external search extension is installed, skip this search and proceed with hypothesis testing. If a documented solution or known dependency bug surfaces, present it as a candidate hypothesis in Phase 3.
 
 ---
 
@@ -571,7 +571,7 @@ Before writing ANY fix, verify your hypothesis.
 
 1. **Confirm the hypothesis:** Add a temporary log statement, assertion, or debug output at the suspected root cause. Run the reproduction. Does the evidence match?
 
-2. **If the hypothesis is wrong:** Before forming the next hypothesis, consider searching for the error. **Sanitize first** — strip hostnames, IPs, file paths, SQL fragments, customer identifiers, and any internal/proprietary data from the error message. Search only the generic error type and framework context: "{component} {sanitized error type} {framework version}". If the error message is too specific to sanitize safely, skip the search. If WebSearch is unavailable, skip and proceed. Then return to Phase 1. Gather more evidence. Do not guess.
+2. **If the hypothesis is wrong:** Before forming the next hypothesis, consider searching for the error. **Sanitize first** — strip hostnames, IPs, file paths, SQL fragments, customer identifiers, and any internal/proprietary data from the error message. Search only the generic error type and framework context: "{component} {sanitized error type} {framework version}". If the error message is too specific to sanitize safely, skip the search. If no external search extension is installed, skip and proceed. Then return to Phase 1. Gather more evidence. Do not guess.
 
 3. **3-strike rule:** If 3 hypotheses fail, **STOP**. Use ask the user in chat:
    ```

@@ -18,6 +18,10 @@ INSTALL_GSTACK_DIR="$(cd "$(dirname "$0")" && pwd)"
 SOURCE_GSTACK_DIR="$(cd "$(dirname "$0")" && pwd -P)"
 INSTALL_SKILLS_DIR="$(dirname "$INSTALL_GSTACK_DIR")"
 BROWSE_BIN="$SOURCE_GSTACK_DIR/browse/dist/browse"
+FIND_BROWSE_BIN="$SOURCE_GSTACK_DIR/browse/dist/find-browse"
+DESIGN_BIN="$SOURCE_GSTACK_DIR/design/dist/design"
+MAKE_PDF_BIN="$SOURCE_GSTACK_DIR/make-pdf/dist/pdf"
+GLOBAL_DISCOVER_BIN="$SOURCE_GSTACK_DIR/bin/gstack-global-discover"
 CODEX_SKILLS="$HOME/.codex/skills"
 CODEX_GSTACK="$CODEX_SKILLS/gstack"
 FACTORY_SKILLS="$HOME/.factory/skills"
@@ -202,6 +206,10 @@ migrate_direct_codex_install() {
   INSTALL_GSTACK_DIR="$migrated_dir"
   INSTALL_SKILLS_DIR="$(dirname "$INSTALL_GSTACK_DIR")"
   BROWSE_BIN="$SOURCE_GSTACK_DIR/browse/dist/browse"
+  FIND_BROWSE_BIN="$SOURCE_GSTACK_DIR/browse/dist/find-browse"
+  DESIGN_BIN="$SOURCE_GSTACK_DIR/design/dist/design"
+  MAKE_PDF_BIN="$SOURCE_GSTACK_DIR/make-pdf/dist/pdf"
+  GLOBAL_DISCOVER_BIN="$SOURCE_GSTACK_DIR/bin/gstack-global-discover"
 }
 
 if [ "$INSTALL_CODEX" -eq 1 ]; then
@@ -224,20 +232,41 @@ ensure_playwright_browser() {
   fi
 }
 
-# 1. Build browse binary if needed (smart rebuild: stale sources, package.json, lock)
+# 1. Build compiled helper binaries if needed.
+# A prior version used browse/dist/browse as the single freshness sentinel. That
+# let installs end up with browse built but design/make-pdf/global-discover
+# missing, which broke /skill:design-shotgun at runtime. Treat every compiled
+# helper as required and rebuild when any binary is missing or stale.
 NEEDS_BUILD=0
-if [ ! -x "$BROWSE_BIN" ]; then
-  NEEDS_BUILD=1
-elif [ -n "$(find "$SOURCE_GSTACK_DIR/browse/src" -type f -newer "$BROWSE_BIN" -print -quit 2>/dev/null)" ]; then
-  NEEDS_BUILD=1
-elif [ "$SOURCE_GSTACK_DIR/package.json" -nt "$BROWSE_BIN" ]; then
-  NEEDS_BUILD=1
-elif [ -f "$SOURCE_GSTACK_DIR/bun.lock" ] && [ "$SOURCE_GSTACK_DIR/bun.lock" -nt "$BROWSE_BIN" ]; then
-  NEEDS_BUILD=1
+REQUIRED_BINS=(
+  "$BROWSE_BIN"
+  "$FIND_BROWSE_BIN"
+  "$DESIGN_BIN"
+  "$MAKE_PDF_BIN"
+  "$GLOBAL_DISCOVER_BIN"
+)
+for _bin in "${REQUIRED_BINS[@]}"; do
+  if [ ! -x "$_bin" ]; then
+    NEEDS_BUILD=1
+    break
+  fi
+done
+
+if [ "$NEEDS_BUILD" -eq 0 ]; then
+  for _src in browse/src design/src make-pdf/src bin/gstack-global-discover.ts package.json bun.lock; do
+    _path="$SOURCE_GSTACK_DIR/$_src"
+    [ -e "$_path" ] || continue
+    for _bin in "${REQUIRED_BINS[@]}"; do
+      if [ "$_path" -nt "$_bin" ]; then
+        NEEDS_BUILD=1
+        break 2
+      fi
+    done
+  done
 fi
 
 if [ "$NEEDS_BUILD" -eq 1 ]; then
-  log "Building browse binary..."
+  log "Building gstack helper binaries..."
   (
     cd "$SOURCE_GSTACK_DIR"
     bun install --frozen-lockfile 2>/dev/null || bun install
@@ -283,10 +312,12 @@ if [ "$NEEDS_BUILD" -eq 1 ]; then
   fi
 fi
 
-if [ ! -x "$BROWSE_BIN" ]; then
-  echo "gstack setup failed: browse binary missing at $BROWSE_BIN" >&2
-  exit 1
-fi
+for _bin in "${REQUIRED_BINS[@]}"; do
+  if [ ! -x "$_bin" ]; then
+    echo "gstack setup failed: required binary missing at $_bin" >&2
+    exit 1
+  fi
+done
 
 # 1b. Generate .agents/ Codex skill docs — always regenerate to prevent stale descriptions.
 # .agents/ is no longer committed — generated at setup time from .tmpl templates.

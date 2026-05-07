@@ -442,7 +442,7 @@ When the user types `/skill:cso`, run this skill.
 4. `--diff` is combinable with ANY scope flag AND with `--comprehensive`.
 5. When `--diff` is active, each phase constrains scanning to files/configs changed on the current branch vs the base branch. For git history scanning (Phase 2), `--diff` limits to commits on the current branch only.
 6. Phases 0, 1, 12, 13, 14 ALWAYS run regardless of scope flag.
-7. If WebSearch is unavailable, skip checks that require it and note: "WebSearch unavailable — proceeding with local-only analysis."
+7. If no external search extension is installed, skip checks that require it and note: "external web search (optional, only if a search extension is installed) unavailable — proceeding with local-only analysis."
 
 ## Important: Use the Grep tool for all code searches
 
@@ -888,7 +888,7 @@ When a finding is VERIFIED, search the entire codebase for the same vulnerabilit
 
 **Parallel Finding Verification:**
 
-For each candidate finding, launch an independent verification sub-task using the Agent tool. The verifier has fresh context and cannot see the initial scan's reasoning — only the finding itself and the FP filtering rules.
+For each candidate finding, launch an independent verification sub-task using an optional Agent tool if installed, otherwise inline. The verifier has fresh context and cannot see the initial scan's reasoning — only the finding itself and the FP filtering rules.
 
 Prompt each verifier with:
 - The file path and line number ONLY (avoid anchoring)

@@ -596,11 +596,11 @@ If user picks H → write `.gstack/no-test-bootstrap` and continue without tests
 
 ### B2. Research best practices
 
-Use WebSearch to find current best practices for the detected runtime:
+If an external search extension is installed, use it to find current best practices for the detected runtime:
 - `"[runtime] best test framework 2025 2026"`
 - `"[framework A] vs [framework B] comparison"`
 
-If WebSearch is unavailable, use this built-in knowledge table:
+If no external search extension is installed, use this built-in knowledge table:
 
 | Runtime | Primary recommendation | Alternative |
 |---------|----------------------|-------------|

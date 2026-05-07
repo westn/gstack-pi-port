@@ -2275,6 +2275,35 @@ function replaceSkillCommands(content: string): string {
   return updated;
 }
 
+function normalizePiHostCapabilities(content: string): string {
+  let updated = content;
+
+  // Pi's stock toolset is read/write/edit/bash. It has no built-in WebSearch or
+  // Agent/subagent tool. Generated pi skills should describe optional search in
+  // plain language instead of naming a missing tool, otherwise models try to call
+  // non-existent tools and users see noisy runtime errors.
+  updated = updated.replace(/WebSearch/g, 'external web search (optional, only if a search extension is installed)');
+  updated = updated.replace(/websearch/g, 'external web search');
+  updated = updated.replace(/external web search \(optional, only if a search extension is installed\) for:/g, 'If an external search extension is installed, search for:');
+  updated = updated.replace(/Use external web search \(optional, only if a search extension is installed\) to/g, 'If an external search extension is installed, use it to');
+  updated = updated.replace(/If external web search \(optional, only if a search extension is installed\) is unavailable/g, 'If no external search extension is installed');
+
+  updated = updated.replace(/\*\*Dispatch this step as a subagent\*\* using the Agent tool with `subagent_type: "general-purpose"`/g, '**Run this step inline**');
+  updated = updated.replace(/\*\*Dispatch the fetch \+ classification as a subagent\*\* using the Agent tool with `subagent_type: "general-purpose"`/g, '**Run the fetch + classification inline**');
+  updated = updated.replace(/\*\*Dispatch \/skill:document-release as a subagent\*\* using the Agent tool with `subagent_type: "general-purpose"`/g, '**Run `/skill:document-release` inline if documentation sync is needed**');
+  updated = updated.replace(/Use the Agent tool/g, 'If an Agent tool is installed, use it; otherwise run this step inline. Do not call Agent in stock pi');
+  updated = updated.replace(/using the Agent tool/g, 'using an optional Agent tool if installed, otherwise inline');
+  updated = updated.replace(/via the Agent tool/g, 'via an optional Agent tool if installed, otherwise inline');
+  updated = updated.replace(/Agent subagents/g, 'optional Agent subagents');
+  updated = updated.replace(/For each selected specialist, launch an independent subagent via an optional Agent tool if installed, otherwise inline\./g, 'Run each selected specialist review inline, one after another.');
+  updated = updated.replace(/\*\*Launch ALL selected specialists in a single message\*\* \(multiple Agent tool calls\)\nso they run in parallel\. Each subagent has fresh context — no prior review bias\./g, '**Run selected specialist checks sequentially inline.** Keep each specialist lens separate in your notes so the findings do not collapse into one generic review.');
+  updated = updated.replace(/Dispatch via an optional Agent tool if installed, otherwise inline\./g, 'Run this pass inline.');
+  updated = updated.replace(/dispatch one more subagent via an optional Agent tool if installed, otherwise inline/g, 'run one more inline adversarial pass');
+  updated = updated.replace(/`subagent_type: "general-purpose"`/g, '`subagent_type: "general-purpose"` (do not use in stock pi)');
+
+  return updated;
+}
+
 function removeAllowedToolsFrontmatter(content: string): string {
   if (!content.startsWith('---\n')) return content;
 
@@ -2358,6 +2387,7 @@ function processTemplate(tmplPath: string, host: Host = 'pi'): { outputPath: str
   content = replaceSkillCommands(content);
   if (host === 'pi') {
     content = removeAllowedToolsFrontmatter(content);
+    content = normalizePiHostCapabilities(content);
   }
 
   // For codex host: transform frontmatter and replace Pi-specific paths
